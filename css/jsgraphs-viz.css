@@ -1,0 +1,21 @@
+.edge {
+  stroke: black;
+  stroke-width: 2;
+  fill: none;
+}
+
+.vertex {
+  fill: yellow;
+  stroke: black;
+  stroke-width: 2;
+}
+
+.vertex text {
+  color: red;
+}
+
+/*
+.embedding {
+  border: 1px solid red;
+}
+*/

@@ -1,0 +1,5 @@
+*.gz
+*.tar
+*.zip
+node_modules
+.idea
