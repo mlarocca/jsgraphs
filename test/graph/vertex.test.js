@@ -3,9 +3,7 @@ import 'mjs-mocha';
 import Vertex from '../../src/graph/vertex.js';
 import Edge from '../../src/graph/edge.js';
 import {choose, compareAsSets} from '../../src/common/array.js';
-import {ERROR_MSG_INVALID_ARGUMENT,
-  ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS,
-  ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY} from '../../src/common/errors.js'
+import {ERROR_MSG_INVALID_ARGUMENT} from '../../src/common/errors.js'
 import {consistentStringify} from '../../src/common/strings.js';
 import {testAPI} from '../utils/test_common.js';
 
@@ -21,7 +19,7 @@ describe('Vertex API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'isMultiGraph', 'edgeTo', 'smallestEdgeTo', 'allEdgesTo', 'addEdge', 'addEdgeTo', 'removeEdge', 'removeEdgeTo', 'equals', 'labelEquals', 'toJson'];
+    let methods = ['constructor', 'edgeTo', 'addEdge', 'addEdgeTo', 'removeEdge', 'removeEdgeTo', 'equals', 'labelEquals', 'toJson'];
     let attributes = ['label', 'size', 'outDegree', 'outgoingEdges'];
     testAPI(vertex, attributes, methods);
   });
@@ -106,20 +104,6 @@ describe('Vertex Creation', () => {
         expect(() => new Vertex({a:2}, {outgoingEdges: [new Edge({a:2}, 'a'), new Edge({a:2}, 'a')]})).not.to.throw();;
       });
     });
-
-    describe('# 4th argument (optional)', () => {
-      it('should default to isMultiGraph=unefined', () => {
-        new Vertex('2').isMultiGraph().should.be.false();
-      });
-
-      it('should NOT throw despite the value', () => {
-        expect(() => new Vertex(2, {isMultiGraph: false})).not.to.throw();
-        expect(() => new Vertex(2, {isMultiGraph: true})).not.to.throw();
-        expect(() => new Vertex(2, {isMultiGraph: [new Edge(2, 2)]})).not.to.throw();
-        expect(() => new Vertex(2, {isMultiGraph: 55})).not.to.throw();
-        expect(() => new Vertex(2, {isMultiGraph: '55'})).not.to.throw();
-      });
-    });
   });
 });
 
@@ -147,7 +131,7 @@ describe('Attributes', () => {
   });
 
   describe('outDegree', () => {
-    it('# should return the value of outgoing edges (ignoring multiedges)', () => {
+    it('# should return the value of outgoing edges', () => {
       let u = new Vertex('source');
       let v = new Vertex(1);
       let w = new Vertex(2);
@@ -221,56 +205,11 @@ describe('Attributes', () => {
         compareAsSets(u.outgoingEdges, [e3, e4, e5, e1B], e => e.toJson()).should.be.true();
       });
     });
-
-    describe('MultiGraph', () => {
-      it('# should return all the edges added to each destination', () => {
-        let u = new Vertex('source', {isMultiGraph: true});
-        let v = new Vertex(1);
-        let w = new Vertex(2);
-        let e1 = u.addEdgeTo(v, {edgeLabel: 'e1'});
-        compareAsSets(u.outgoingEdges, [e1], e => e.toJson()).should.be.true();
-        let e2 = u.addEdgeTo(v, {edgeLabel: 'e2'});
-        //should only return the last edge to a destination
-        compareAsSets(u.outgoingEdges, [e1, e2], e => e.toJson()).should.be.true();
-        let e3 = u.addEdgeTo(w, {edgeLabel: 'e3'});
-        compareAsSets(u.outgoingEdges, [e1, e2, e3], e => e.toJson()).should.be.true();
-        let e4 = u.addEdgeTo(u, {edgeLabel: 'e4'});
-        // Should count loops
-        compareAsSets(u.outgoingEdges, [e1, e2, e3, e4], e => e.toJson()).should.be.true();
-        let e1b = u.addEdgeTo(v, {edgeLabel: 'e1'});
-        // replacing an edge should not change out degree
-        compareAsSets(u.outgoingEdges, [e1b, e2, e3, e4], e => e.toJson()).should.be.true();
-      });
-    });
   });
 });
 
 describe('Methods', () => {
-  describe('isMultiGraph()', () => {
-    it('should be set to true on construction', () => {
-      new Vertex(2, {isMultiGraph: true}).isMultiGraph().should.be.true();
-      new Vertex('2', {isMultiGraph: true}).isMultiGraph().should.be.true();
-      new Vertex([], {isMultiGraph: true}).isMultiGraph().should.be.true();
-    });
-
-    it('should be set to false for any value other than true', () => {
-      new Vertex(2).isMultiGraph().should.be.false();
-      new Vertex(2, {isMultiGraph: false}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: null}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: new Edge(2, 2)}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: 55}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: 0}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: ''}).isMultiGraph().should.be.false();
-      new Vertex('2', {isMultiGraph: 'true'}).isMultiGraph().should.be.false();
-    });
-  });
-
   describe('edgeTo()', () => {
-    it('should throw for MultiGraph', () => {
-      let v = new Vertex(2, {isMultiGraph: true});
-      expect(() => v.edgeTo('any')).to.throw(ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS('Vertex.edgeTo'));
-    });
-
     it('should throw if the argument is not a Vertex', () => {
       let v = new Vertex(2);
 
@@ -300,82 +239,6 @@ describe('Methods', () => {
 
       v.edgeTo(u).should.be.eql(e1);
       v.edgeTo(u).equals(e1).should.be.true();
-    });
-  });
-
-  describe('smallestEdgeTo()', () => {
-    it('should throw for Simple Graph', () => {
-      let v = new Vertex(2, {isMultiGraph: false});
-      expect(() => v.smallestEdgeTo('any')).to.throw(ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY('Vertex.smallestEdgeTo'));
-    });
-
-    it('should throw if the argument is not a Vertex', () => {
-      let v = new Vertex(2, {isMultiGraph: true});
-
-      const v2 = 'a string';
-      expect(() => v.smallestEdgeTo(v2)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.smallestEdgeTo', 'v', v2));
-    });
-
-    it('# should return undefined if no such edge exists', () => {
-      let v = new Vertex(2, {outgoingEdges: [new Edge(2, 2)], isMultiGraph: true});
-      expect(v.smallestEdgeTo(new Vertex('any'))).to.be.eql(undefined);
-    });
-
-    it('# should return the edge if exists', () => {
-      let e = new Edge(2, 2);
-      let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-      v.smallestEdgeTo(v).should.be.eql(e);
-      v.smallestEdgeTo(v).equals(e).should.be.true();
-    });
-
-
-    it('# should return the edge with smallest weight added for the destination', () => {
-      let e = new Edge(2, 3, {weight: 2});
-      let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-      let u = new Vertex(3);
-      let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-      v.addEdge(e1);
-
-      v.smallestEdgeTo(u).should.be.eql(e1);
-      v.smallestEdgeTo(u).equals(e1).should.be.true();
-    });
-  });
-
-  describe('allEdgesTo()', () => {
-    it('should throw for Simple Graph', () => {
-      let v = new Vertex(2, {isMultiGraph: false});
-      expect(() => v.allEdgesTo('any')).to.throw(ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY('Vertex.allEdgesTo'));
-    });
-
-    it('should throw if the argument is not a Vertex', () => {
-      let v = new Vertex(2, {isMultiGraph: true});
-
-      const v2 = 'a string';
-      expect(() => v.allEdgesTo(v2)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.allEdgesTo', 'v', v2));
-    });
-
-    it('# should return an empty array if no such edge exists', () => {
-      let v = new Vertex(2, {outgoingEdges: [new Edge(2, 2)], isMultiGraph: true});
-      expect(v.allEdgesTo(new Vertex('any'))).to.be.eql([]);
-    });
-
-    it('# should return all the edges to the destination', () => {
-      let e = new Edge(2, 3, {weight: 2});
-      let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-      let u = new Vertex(3);
-      let w = new Vertex('44');
-      let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-      v.addEdge(e1);
-
-      compareAsSets(v.allEdgesTo(u), [e, e1], e => e.toJson()).should.be.true();
-
-      let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-      v.addEdge(e2);
-      let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-      v.addEdge(e3);
-
-      compareAsSets(v.allEdgesTo(u), [e, e1, e3], e => e.toJson()).should.be.true();
-      compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
     });
   });
 
@@ -412,35 +275,6 @@ describe('Methods', () => {
 
         v.edgeTo(w).should.be.eql(e2);
         v.edgeTo(w).equals(e2).should.be.true();
-      });
-    });
-
-    describe('MultiGraph', () => {
-      it('should throw if the argument is not an Edge', () => {
-        let v = new Vertex(2, {isMultiGraph: true});
-
-        labels.forEach(label => {
-          expect(() => v.addEdge(label)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdge', 'edge', label));
-        });
-      });
-
-      it('# should return add all the edges to the destination', () => {
-        let e = new Edge(2, 3, {weight: 2});
-        let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-        let u = new Vertex(3);
-        let w = new Vertex('44');
-        let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-        v.addEdge(e1);
-
-        compareAsSets(v.allEdgesTo(u), [e, e1], e => e.toJson()).should.be.true();
-
-        let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-        v.addEdge(e2);
-        let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-        v.addEdge(e3);
-
-        compareAsSets(v.allEdgesTo(u), [e, e1, e3], e => e.toJson()).should.be.true();
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
       });
     });
   });
@@ -517,35 +351,6 @@ describe('Methods', () => {
         e.weight.should.be.eql(eWeight2);
       });
     });
-
-    describe('MultiGraph', () => {
-      it('should throw if the argument is not an Edge', () => {
-        let v = new Vertex(2, {isMultiGraph: true});
-
-        labels.forEach(label => {
-          expect(() => v.addEdgeTo(label)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdgeTo', 'v', label));
-        });
-      });
-
-      it('# should return add label and weights correctly', () => {
-        let e = new Edge(2, 3, {weight: 2});
-        let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-        let u = new Vertex(3);
-        let w = new Vertex('44');
-        let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-        v.addEdgeTo(u, {edgeLabel: e1.label, edgeWeight:e1.weight});
-
-        compareAsSets(v.allEdgesTo(u), [e, e1], e => e.toJson()).should.be.true();
-
-        let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-        v.addEdgeTo(w, {edgeLabel: e2.label, edgeWeight:e2.weight});
-        let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-        v.addEdgeTo(u, {edgeLabel: e3.label, edgeWeight:e3.weight});
-
-        compareAsSets(v.allEdgesTo(u), [e, e1, e3], e => e.toJson()).should.be.true();
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-      });
-    });
   });
 
 
@@ -595,47 +400,6 @@ describe('Methods', () => {
 
         v.removeEdge(e2);
         expect(v.edgeTo(w)).to.be.undefined;
-      });
-    });
-
-    describe('MultiGraph', () => {
-      it('should throw if the argument is not an Edge', () => {
-        let v = new Vertex(2, {isMultiGraph: true});
-
-        labels.forEach(label => {
-          expect(() => v.removeEdge(label)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdge', 'edge', label));
-        });
-      });
-
-      it('# should remove all edges to dest with the same label', () => {
-        let e = new Edge(2, 3, {weight: 2});
-        let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-        let u = new Vertex(3);
-        let w = new Vertex('44');
-
-        let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-        v.addEdge(e1);
-        let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-        v.addEdge(e2);
-        let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-        v.addEdge(e3);
-        let e4 = new Edge(2, 3, {label: 'label', weight: 15});
-        v.addEdge(e4);
-
-        compareAsSets(v.allEdgesTo(u), [e, e3, e4], e => e.toJson()).should.be.true();
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-
-        v.removeEdge(e4);
-        compareAsSets(v.allEdgesTo(u), [e, e3], e => e.toJson()).should.be.true();
-
-        v.removeEdge(e3);
-        compareAsSets(v.allEdgesTo(u), [e], e => e.toJson()).should.be.true();
-
-        v.removeEdge(e);
-        compareAsSets(v.allEdgesTo(u), [], e => e.toJson()).should.be.true();
-
-        v.removeEdge(e2);
-        compareAsSets(v.allEdgesTo(w), [], e => e.toJson()).should.be.true();
       });
     });
   });
@@ -720,75 +484,6 @@ describe('Methods', () => {
         expect(v.edgeTo(w)).to.be.undefined;
       });
     });
-
-    describe('MultiGraph', () => {
-      it('should throw if the argument is not an Edge', () => {
-        let v = new Vertex(2, {isMultiGraph: true});
-
-        labels.forEach(label => {
-          expect(() => v.removeEdgeTo(label)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdgeTo', 'v', label));
-        });
-      });
-
-      it('# should remove all edges to dest with the same label', () => {
-        let e = new Edge(2, 3, {weight: 2});
-        let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-        let u = new Vertex(3);
-        let w = new Vertex('44');
-
-        let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-        v.addEdge(e1);
-        let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-        v.addEdge(e2);
-        let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-        v.addEdge(e3);
-        let e4 = new Edge(2, 3, {label: 'label', weight: 15});
-        v.addEdge(e4);
-
-        compareAsSets(v.allEdgesTo(u), [e, e3, e4], e => e.toJson()).should.be.true();
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(u, {edgeLabel: 'label'});
-        compareAsSets(v.allEdgesTo(u), [e, e3], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(u, {edgeLabel: 'x'});
-        compareAsSets(v.allEdgesTo(u), [e], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(u, {edgeLabel: undefined});
-        compareAsSets(v.allEdgesTo(u), [], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(w, {edgeLabel: 'any'});
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(w, {edgeLabel: 'x'});
-        compareAsSets(v.allEdgesTo(w), [], e => e.toJson()).should.be.true();
-      });
-
-      it('# should remove all edges to dest if no label is passed', () => {
-        let e = new Edge(2, 3, {weight: 2});
-        let v = new Vertex(2, {outgoingEdges: [e], isMultiGraph: true});
-        let u = new Vertex(3);
-        let w = new Vertex('44');
-
-        let e1 = new Edge(2, 3, {label: 'label', weight: -0.5});
-        v.addEdge(e1);
-        let e2 = new Edge(2, '44', {label: 'x', weight: -10.5});
-        v.addEdge(e2);
-        let e3 = new Edge(2, 3, {label: 'x', weight: 5});
-        v.addEdge(e3);
-        let e4 = new Edge(2, 3, {label: 'label', weight: 15});
-        v.addEdge(e4);
-
-        compareAsSets(v.allEdgesTo(u), [e, e3, e4], e => e.toJson()).should.be.true();
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(u, {edgeLabel: null});
-        compareAsSets(v.allEdgesTo(w), [e2], e => e.toJson()).should.be.true();
-
-        v.removeEdgeTo(w, {edgeLabel: null});
-        compareAsSets(v.allEdgesTo(w), [], e => e.toJson()).should.be.true();
-      });
-    });
   });
 
   describe('equals()', () => {
@@ -847,21 +542,6 @@ describe('Methods', () => {
         v1 = new Vertex(label, {size: size, outgoingEdges: [e1]});
         v2 = new Vertex(label, {size: size, outgoingEdges: [e2]});
         v1.equals(v2).should.be.eql(e1.equals(v2));
-      });
-    });
-
-    it('# should return false if multigraph is different and there are multi edges', () => {
-      labels.forEach(label => {
-        const dest = choose(labels);
-        const edgeLabel1 = choose(labels);
-        const edgeLabel2 = choose(labels);
-
-        let e1 = new Edge(label, dest, {label: edgeLabel1, weight: Math.random()});
-        let e2 = new Edge(label, dest, {label: edgeLabel2, weight: Math.random()});
-        const size = Math.random();
-        let v1 = new Vertex(label, {size: size, outgoingEdges: [e1, e2], isMultiGraph: false});
-        let v2 = new Vertex(label, {size: size, outgoingEdges: [e1, e2], isMultiGraph: true});
-        v1.equals(v2).should.be.eql(consistentStringify(edgeLabel1) === consistentStringify(edgeLabel2));
       });
     });
   });
