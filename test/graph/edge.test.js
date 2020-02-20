@@ -1,11 +1,14 @@
+import 'mjs-mocha';
+
 import Edge from '../../src/graph/edge.js';
 import {choose} from '../../src/common/array.js';
 import {consistentStringify} from '../../src/common/strings.js';
 import {testAPI} from '../utils/test_common.js';
 import {ERROR_MSG_INVALID_ARGUMENT} from '../../src/common/errors.js';
 
-const should = require('should');
-const chai = require('chai');
+import chai from "chai";
+import should from "should";
+
 const expect = chai.expect;
 
 describe('Edge API', () => {
@@ -26,33 +29,33 @@ describe('Edge Creation', () => {
   describe('# Parameters', () => {
     describe('# 1st argument (mandatory)', () => {
       it('should throw when source is null or undefined', () => {
-        Edge.bind(null, null).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', null));
-        Edge.bind(null, undefined).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', undefined));
+        (() => new Edge(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', null));
+        (() => new Edge(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', undefined));
       });
 
       it('should NOT throw with other types', () => {
-        Edge.bind({}, 3, 1).should.not.throw();
-        Edge.bind({}, '2', 1).should.not.throw();
-        Edge.bind({}, [], 1).should.not.throw();
-        Edge.bind({}, {}, 1).should.not.throw();
-        Edge.bind({}, false, 1).should.not.throw();
-        Edge.bind({}, new Map(), 1).should.not.throw();
+        (() => new Edge(3, 1)).should.not.throw();
+        (() => new Edge('2', 1)).should.not.throw();
+        (() => new Edge([], 1)).should.not.throw();
+        (() => new Edge({}, 1)).should.not.throw();
+        (() => new Edge(false, 1)).should.not.throw();
+        (() => new Edge(new Map(), 1)).should.not.throw();
       });
     });
 
     describe('# 2nd argument (mandatory)', () => {
       it('should throw when destination is null or undefined', () => {
-        Edge.bind(null, 1, null).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', null));
-        Edge.bind(null, '1', undefined).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', undefined));
+        (() => new Edge(1, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', null));
+        (() => new Edge('1', undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', undefined));
       });
 
       it('should NOT throw with other types', () => {
-        Edge.bind({}, 3, '2').should.not.throw();
-        Edge.bind({}, '2', 3).should.not.throw();
-        Edge.bind({}, [], true).should.not.throw();
-        Edge.bind({}, {}, []).should.not.throw();
-        Edge.bind({}, false, {}).should.not.throw();
-        Edge.bind({}, new Map(), new WeakMap()).should.not.throw();
+        (() => new Edge(3, '2')).should.not.throw();
+        (() => new Edge('2', 3)).should.not.throw();
+        (() => new Edge([], true)).should.not.throw();
+        (() => new Edge({}, [])).should.not.throw();
+        (() => new Edge(false, {})).should.not.throw();
+        (() => new Edge(new Map(), new WeakMap())).should.not.throw();
       });
     });
 
@@ -62,23 +65,23 @@ describe('Edge Creation', () => {
       });
 
       it('should throw if it\'s not a number', () => {
-        Edge.bind({}, 3, [], {weight:'r'}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', 'r'));
-        Edge.bind({}, 3, [], {weight:[]}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', []));
-        Edge.bind({}, 3, [], {weight:false}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', false));
-        Edge.bind({}, 3, [], {weight:{}}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', {}));
+        (() => new Edge(3, [], {weight:'r'})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', 'r'));
+        (() => new Edge(3, [], {weight:[]})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', []));
+        (() => new Edge(3, [], {weight:false})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', false));
+        (() => new Edge(3, [], {weight:{}})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', {}));
       });
 
       it('should NOT throw with numbers', () => {
-        Edge.bind({}, 2, [], {weight:1}).should.not.throw();
-        Edge.bind({}, 2, [], {weight:0.1}).should.not.throw();
-        Edge.bind({}, 2, [], {weight:-145}).should.not.throw();
+        (() => new Edge(2, [], {weight:1})).should.not.throw();
+        (() => new Edge(2, [], {weight:0.1})).should.not.throw();
+        (() => new Edge(2, [], {weight:-145})).should.not.throw();
       });
 
       it('should NOT throw with numeric strings', () => {
-        Edge.bind({}, 2, [], {weight:'1'}).should.not.throw();
-        Edge.bind({}, 2, [], {weight:'3.1415'}).should.not.throw();
-        Edge.bind({}, 2, [], {weight:'-145'}).should.not.throw();
-        Edge.bind({}, 2, [], {weight:'1e12'}).should.not.throw();
+        (() => new Edge(2, [], {weight:'1'})).should.not.throw();
+        (() => new Edge(2, [], {weight:'3.1415'})).should.not.throw();
+        (() => new Edge(2, [], {weight:'-145'})).should.not.throw();
+        (() => new Edge(2, [], {weight:'1e12'})).should.not.throw();
       });
     });
 
@@ -94,12 +97,12 @@ describe('Edge Creation', () => {
     });
 
     it('should NOT throw with other types', () => {
-      Edge.bind({}, 3, '2', {label: '2'}).should.not.throw();
-      Edge.bind({}, '2', 3, {label: 3}).should.not.throw();
-      Edge.bind({}, [], true, {label: true}).should.not.throw();
-      Edge.bind({}, {}, [], {label: [12, 2]}).should.not.throw();
-      Edge.bind({}, false, {}, {label: {}}).should.not.throw();
-      Edge.bind({}, new Map(), new WeakMap(), {label: new WeakMap()}).should.not.throw();
+      (() => new Edge(3, '2', {label: '2'})).should.not.throw();
+      (() => new Edge('2', 3, {label: 3})).should.not.throw();
+      (() => new Edge([], true, {label: true})).should.not.throw();
+      (() => new Edge({}, [], {label: [12, 2]})).should.not.throw();
+      (() => new Edge(false, {}, {label: {}})).should.not.throw();
+      (() => new Edge(new Map(), new WeakMap(), {label: new WeakMap()})).should.not.throw();
     });
   });
 });

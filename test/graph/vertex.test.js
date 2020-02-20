@@ -1,3 +1,5 @@
+import 'mjs-mocha';
+
 import Vertex from '../../src/graph/vertex.js';
 import Edge from '../../src/graph/edge.js';
 import {choose, compareAsSets} from '../../src/common/array.js';
@@ -7,8 +9,8 @@ import {ERROR_MSG_INVALID_ARGUMENT,
 import {consistentStringify} from '../../src/common/strings.js';
 import {testAPI} from '../utils/test_common.js';
 
-const should = require('should');
-const chai = require('chai');
+import chai from "chai";
+import should from "should";
 const expect = chai.expect;
 
 describe('Vertex API', () => {
@@ -29,17 +31,17 @@ describe('Vertex Creation', () => {
   describe('# Parameters', () => {
     describe('# 1st argument (mandatory)', () => {
       it('should throw when label is null or undefined', () => {
-        Vertex.bind({}, null).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', null));
-        Vertex.bind({}, undefined).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', undefined));
+        (() => new Vertex(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', null));
+        (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', undefined));
       });
 
       it('should NOT throw with other types', () => {
-        Vertex.bind({}, 3).should.not.throw();
-        Vertex.bind({}, '2').should.not.throw();
-        Vertex.bind({}, []).should.not.throw();
-        Vertex.bind({}, {}).should.not.throw();
-        Vertex.bind({}, false).should.not.throw();
-        Vertex.bind({}, new Map()).should.not.throw();
+        (() => new Vertex(3)).should.not.throw();
+        (() => new Vertex('2')).should.not.throw();
+        (() => new Vertex([])).should.not.throw();
+        (() => new Vertex({})).should.not.throw();
+        (() => new Vertex(false)).should.not.throw();
+        (() => new Vertex(new Map())).should.not.throw();
       });
     });
 
@@ -49,22 +51,22 @@ describe('Vertex Creation', () => {
       });
 
       it('should throw when size is not (parsable to) a number', () => {
-        Vertex.bind({}, 1, {size: null}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', null));
-        Vertex.bind({}, '1', {size: 'a'}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', 'a'));
-        Vertex.bind({}, [1, 2, 3], {size: new Map()}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', new Map()));
+        (() => new Vertex(1, {size: null})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', null));
+        (() => new Vertex('1', {size: 'a'})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', 'a'));
+        (() => new Vertex([1, 2, 3], {size: new Map()})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'size', new Map()));
       });
 
       it('should NOT throw with numbers and numeric strings', () => {
-        Vertex.bind({}, 1, {size: 0}).should.not.throw();
-        Vertex.bind({}, 1, {size: 1}).should.not.throw();
-        Vertex.bind({}, 1, {size: -1}).should.not.throw();
-        Vertex.bind({}, 1, {size: 3.14}).should.not.throw();
-        Vertex.bind({}, 1, {size: -1.5e7}).should.not.throw();
-        Vertex.bind({}, 1, {size: '0'}).should.not.throw();
-        Vertex.bind({}, 1, {size: '1'}).should.not.throw();
-        Vertex.bind({}, 1, {size: '-1'}).should.not.throw();
-        Vertex.bind({}, 1, {size: '3.14'}).should.not.throw();
-        Vertex.bind({}, 1, {size: '-1.5e7'}).should.not.throw();
+        (() => new Vertex(1, {size: 0})).should.not.throw();
+        (() => new Vertex(1, {size: 1})).should.not.throw();
+        (() => new Vertex(1, {size: -1})).should.not.throw();
+        (() => new Vertex(1, {size: 3.14})).should.not.throw();
+        (() => new Vertex(1, {size: -1.5e7})).should.not.throw();
+        (() => new Vertex(1, {size: '0'})).should.not.throw();
+        (() => new Vertex(1, {size: '1'})).should.not.throw();
+        (() => new Vertex(1, {size: '-1'})).should.not.throw();
+        (() => new Vertex(1, {size: '3.14'})).should.not.throw();
+        (() => new Vertex(1, {size: '-1.5e7'})).should.not.throw();
       });
     });
 
@@ -74,15 +76,15 @@ describe('Vertex Creation', () => {
       });
 
       it('should throw if it\'s not an array', () => {
-        Vertex.bind({}, 3, {outgoingEdges:'r'}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', 'r'));
-        Vertex.bind({}, 3, {outgoingEdges: new WeakMap()}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', new WeakMap()));
-        Vertex.bind({}, 3, {outgoingEdges:false}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', false));
-        Vertex.bind({}, 3, {outgoingEdges:{}}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', {}));
+        (() => new Vertex(3, {outgoingEdges:'r'})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', 'r'));
+        (() => new Vertex(3, {outgoingEdges: new WeakMap()})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', new WeakMap()));
+        (() => new Vertex(3, {outgoingEdges:false})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', false));
+        (() => new Vertex(3, {outgoingEdges:{}})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', {}));
       });
 
       it('should throw if array\'s elements are not edges', () => {
-        Vertex.bind({}, 3, {outgoingEdges: ['r']}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', ['r']));
-        Vertex.bind({}, 3, {outgoingEdges: [1, 2, 3]}).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', [1, 2, 3]));
+        (() => new Vertex(3, {outgoingEdges: ['r']})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', ['r']));
+        (() => new Vertex(3, {outgoingEdges: [1, 2, 3]})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', [1, 2, 3]));
       });
 
       it('should throw if any edge has a source different from array\'s elements are edges', () => {

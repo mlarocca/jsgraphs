@@ -160,7 +160,7 @@ class Vertex {
     if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdge', 'edge', edge));
     }
-    return replaceEdgeToWith(this, edge.destination, edge.label, edge);
+    return replaceEdgeFromTo(this, edge.destination, edge.label, edge);
   }
 
   addEdgeTo(v, {edgeWeight, edgeLabel} = {}) {
@@ -176,14 +176,14 @@ class Vertex {
     if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdge', 'edge', edge));
     }
-    return replaceEdgeToWith(this, edge.destination, edge.label);
+    return replaceEdgeFromTo(this, edge.destination, edge.label);
   }
 
   removeEdgeTo(v, {edgeLabel} = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdgeTo', 'v', v));
     }
-    return replaceEdgeToWith(this, v.label, edgeLabel);
+    return replaceEdgeFromTo(this, v.label, edgeLabel);
   }
 
   toJson() {
@@ -210,7 +210,7 @@ class Vertex {
 
 
 /**
- * @method replaceEdgeToWith
+ * @method replaceEdgeFromTo
  * @for Vertex
  * @private
  *
@@ -220,8 +220,7 @@ class Vertex {
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
-function replaceEdgeToWith(vertex, destination, label, newEdge=null) {
-  'use strict';
+function replaceEdgeFromTo(vertex, destination, label, newEdge=null) {
   let adj = _adjacencyMap.get(vertex);
   let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
 

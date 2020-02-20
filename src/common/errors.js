@@ -3,7 +3,7 @@
  */
 export const ERROR_MSG_INVALID_ARGUMENT = (methodName, argName, argValue) => `Invalid argument ${argName} = ${argValue} for ${methodName}`;
 export const ERROR_MSG_ARGUMENT_TYPE = (fname, pname, val, type) => `Illegal argument for ${fname}: ${pname} = ${val} must be a ${type}`;
-export const ERROR_MSG_METHOD_UNIMPLEMENTED = (fname) => `Method ${fname} is yet to be implemented`;
+export const ERROR_MSG_METHOD_UNIMPLEMENTED = (method) => `Method ${method} is yet to be implemented`;
 export const ERROR_MSG_PARAM_UNDEFINED = (fname, pname) => `Illegal argument for ${fname}: ${pname} must be defined`;
 export const ERROR_MSG_PARAM_EMPTY_ARRAY = (fname, pname) => `Illegal argument for ${fname}: array ${pname} is empty`;
 export const ERROR_MSG_TOO_FEW_ARGUMENTS = (fname, expected, actual) => `Not enough arguments for ${fname}: received ${actual} instead of ${expected}`;
@@ -22,3 +22,6 @@ export const ERROR_MSG_RANGE_TOO_LARGE = (fname, a, b) => `Illegal argument for 
 //strings
 export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for randomString: length = ${val} must be a non-negative SafeInteger`;
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
+// graph
+export const ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS = (method) => `Method ${method} is not available for multigraphs`;
+export const ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY = (method) => `Method ${method} is only available for multigraphs`;

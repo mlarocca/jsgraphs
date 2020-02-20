@@ -85,7 +85,7 @@ class Edge {
   }
 
   labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(_label.get(this));
+    return consistentStringify(label) === consistentStringify(this.label);
   }
 }
 

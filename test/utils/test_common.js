@@ -1,6 +1,6 @@
 import {setDifference} from '../../src/common/set.js';
 
-const chai = require('chai');
+import chai from "chai";
 const expect = chai.expect;
 
 export function testAPI(obj, expectedAttributes = [], expectedMethods = [], prototypeMethods = []) {
