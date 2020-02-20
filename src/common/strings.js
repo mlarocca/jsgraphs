@@ -1,4 +1,4 @@
-import {isObject} from './basic';
+import {isObject, isUndefined} from './basic';
 import {ERROR_MSG_RANDOM_STRING_LENGTH, ERROR_MSG_RANDOM_STRING_TOO_LARGE} from './errors.js';
 
 const ASCII_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\ \t\n';
@@ -26,7 +26,9 @@ const respondsToToJson = (obj) => {
  * @return {string} The stringified key.
  */
 export function consistentStringify(key) {
-  if (!isObject(key)){
+  if (isUndefined(key)) {
+    return JSON.stringify(null);
+  } else if (!isObject(key)){
     return JSON.stringify(key);
   } else if (Array.isArray(key)) {
     return JSON.stringify(key.map(consistentStringify));

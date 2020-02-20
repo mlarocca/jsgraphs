@@ -349,10 +349,27 @@ describe('Methods', () => {
     it('# should deep-stringify all the fields', () => {
       let source = {a: 1, b: [{c: 'cLab'}, 4]};
       let dest = [1, 2, 3, new Set([1, 2, 3])];
-      let label = (a,b) => a*b;
+      let label = "undefined label"
       let weight = 1.1e4;
       let e = new Edge(source, dest, {label: label, weight: weight});
-      e.toJson().should.eql('{"destination":["1","2","3","Set([\\\"1\\\",\\\"2\\\",\\\"3\\\"])"],"label":undefined,"source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
+      e.toJson().should.eql('{"destination":["1","2","3","Set([\\\"1\\\",\\\"2\\\",\\\"3\\\"])"],"label":"undefined label","source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
+    });
+  });
+
+  describe('fromJson()', () => {
+    it('# should parse the fields consistently' , () => {
+      let e = new Edge(0, '1', { label: 'label', weight: -0.1e14});
+      Edge.fromJson(JSON.parse(e.toJson())).should.eql(e);
+    });
+
+    it('# should deep-parse all the fields', () => {
+      let source = {a: 1, b: [{c: 'cLab'}, 4]};
+      let dest = [1, 2, 3, new Set([1, 2, 3])];
+      let label = "label";
+      let weight = 1.1e4;
+      let e = new Edge(source, dest, {label: label, weight: weight});
+      console.log(e.toJson())
+      Edge.fromJson(JSON.parse(e.toJson())).should.eql(e);
     });
   });
 });

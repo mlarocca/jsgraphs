@@ -584,4 +584,24 @@ describe('Methods', () => {
       v.toJson().should.eql('{"edges":["\\\"{\\\\\\\"destination\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"label\\\\\\\":\\\\\\\"label\\\\\\\",\\\\\\\"source\\\\\\\":\\\\\\\"abc\\\\\\\",\\\\\\\"weight\\\\\\\":-10000000000000}\\\""],"label":"abc","size":3.14}');
     });
   });
+
+  describe('fromJson()', () => {
+    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+    it('# applyed to the result of toJson, it should match source vertex ' , () => {
+      labels.forEach(label => {
+        let e1 = new Edge(label, choose(labels), {label: choose(labels), weight: Math.random()});
+        let e2 = new Edge(label, choose(labels), {label: choose(labels), weight: Math.random()});
+        let e3 = new Edge(label, choose(labels), {label: choose(labels), weight: Math.random()});
+        let v = new Vertex(label, {size: Math.random(), outgoingEdges: [e1, e2, e3]});
+        Vertex.fromJson(JSON.parse(v.toJson())).should.eql(v);
+      });
+    });
+
+    it('# should parse the fields consistently and deep-parse all the fields' , () => {
+      let e = new Edge('abc', '1', { label: 'label', weight: -0.1e14});
+      let v = new Vertex('abc', {size:3.14, outgoingEdges: [e]});
+      Vertex.fromJson(JSON.parse(v.toJson())).should.eql(v);
+    });
+  });
+
 });

@@ -15,6 +15,11 @@ const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
  *
  */
 class Vertex {
+
+  static fromJson({label, size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] }) {
+    return new Vertex(label, {size: size, outgoingEdges: outgoingEdges.map(Edge.fromJson)});
+  }
+  
   /**
    * @constructor
    * @for Vertex
@@ -137,10 +142,6 @@ class Vertex {
       size: this.size,
       edges: this.outgoingEdges.map(e => e.toJson())
     });
-  }
-
-  static fromJson({label, size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] }) {
-    return new Vertex(label, {size: size, outgoingEdges: outgoingEdges.map(Edge.fromJson)});
   }
 
   /**

@@ -10,6 +10,11 @@ const _weight = new WeakMap();
 const _label = new WeakMap();
 
 class Edge {
+
+  static fromJson({source, destination, weight=DEFAULT_EDGE_WEIGHT, label=undefined}) {
+    return new Edge(source, destination, {weight: weight, label: label});
+  }
+  
   /**
    * @constructor
    * @for Edge
