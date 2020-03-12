@@ -3,7 +3,7 @@ import 'mjs-mocha';
 import Edge from '../../src/graph/edge.js';
 import {choose} from '../../src/common/array.js';
 import {consistentStringify} from '../../src/common/strings.js';
-import {testAPI} from '../utils/test_common.js';
+import {testAPI, testStaticAPI} from '../utils/test_common.js';
 import {ERROR_MSG_INVALID_ARGUMENT} from '../../src/common/errors.js';
 
 import chai from "chai";
@@ -15,6 +15,11 @@ describe('Edge API', () => {
 
   it('# Class should have a constructor method', function () {
     Edge.should.be.a.constructor();
+  });
+
+  it('# Class should have a static fromJson method', function () {
+    let staticMethods = ['fromJson'];
+    testStaticAPI(Edge, staticMethods);  
   });
 
   it('# Object\'s interface should be complete', () => {
@@ -368,7 +373,6 @@ describe('Methods', () => {
       let label = "label";
       let weight = 1.1e4;
       let e = new Edge(source, dest, {label: label, weight: weight});
-      console.log(e.toJson())
       Edge.fromJson(JSON.parse(e.toJson())).should.eql(e);
     });
   });

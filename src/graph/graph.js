@@ -1,43 +1,12 @@
 import UnionFind from '../disjointset/disjointset.js';
 import DWayHeap from '../dway_heap/dway_heap.js';
-import Cache from '../cache/cache.js';
+import {consistentStringify} from '../common/strings.js';
+import Vertex from './vertex.js';
 
-const DEFAULT_SIZE = 1;
-const CACHE_KEY_EDGES_LIST = 'edges_list';
-const CACHE_KEY_NEGATIVE_EDGES = 'neg_edges_';
-const CACHE_KEY_BFS = 'bfs_';
-const CACHE_KEY_DFS = 'dfs_';
-const CACHE_KEY_CONNECTED_COMPONENTS = 'cc_';
-const CACHE_KEY_TOPOLOGICAL_ORDER = 'tp_';
-const CACHE_KEY_TRANSPOSE_ADJ = 'tr_';
-const CACHE_KEY_STRONGLY_CONNECTED_COMPONENTS = 'scc_';
-const CACHE_KEY_KRUSKAL = 'kruskal_';
-const CACHE_KEY_PRIM = 'prim_';
-const CACHE_KEY_DIJKSTRA = 'dijkstra_';
-const CACHE_KEY_BELLMAN_FORD = 'be-fo_';
-const CACHE_KEY_FLOYD_WARSHALL = 'flo-wa_';
-const CACHE_KEY_EDMONDS_KARP_CACHE = 'ed-karp_';
-const CACHE_KEY_RELABEL_TO_FRONT = 'rel-to-f_';
+import {ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND} from '../common/errors.js';
+import Edge from './edge.js';
 
-const FIELD_COMPONENTS = 'components';
-
-const ERROR_MSG_INIT = `Illegal argument: Graph template parameter`;
-const ERROR_MSG_VERTEX_NOT_FOUND = `Illegal parameter: Vertex not in graph`;
-const ERROR_MSG_DIJKSTRA_NEGATIVE_EDGE = `Cannot apply Dijkstra\'s Algorithm to this graph: negative edge(s) found`;
-const ERROR_MSG_BELLMANFORD_NEGATIVE_CYCLE = `Cannot apply Bellman-Ford\'s Algorithm to this graph: a negative cycle has been found`;
-const ERROR_MSG_FLOYDWARSHALL_NEGATIVE_CYCLE = `Cannot apply Floyd-Warshall\'s Algorithm to this graph: a negative cycle has been found`;
-const ERROR_MSG_GEM_MAXROUNDS = `Illegal argument for gem method: maxRounds must be a positive integer`;
-const ERROR_MSG_GEM_VIEWWIDTH = `Illegal argument for gem method: viewWidth must be a positive integer`;
-const ERROR_MSG_GEM_VIEWHEIGHT = `Illegal argument for gem method: viewHeight must be a positive integer`;
-const ERROR_MSG_KARGER = `Illegal argument for Karger method: runs must be a positive integer`;
-const ERROR_MSG_EDMONDSKARP = `Illegal argument for Edmonds-Karp method: source and sink must be valid vertices`;
-const ERROR_MSG_CONNECTTO_ILLEGAL_GRAPH_PARAM = `Illegal argument for connecTo: \'other\' must be a Graph`;
-const ERROR_MSG_CONNECTTO_ILLEGAL_EDGES_PARAM = `Illegal argument for connectTo: \'edges\' must be an array of edges`;
-const ERROR_MSG_CONNECTTO_VERTICES_COLLISION = `At least one vertex in \'other\' already belongs to this graph`;
-
-
-const _cache = new WeakMap();
-
+const _vertices = new Map();
 
 /** @module jsgraphs
  *
@@ -56,16 +25,134 @@ const _cache = new WeakMap();
  *   - Bellman-Ford's
  *   - Floyd-Warshall's
  *   - ...
- * To improve the performance of the library, results for most of these algorithms
- * (excluding, of course, the randomized ones, like GEM or Karger's)
- * are cached so that, if the method is called again without any modification being applied
- * to the graph in the meantime, the result doesn't have to be recomputed.
  */
 class Graph {
 
-  constructor() {
-    _cache.set(this, new Cache());
+  static fromJson({vertices, edges}) {
+    let g = new Graph();
+    vertices.forEach(v => g.addVertex(Vertex.fromJson(JSON.parse(v))));
+    edges.forEach(e => g.addEdge(Edge.fromJson(JSON.parse(e))));
+    return g;
   }
+
+  constructor() {
+    _vertices.set(this, new Map());
+  }
+
+  get vertices() {
+    return Array.from(_vertices.get(this).values());
+  }
+
+  get edges() {
+    return this.vertices.flatMap(v => v.outgoingEdges);
+  }
+
+  get size() {
+    return _size.get(this);
+  }
+
+  createVertex(label, {size} = {}) {
+    let vcs = _vertices.get(this);
+
+    if (vcs.has(label)) {
+      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
+    }
+    
+    let v = new Vertex(label, {size: size});
+
+    vcs.set(consistentStringify(v.label), v);
+    _vertices.set(this, vcs);
+  }  
+
+  addVertex(v) {
+    if (!(v instanceof Vertex)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addVertex', v));
+    }
+    let vcs = _vertices.get(this);
+    
+    if (vcs.has(v.label)) {
+      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
+    }
+    
+    vcs.set(consistentStringify(v.label), v);
+    _vertices.set(this, vcs);
+  }
+
+  hasVertex(v) {
+    let label;
+    if (v instanceof Vertex) {
+      label = v.label;
+    } else {
+      label = v;
+    }
+
+    return _vertices.get(this).has(consistentStringify(label));
+  }
+
+  createEdge(source, destination, {weight, label} = {}) {
+    if (!this.hasVertex(source)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', source));
+    }
+    if (!this.hasVertex(destination)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', destination));
+    }
+
+    let u = getVertexFromGraph(this, source);
+    let v = getVertexFromGraph(this, destination);
+    u.addEdgeTo(v, {edgeWeight: weight, edgeLabel: label});
+  }
+
+  addEdge(edge) {
+    if (!(edge instanceof Edge)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addEdge', edge));
+    }
+    
+    if (!this.hasVertex(edge.source)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.source));
+    }
+    if (!this.hasVertex(edge.destination)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
+    }
+
+    let u = getVertexFromGraph(this, edge.source);
+    let v = getVertexFromGraph(this, edge.destination);
+    u.addEdgeTo(v, {edgeWeight: edge.weight, edgeLabel: edge.label});
+  }
+  
+  hasEdge(edge) {
+    if (!edge instanceof Edge) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.hasEdge', edge));
+    }
+    es = this.edges;
+    return es.some(e => e.equals(edge));
+  }
+
+  toJson() {
+    return JSON.stringify({
+      vertices: this.vertices.map(v => v.toJson()),
+      edges: this.edges.map(e => e.toJson())});
+  }
+  
+  equals(g) {
+    return (g instanceof Graph) && this.toJson() === g.toJson();
+  }
+}
+
+/**
+ * Utility method to extract a vertex from a graph.
+ * This method should not be exposed because clients shouldn't be able to directly manipulate vertices.
+ * 
+ * @param {Graph} graph 
+ * @param {Vertex|any} vertex 
+ */
+function getVertexFromGraph(graph, vertex) {
+  let label;
+  if (vertex instanceof Vertex) {
+    label = vertex.label;
+  } else {
+    label = vertex;
+  }
+  return _vertices.get(graph).get(consistentStringify(label));
 }
 
 
@@ -76,3 +163,5 @@ export class DirectedGraph extends Graph {
 export class UndirectedGraph extends Graph {
 
 }
+
+export default Graph;

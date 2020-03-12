@@ -139,10 +139,10 @@ class Vertex {
   toJson() {
     return consistentStringify({
       label: this.label,
-      size: this.size,
-      edges: this.outgoingEdges.map(e => e.toJson())
+      size: this.size
     });
   }
+  
 
   /**
    *

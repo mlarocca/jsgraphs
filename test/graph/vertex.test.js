@@ -5,7 +5,7 @@ import Edge from '../../src/graph/edge.js';
 import {choose, compareAsSets} from '../../src/common/array.js';
 import {ERROR_MSG_INVALID_ARGUMENT} from '../../src/common/errors.js'
 import {consistentStringify} from '../../src/common/strings.js';
-import {testAPI} from '../utils/test_common.js';
+import {testAPI, testStaticAPI} from '../utils/test_common.js';
 
 import chai from "chai";
 import should from "should";
@@ -15,6 +15,11 @@ describe('Vertex API', () => {
 
   it('# Class should have a constructor method', function () {
     Vertex.should.be.a.constructor();
+  });
+
+  it('# Class should have a static fromJson method', function () {
+    let staticMethods = ['fromJson'];
+    testStaticAPI(Vertex, staticMethods);  
   });
 
   it('# Object\'s interface should be complete', () => {
@@ -527,7 +532,7 @@ describe('Methods', () => {
       });
     });
 
-    it('# should return false if edges are different', () => {
+    it('# should return true even if edges are different', () => {
       labels.forEach(label => {
         const dest = choose(labels);
         const edgeLabel1 = choose(labels);
@@ -538,10 +543,10 @@ describe('Methods', () => {
         const size = Math.random();
         let v1 = new Vertex(label, {size: size, outgoingEdges: [e1, e2]});
         let v2 = new Vertex(label, {size: size, outgoingEdges: []});
-        v1.equals(v2).should.be.eql(false);
+        v1.equals(v2).should.be.eql(true);
         v1 = new Vertex(label, {size: size, outgoingEdges: [e1]});
         v2 = new Vertex(label, {size: size, outgoingEdges: [e2]});
-        v1.equals(v2).should.be.eql(e1.equals(v2));
+        v1.equals(v2).should.be.eql(true);
       });
     });
   });
@@ -581,7 +586,7 @@ describe('Methods', () => {
     it('# should stringify the fields consistently and deep-stringify all the fields' , () => {
       let e = new Edge('abc', '1', { label: 'label', weight: -0.1e14});
       let v = new Vertex('abc', {size:3.14, outgoingEdges: [e]});
-      v.toJson().should.eql('{"edges":["\\\"{\\\\\\\"destination\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"label\\\\\\\":\\\\\\\"label\\\\\\\",\\\\\\\"source\\\\\\\":\\\\\\\"abc\\\\\\\",\\\\\\\"weight\\\\\\\":-10000000000000}\\\""],"label":"abc","size":3.14}');
+      v.toJson().should.eql('{"label":"abc","size":3.14}');
     });
   });
 

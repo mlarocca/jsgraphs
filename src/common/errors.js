@@ -23,5 +23,17 @@ export const ERROR_MSG_RANGE_TOO_LARGE = (fname, a, b) => `Illegal argument for 
 export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for randomString: length = ${val} must be a non-negative SafeInteger`;
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
 // graph
-export const ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS = (method) => `Method ${method} is not available for multigraphs`;
-export const ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY = (method) => `Method ${method} is only available for multigraphs`;
+export const ERROR_MSG_INIT = `Illegal argument: Graph template parameter`;
+export const ERROR_MSG_VERTEX_NOT_FOUND = (fname, val) => `Illegal parameter for ${fname}: Vertex ${val} not in graph`;
+export const ERROR_MSG_VERTEX_DUPLICATED = (fname, val) => `Illegal argument for  ${fname}: v = ${val}: is already in the graph.`;
+export const ERROR_MSG_DIJKSTRA_NEGATIVE_EDGE = `Cannot apply Dijkstra\'s Algorithm to this graph: negative edge(s) found`;
+export const ERROR_MSG_BELLMANFORD_NEGATIVE_CYCLE = `Cannot apply Bellman-Ford\'s Algorithm to this graph: a negative cycle has been found`;
+export const ERROR_MSG_FLOYDWARSHALL_NEGATIVE_CYCLE = `Cannot apply Floyd-Warshall\'s Algorithm to this graph: a negative cycle has been found`;
+export const ERROR_MSG_GEM_MAXROUNDS = `Illegal argument for gem method: maxRounds must be a positive integer`;
+export const ERROR_MSG_GEM_VIEWWIDTH = `Illegal argument for gem method: viewWidth must be a positive integer`;
+export const ERROR_MSG_GEM_VIEWHEIGHT = `Illegal argument for gem method: viewHeight must be a positive integer`;
+export const ERROR_MSG_KARGER = `Illegal argument for Karger method: runs must be a positive integer`;
+export const ERROR_MSG_EDMONDSKARP = `Illegal argument for Edmonds-Karp method: source and sink must be valid vertices`;
+export const ERROR_MSG_CONNECTTO_ILLEGAL_GRAPH_PARAM = `Illegal argument for connecTo: \'other\' must be a Graph`;
+export const ERROR_MSG_CONNECTTO_ILLEGAL_EDGES_PARAM = `Illegal argument for connectTo: \'edges\' must be an array of edges`;
+export const ERROR_MSG_CONNECTTO_VERTICES_COLLISION = `At least one vertex in \'other\' already belongs to this graph`;

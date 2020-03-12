@@ -22,3 +22,8 @@ export function testAPI(obj, expectedAttributes = [], expectedMethods = [], prot
     expect([...setDifference(expectedPrototypeMethods, prototypeMethods)]).to.be.eql([]);
   }
 }
+
+export function testStaticAPI(klass, expectedMethods) {
+  let allStaticMethods = new Set(Object.getOwnPropertyNames(klass).filter(prop => typeof klass[prop] === "function"));
+  expect(new Set(expectedMethods)).to.eql(allStaticMethods);
+}

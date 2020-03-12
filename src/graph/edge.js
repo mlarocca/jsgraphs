@@ -39,7 +39,7 @@ class Edge {
     } if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', weight));
     } if (label === null) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'label', label));
+      label = undefined;
     }
 
     _source.set(this, source);
@@ -83,6 +83,10 @@ class Edge {
       weight: this.weight,
       label: this.label
     });
+  }
+
+  toString() {
+    return `Edge: ${this.toJson}`;
   }
 
   equals(e) {
