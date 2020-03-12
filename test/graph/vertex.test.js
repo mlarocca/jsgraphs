@@ -18,7 +18,7 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson'];
+    let staticMethods = ['fromJson', 'fromJsonObject'];
     testStaticAPI(Vertex, staticMethods);  
   });
 
@@ -598,14 +598,14 @@ describe('Methods', () => {
         let e2 = new Edge(label, choose(labels), {label: choose(labels), weight: Math.random()});
         let e3 = new Edge(label, choose(labels), {label: choose(labels), weight: Math.random()});
         let v = new Vertex(label, {size: Math.random(), outgoingEdges: [e1, e2, e3]});
-        Vertex.fromJson(JSON.parse(v.toJson())).should.eql(v);
+        Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
       });
     });
 
     it('# should parse the fields consistently and deep-parse all the fields' , () => {
       let e = new Edge('abc', '1', { label: 'label', weight: -0.1e14});
       let v = new Vertex('abc', {size:3.14, outgoingEdges: [e]});
-      Vertex.fromJson(JSON.parse(v.toJson())).should.eql(v);
+      Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
     });
   });
 

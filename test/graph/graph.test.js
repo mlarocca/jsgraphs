@@ -5,9 +5,7 @@ import Graph from '../../src/graph/graph.js';
 import Vertex from '../../src/graph/vertex.js';
 import {choose} from '../../src/common/array.js';
 import {randomInt} from '../../src/common/numbers.js';
-import {consistentStringify} from '../../src/common/strings.js';
 import {testAPI, testStaticAPI} from '../utils/test_common.js';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../../src/common/errors.js';
 
 import chai from "chai";
 import should from "should";
@@ -21,7 +19,7 @@ describe('Graph API', () => {
     });
   
     it('# Class should have a static fromJson method', function () {
-        let staticMethods = ['fromJson'];
+        let staticMethods = ['fromJson', 'fromJsonObject'];
         testStaticAPI(Graph, staticMethods);  
     });
 
@@ -136,6 +134,26 @@ describe('Graph API', () => {
     });
   });
 
+  describe('fromJsonObject()', () => {
+    const g = new Graph();
+    let v1 = 'abc';
+    let v2 = 1;
+    let v3 = 3.1415;
+    let v4 = {'what': -3};
+
+    g.createVertex(v1);
+    g.createVertex(v2);
+    g.createVertex(v3);
+    g.createVertex(v4);
+    g.createEdge(v1, v2, { label: 'label', weight: -0.1e14});
+    g.createEdge(v3, v4, { weight: 33});
+    g.createEdge(v3, v1, { weight: 33, label: 'edge'});
+
+    it('# applyed to the result of toJson, it should match source graph ' , () => {
+        Graph.fromJsonObject(JSON.parse(g.toJson())).should.eql(g);
+    });
+  });
+
   describe('fromJson()', () => {
     const g = new Graph();
     let v1 = 'abc';
@@ -152,6 +170,6 @@ describe('Graph API', () => {
     g.createEdge(v3, v1, { weight: 33, label: 'edge'});
 
     it('# applyed to the result of toJson, it should match source graph ' , () => {
-        Graph.fromJson(JSON.parse(g.toJson())).should.eql(g);
+        Graph.fromJson(g.toJson()).should.eql(g);
     });
-  });  
+  });

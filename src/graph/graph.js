@@ -1,9 +1,9 @@
 import UnionFind from '../disjointset/disjointset.js';
 import DWayHeap from '../dway_heap/dway_heap.js';
-import {consistentStringify} from '../common/strings.js';
+import { consistentStringify } from '../common/strings.js';
 import Vertex from './vertex.js';
 
-import {ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND} from '../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 import Edge from './edge.js';
 
 const _vertices = new Map();
@@ -28,10 +28,32 @@ const _vertices = new Map();
  */
 class Graph {
 
-  static fromJson({vertices, edges}) {
+  /**
+   * @method fromJson
+   * @for Graph.class
+   * 
+   * Takes a string with the JSON encoding of a graph, and creates a new Graph object based on it. 
+   * 
+   * @param {*} json The string with the graph's JSON encoding, as outputed by Graph.toJson.
+   */
+  static fromJson(json) {
+    return Graph.fromJsonObject(JSON.parse(json));
+  }
+
+  /**
+   * @method fromJsonObject
+   * @for Graph.class
+   * 
+   * Takes a plain object with fields for a graph's vertices and edges, each encoded as a JSON string, and
+   * created a new Graph matching the JSON provided.
+   * The argument for this method is, ideally, the output of JSON.parse(g.toJson()), where g is an instance of Graph.
+   * 
+   * @param {Array} vertices An array with the JSON for the vertices to be 
+   */
+  static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
-    vertices.forEach(v => g.addVertex(Vertex.fromJson(JSON.parse(v))));
-    edges.forEach(e => g.addEdge(Edge.fromJson(JSON.parse(e))));
+    vertices.forEach(v => g.addVertex(Vertex.fromJson(v)));
+    edges.forEach(e => g.addEdge(Edge.fromJson(e)));
     return g;
   }
 
@@ -39,6 +61,9 @@ class Graph {
     _vertices.set(this, new Map());
   }
 
+  /**
+   * 
+   */
   get vertices() {
     return Array.from(_vertices.get(this).values());
   }
@@ -51,29 +76,29 @@ class Graph {
     return _size.get(this);
   }
 
-  createVertex(label, {size} = {}) {
+  createVertex(label, { size } = {}) {
     let vcs = _vertices.get(this);
 
     if (vcs.has(label)) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
-    
-    let v = new Vertex(label, {size: size});
+
+    let v = new Vertex(label, { size: size });
 
     vcs.set(consistentStringify(v.label), v);
     _vertices.set(this, vcs);
-  }  
+  }
 
   addVertex(v) {
     if (!(v instanceof Vertex)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addVertex', v));
     }
     let vcs = _vertices.get(this);
-    
+
     if (vcs.has(v.label)) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
-    
+
     vcs.set(consistentStringify(v.label), v);
     _vertices.set(this, vcs);
   }
@@ -89,7 +114,7 @@ class Graph {
     return _vertices.get(this).has(consistentStringify(label));
   }
 
-  createEdge(source, destination, {weight, label} = {}) {
+  createEdge(source, destination, { weight, label } = {}) {
     if (!this.hasVertex(source)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', source));
     }
@@ -99,14 +124,14 @@ class Graph {
 
     let u = getVertexFromGraph(this, source);
     let v = getVertexFromGraph(this, destination);
-    u.addEdgeTo(v, {edgeWeight: weight, edgeLabel: label});
+    u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label });
   }
 
   addEdge(edge) {
     if (!(edge instanceof Edge)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addEdge', edge));
     }
-    
+
     if (!this.hasVertex(edge.source)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.source));
     }
@@ -116,9 +141,9 @@ class Graph {
 
     let u = getVertexFromGraph(this, edge.source);
     let v = getVertexFromGraph(this, edge.destination);
-    u.addEdgeTo(v, {edgeWeight: edge.weight, edgeLabel: edge.label});
+    u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
   }
-  
+
   hasEdge(edge) {
     if (!edge instanceof Edge) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.hasEdge', edge));
@@ -130,15 +155,20 @@ class Graph {
   toJson() {
     return JSON.stringify({
       vertices: this.vertices.map(v => v.toJson()),
-      edges: this.edges.map(e => e.toJson())});
+      edges: this.edges.map(e => e.toJson())
+    });
   }
-  
+
   equals(g) {
     return (g instanceof Graph) && this.toJson() === g.toJson();
   }
 }
 
 /**
+ * @method getVertexFromGraph
+ * @for Graph
+ * @private
+ * 
  * Utility method to extract a vertex from a graph.
  * This method should not be exposed because clients shouldn't be able to directly manipulate vertices.
  * 
@@ -154,7 +184,6 @@ function getVertexFromGraph(graph, vertex) {
   }
   return _vertices.get(graph).get(consistentStringify(label));
 }
-
 
 export class DirectedGraph extends Graph {
 

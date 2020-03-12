@@ -18,13 +18,13 @@ describe('Edge API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson'];
+    let staticMethods = ['fromJson', 'fromJsonObject'];
     testStaticAPI(Edge, staticMethods);  
   });
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Edge(1, 2);
-    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'equals', 'labelEquals'];
+    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'labelEquals'];
     let attributes = ['source', 'destination', 'weight', 'label'];
     testAPI(edge, attributes, methods);
   });
@@ -96,8 +96,9 @@ describe('Edge Creation', () => {
         expect(new Edge(2, 1, {weight: -1}).label).to.be.undefined;
       });
 
-      it('should throw if label is null', () => {
-        expect(() => new Edge(3, [], {label: null})).to.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'label', null));
+      it('should not throw if label is null', () => {
+        expect(() => new Edge(3, [], {label: null})).not.to.throw();
+        expect(new Edge(3, [], {label: null}).label).to.be.undefined;
       });
     });
 
@@ -364,7 +365,7 @@ describe('Methods', () => {
   describe('fromJson()', () => {
     it('# should parse the fields consistently' , () => {
       let e = new Edge(0, '1', { label: 'label', weight: -0.1e14});
-      Edge.fromJson(JSON.parse(e.toJson())).should.eql(e);
+      Edge.fromJsonObject(JSON.parse(e.toJson())).should.eql(e);
     });
 
     it('# should deep-parse all the fields', () => {
@@ -373,7 +374,7 @@ describe('Methods', () => {
       let label = "label";
       let weight = 1.1e4;
       let e = new Edge(source, dest, {label: label, weight: weight});
-      Edge.fromJson(JSON.parse(e.toJson())).should.eql(e);
+      Edge.fromJsonObject(JSON.parse(e.toJson())).should.eql(e);
     });
   });
 });
