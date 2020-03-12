@@ -13,6 +13,43 @@ import should from "should";
 
 const expect = chai.expect;
 
+function createExampleGraph() {
+  let g = new Graph();
+  let v1 = 'a random unicòde string ☺';
+  let v2 = 1;
+  let v3 = -3.1415;
+  let v4 = { 'what': -3 };
+  let v5 = [1, true, -3];
+
+
+  g.createVertex(v1);
+  g.createVertex(v2);
+  g.createVertex(v3);
+  g.createVertex(v4);
+  g.createVertex(v5);
+  g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
+  g.createEdge(v3, v4, { weight: 33 });
+  g.createEdge(v3, v5, { weight: 0 });
+  return g;
+}
+
+function createRandomGraph(minV, maxV, minE, maxE) {
+  let g = new Graph();
+  let numVertices = randomInt(minV, maxV);
+  let numEdges = randomInt(minE, maxE);
+
+  for (let i = 0; i < numVertices; i++) {
+    g.createVertex(i);
+  }
+
+  for (let j = 0; j < numEdges; j++) {
+    let v = randomInt(0, numVertices);
+    let u = randomInt(0, numVertices);
+    g.createEdge(u, v, { weight: Math.random() });
+  }
+  return g;
+}
+
 describe('Graph API', () => {
 
   it('# Class should have a constructor method', function () {
@@ -39,7 +76,7 @@ describe('createVertex()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
 
     labels.forEach(label => {
@@ -50,11 +87,11 @@ describe('createVertex()', () => {
   it('# should throw on duplicates', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
     // Try to add each label once more
     labels.forEach(label => {
-      expect(() => g.createVertex(label, {size: Math.random()})).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+      expect(() => g.createVertex(label, { size: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     });
   });
 });
@@ -89,7 +126,7 @@ describe('createEdge()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
 
     let e = g.createEdge(labels[1], labels[5]);
@@ -97,7 +134,7 @@ describe('createEdge()', () => {
     e.destination.should.eql(labels[5]);
     g.hasEdge(e).should.be.true();
 
-    e = g.createEdge(labels[0], labels[6], {weight: 5, label: 'edge label'});
+    e = g.createEdge(labels[0], labels[6], { weight: 5, label: 'edge label' });
     e.source.should.eql(labels[0]);
     e.destination.should.eql(labels[6]);
     e.weight.should.eql(5);
@@ -118,10 +155,10 @@ describe('createEdge()', () => {
   it('# should throw when vertices are not in the graph', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
     expect(() => g.createEdge('v', labels[0])).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'v'));
-    expect(() => g.createEdge(labels[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));    
+    expect(() => g.createEdge(labels[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));
   });
 });
 
@@ -130,7 +167,7 @@ describe('addEdge()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
 
     let expected = new Edge(labels[0], labels[2]);
@@ -143,54 +180,16 @@ describe('addEdge()', () => {
   it('# should throw when vertices are not in the graph', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, {size: Math.random()});
+      g.createVertex(label, { size: Math.random() });
     });
     let e1 = new Edge('a', labels[0]);
     let e2 = new Edge(labels[1], -Math.random());
     expect(() => g.addEdge(e1)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e1.source));
-    expect(() => g.addEdge(e2)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e2.destination));    
+    expect(() => g.addEdge(e2)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e2.destination));
   });
 });
 
 describe('equals()', () => {
-
-  function createExampleGraph() {
-    let g = new Graph();
-    let v1 = 'a random unicòde string ☺';
-    let v2 = 1;
-    let v3 = -3.1415;
-    let v4 = { 'what': -3 };
-    let v5 = [1, true, -3];
-
-
-    g.createVertex(v1);
-    g.createVertex(v2);
-    g.createVertex(v3);
-    g.createVertex(v4);
-    g.createVertex(v5);
-    g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
-    g.createEdge(v3, v4, { weight: 33 });
-    g.createEdge(v3, v5, { weight: 0 });
-    return g;
-  }
-
-  function createRandomGraph(minV, maxV, minE, maxE) {
-    let g = new Graph();
-    let numVertices = randomInt(minV, maxV);
-    let numEdges = randomInt(minE, maxE);
-
-    for (let i = 0; i < numVertices; i++) {
-      g.createVertex(i);
-    }
-
-    for (let j = 0; j < numEdges; j++) {
-      let v = randomInt(0, numVertices);
-      let u = randomInt(0, numVertices);
-      g.createEdge(u, v, { weight: Math.random() });
-    }
-    return g;
-  }
-
   it('# should abide by reflexive property', () => {
     let g = createExampleGraph();
     g.equals(g).should.be.true();
