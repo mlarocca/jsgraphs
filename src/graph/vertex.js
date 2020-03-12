@@ -1,8 +1,8 @@
 import Edge from './edge.js';
-import {isDefined} from '../common/basic.js';
-import {isNumber, toNumber} from '../common/numbers.js';
-import {consistentStringify} from '../common/strings.js';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../common/errors.js';
+import { isDefined } from '../common/basic.js';
+import { isNumber, toNumber } from '../common/numbers.js';
+import { consistentStringify } from '../common/strings.js';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_VERTEX_SIZE = 1;
 const _label = new WeakMap();
@@ -19,10 +19,10 @@ class Vertex {
     return Vertex.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({label, size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] }) {
-    return new Vertex(label, {size: size, outgoingEdges: outgoingEdges.map(Edge.fromJsonObject)});
+  static fromJsonObject({ label, size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] }) {
+    return new Vertex(label, { size: size, outgoingEdges: outgoingEdges.map(Edge.fromJsonObject) });
   }
-  
+
   /**
    * @constructor
    * @for Vertex
@@ -36,7 +36,7 @@ class Vertex {
    * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, size is not
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
-  constructor(label, { size=DEFAULT_VERTEX_SIZE, outgoingEdges=[] } = {}) {
+  constructor(label, { size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] } = {}) {
     if (!isDefined(label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', label));
     }
@@ -104,9 +104,9 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.edgeTo', 'v', v));
     }
     let adj = _adjacencyMap.get(this);
-    let edges =  adj.has(v.label) ? adj.get(v.label) : [];
+    let edges = adj.has(v.label) ? adj.get(v.label) : [];
     let n = edges.length;
-    return n > 0 ? edges[n-1] : undefined;
+    return n > 0 ? edges[n - 1] : undefined;
   }
 
   addEdge(edge) {
@@ -116,11 +116,11 @@ class Vertex {
     return replaceEdgeFromTo(this, edge.destination, edge.label, edge);
   }
 
-  addEdgeTo(v, {edgeWeight, edgeLabel} = {}) {
+  addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdgeTo', 'v', v));
     }
-    let edge = new Edge(this.label, v.label, {weight: edgeWeight, label: edgeLabel});
+    let edge = new Edge(this.label, v.label, { weight: edgeWeight, label: edgeLabel });
     this.addEdge(edge);
     return edge;
   }
@@ -132,7 +132,7 @@ class Vertex {
     return replaceEdgeFromTo(this, edge.destination, edge.label);
   }
 
-  removeEdgeTo(v, {edgeLabel} = {}) {
+  removeEdgeTo(v, { edgeLabel } = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdgeTo', 'v', v));
     }
@@ -145,7 +145,7 @@ class Vertex {
       size: this.size
     });
   }
-  
+
 
   /**
    *
@@ -173,7 +173,7 @@ class Vertex {
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
-function replaceEdgeFromTo(vertex, destination, label, newEdge=null) {
+function replaceEdgeFromTo(vertex, destination, label, newEdge = null) {
   let adj = _adjacencyMap.get(vertex);
   let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
 

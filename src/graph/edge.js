@@ -1,7 +1,7 @@
-import {isDefined} from '../common/basic.js';
-import {isNumber, toNumber} from '../common/numbers.js';
-import {consistentStringify} from '../common/strings.js';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../common/errors.js';
+import { isDefined } from '../common/basic.js';
+import { isNumber, toNumber } from '../common/numbers.js';
+import { consistentStringify } from '../common/strings.js';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_EDGE_WEIGHT = 1;
 const _source = new WeakMap();
@@ -15,10 +15,10 @@ class Edge {
     return Edge.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({source, destination, weight=DEFAULT_EDGE_WEIGHT, label=undefined}) {
-    return new Edge(source, destination, {weight: weight, label: label});
+  static fromJsonObject({ source, destination, weight = DEFAULT_EDGE_WEIGHT, label = undefined }) {
+    return new Edge(source, destination, { weight: weight, label: label });
   }
-  
+
   /**
    * @constructor
    * @for Edge
@@ -34,7 +34,7 @@ class Edge {
    * @throws {TypeError} if the arguments are not valid, i.e. source or destination are not defined, or weight is not
    *                     (parsable to) a number.
    */
-  constructor(source, destination, { weight=DEFAULT_EDGE_WEIGHT, label} = {}) {
+  constructor(source, destination, { weight = DEFAULT_EDGE_WEIGHT, label } = {}) {
     if (!isDefined(source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', source));
     }
