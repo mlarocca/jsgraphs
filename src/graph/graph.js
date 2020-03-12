@@ -5,7 +5,7 @@ import Vertex from './vertex.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 import Edge from './edge.js';
-import { isDefined } from '../common/basic.js';
+import { isDefined, isUndefined } from '../common/basic.js';
 
 const _vertices = new Map();
 
@@ -115,8 +115,8 @@ class Graph {
     return _vertices.get(this).has(consistentStringify(label));
   }
 
-  getVertexSize() { 
-    let v = getGraphVertex(graph, vertex);
+  getVertexSize(vertex) { 
+    let v = getGraphVertex(this, vertex);
     return isDefined(v) ? v.size : undefined;
   }
 
@@ -159,12 +159,12 @@ class Graph {
   }
 
   getEdgeWeight(sourceLabel, destinationLabel) {
-    let e = getGraphEdge(sourceLabel, destinationLabel);
+    let e = getGraphEdge(this, sourceLabel, destinationLabel);
     return isDefined(e) ? e.weight : undefined;
   }
 
   getEdgeLabel(sourceLabel, destinationLabel) {
-    let e = getGraphEdge(sourceLabel, destinationLabel);
+    let e = getGraphEdge(this, sourceLabel, destinationLabel);
     return isDefined(e) ? e.label : undefined;
   }
 
@@ -205,7 +205,9 @@ function getGraphVertex(graph, vertex) {
   } else {
     label = vertex;
   }
-  return _vertices.get(graph).get(consistentStringify(label));
+
+  let v = _vertices.get(graph);
+  return isDefined(v) ? v.get(consistentStringify(label)) : undefined;
 }
 
 /**

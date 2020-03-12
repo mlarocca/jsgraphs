@@ -23,13 +23,13 @@ function createExampleGraph() {
 
 
   g.createVertex(v1);
-  g.createVertex(v2);
+  g.createVertex(v2, { size: -21 });
   g.createVertex(v3);
   g.createVertex(v4);
   g.createVertex(v5);
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
-  g.createEdge(v3, v5, { weight: 0 });
+  g.createEdge(v3, v5);
   return g;
 }
 
@@ -121,6 +121,22 @@ describe('addVertex()', () => {
   });
 });
 
+describe('getVertexSize', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right size', function () {
+    g.getVertexSize(1).should.eql(-21);
+    // defaults to 1 when not explicitly set
+    g.getVertexSize('a random unicòde string ☺').should.eql(1);
+    g.getVertexSize({ 'what': -3 }).should.eql(1);
+  });
+
+  it('# Should return undefined when the graph does not have a vertex', function () {
+    expect(g.getVertexSize('not here')).to.be.undefined;
+    expect(g.getVertexSize(2)).to.be.undefined;
+  });
+});
+
 describe('createEdge()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
   it('# should add all valid label types', function () {
@@ -186,6 +202,46 @@ describe('addEdge()', () => {
     let e2 = new Edge(labels[1], -Math.random());
     expect(() => g.addEdge(e1)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e1.source));
     expect(() => g.addEdge(e2)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e2.destination));
+  });
+});
+
+describe('getEdgeLabel', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right label', function () {
+    g.getEdgeLabel('a random unicòde string ☺', 1).should.eql('label');
+  });
+
+  it('# Should return undefined when edge does not have a label', function () {
+    g.hasEdgeBetween(-3.1415, { 'what': -3 }).should.be.true();
+    expect(g.getEdgeLabel(-3.1415, { 'what': -3 })).to.be.undefined;
+  });
+
+  it('# Should return undefined when edge does not exist', function () {
+    expect(g.getEdgeLabel(1, 'a random unicòde string ☺')).to.be.undefined;
+    expect(g.getEdgeLabel('not in graph', 1)).to.be.undefined;
+    expect(g.getEdgeLabel(3, 2)).to.be.undefined;
+  });
+});
+
+describe('getEdgeWeight', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right weight', function () {
+    g.getEdgeWeight('a random unicòde string ☺', 1).should.eql(-0.1e14);
+    g.getEdgeWeight(-3.1415, { 'what': -3 }).should.eql(33);
+
+  });
+
+  it('# Should default to 1 (when edge weight is not set explicitly)', function () {
+    g.hasEdgeBetween(-3.1415, [1, true, -3]).should.be.true();
+    g.getEdgeWeight(-3.1415, [1, true, -3]).should.eql(1);
+  });
+
+  it('# Should return undefined when edge does not exist', function () {
+    expect(g.getEdgeWeight(1, 'a random unicòde string ☺')).to.be.undefined;
+    expect(g.getEdgeWeight('not in graph', 1)).to.be.undefined;
+    expect(g.getEdgeWeight(3, 2)).to.be.undefined;
   });
 });
 
