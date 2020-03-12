@@ -5,6 +5,7 @@ import Vertex from './vertex.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 import Edge from './edge.js';
+import { isDefined } from '../common/basic.js';
 
 const _vertices = new Map();
 
@@ -79,8 +80,8 @@ class Graph {
   createVertex(label, { size } = {}) {
     let vcs = _vertices.get(this);
 
-    if (vcs.has(label)) {
-      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
+    if (this.hasVertex(label)) {
+      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     }
 
     let v = new Vertex(label, { size: size });
@@ -95,7 +96,7 @@ class Graph {
     }
     let vcs = _vertices.get(this);
 
-    if (vcs.has(v.label)) {
+    if (this.hasVertex(v.label)) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
 
@@ -114,6 +115,11 @@ class Graph {
     return _vertices.get(this).has(consistentStringify(label));
   }
 
+  getVertexSize() { 
+    let v = getGraphVertex(graph, vertex);
+    return isDefined(v) ? v.size : undefined;
+  }
+
   createEdge(source, destination, { weight, label } = {}) {
     if (!this.hasVertex(source)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', source));
@@ -122,9 +128,9 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', destination));
     }
 
-    let u = getVertexFromGraph(this, source);
-    let v = getVertexFromGraph(this, destination);
-    u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label });
+    let u = getGraphVertex(this, source);
+    let v = getGraphVertex(this, destination);
+    return u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label });
   }
 
   addEdge(edge) {
@@ -139,17 +145,34 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
     }
 
-    let u = getVertexFromGraph(this, edge.source);
-    let v = getVertexFromGraph(this, edge.destination);
-    u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    let u = getGraphVertex(this, edge.source);
+    let v = getGraphVertex(this, edge.destination);
+    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
   }
 
   hasEdge(edge) {
     if (!edge instanceof Edge) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.hasEdge', edge));
     }
-    es = this.edges;
+    let es = this.edges;
     return es.some(e => e.equals(edge));
+  }
+
+  getEdgeWeight(sourceLabel, destinationLabel) {
+    let e = getGraphEdge(sourceLabel, destinationLabel);
+    return isDefined(e) ? e.weight : undefined;
+  }
+
+  getEdgeLabel(sourceLabel, destinationLabel) {
+    let e = getGraphEdge(sourceLabel, destinationLabel);
+    return isDefined(e) ? e.label : undefined;
+  }
+
+  hasEdgeBetween(sourceLabel, destinationLabel) {
+    if (!(this.hasVertex(sourceLabel) && this.hasVertex(destinationLabel))) {
+      return false;
+    }
+    return isDefined(getGraphVertex(this, sourceLabel).edgeTo(getGraphVertex(this, destinationLabel)));
   }
 
   toJson() {
@@ -175,7 +198,7 @@ class Graph {
  * @param {Graph} graph 
  * @param {Vertex|any} vertex 
  */
-function getVertexFromGraph(graph, vertex) {
+function getGraphVertex(graph, vertex) {
   let label;
   if (vertex instanceof Vertex) {
     label = vertex.label;
@@ -183,6 +206,26 @@ function getVertexFromGraph(graph, vertex) {
     label = vertex;
   }
   return _vertices.get(graph).get(consistentStringify(label));
+}
+
+/**
+ * 
+ * @private
+ * 
+ * @param {*} graph 
+ * @param {*} source 
+ * @param {*} destination 
+ */
+function getGraphEdge(graph, source, destination) {
+  let u = getGraphVertex(graph, source);
+  if (isUndefined(u)) {
+    return undefined;
+  }
+  let v = getGraphVertex(graph, destination);
+  if (isUndefined(v)) {
+    return undefined;
+  }
+  return u.edgeTo(v);
 }
 
 export class DirectedGraph extends Graph {

@@ -6,6 +6,7 @@ import Vertex from '../../src/graph/vertex.js';
 import { choose } from '../../src/common/array.js';
 import { randomInt } from '../../src/common/numbers.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
+import { ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../../src/common/errors.js'
 
 import chai from "chai";
 import should from "should";
@@ -26,17 +27,128 @@ describe('Graph API', () => {
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'equals',
-      'createVertex', 'addVertex', 'hasVertex',
-      'createEdge', 'addEdge', 'hasEdge'];
+      'createVertex', 'addVertex', 'hasVertex', 'getVertexSize',
+      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
     let attributes = ['vertices', 'edges', 'size'];
     testAPI(edge, attributes, methods);
   });
 });
 
-describe('equals()', () => {
-  it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject'];
-    testStaticAPI(Graph, staticMethods);
+describe('createVertex()', () => {
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  it('# should add all valid label types', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+
+    labels.forEach(label => {
+      g.hasVertex(label).should.be.true();
+    });
+  });
+
+  it('# should throw on duplicates', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+    // Try to add each label once more
+    labels.forEach(label => {
+      expect(() => g.createVertex(label, {size: Math.random()})).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+    });
+  });
+});
+
+describe('addVertex()', () => {
+  const vertices = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()].map(v => new Vertex(v));
+  it('# should add all valid label types', function () {
+    let g = new Graph();
+    vertices.forEach(v => {
+      g.addVertex(v);
+    });
+
+    vertices.forEach(v => {
+      g.hasVertex(v).should.be.true();
+    });
+  });
+
+  it('# should throw on duplicates', function () {
+    let g = new Graph();
+    vertices.forEach(v => {
+      g.addVertex(v);
+    });
+    // Try to add each label once more
+    vertices.forEach(v => {
+      expect(() => g.addVertex(v)).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
+    });
+  });
+});
+
+describe('createEdge()', () => {
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  it('# should add all valid label types', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+
+    let e = g.createEdge(labels[1], labels[5]);
+    e.source.should.eql(labels[1]);
+    e.destination.should.eql(labels[5]);
+    g.hasEdge(e).should.be.true();
+
+    e = g.createEdge(labels[0], labels[6], {weight: 5, label: 'edge label'});
+    e.source.should.eql(labels[0]);
+    e.destination.should.eql(labels[6]);
+    e.weight.should.eql(5);
+    e.label.should.eql('edge label');
+    g.hasEdge(e).should.be.true();
+
+    e = new Edge(labels[0], labels[2]);
+    g.hasEdge(e).should.be.false();
+
+    g.hasEdgeBetween(labels[0], labels[6]).should.be.true();
+    g.hasEdgeBetween(labels[6], labels[0]).should.be.false();
+    g.hasEdgeBetween(labels[1], labels[5]).should.be.true();
+    g.hasEdgeBetween(labels[5], labels[1]).should.be.false();
+    g.hasEdgeBetween(labels[0], labels[2]).should.be.false();
+    g.hasEdgeBetween(labels[2], labels[0]).should.be.false();
+  });
+
+  it('# should throw when vertices are not in the graph', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+    expect(() => g.createEdge('v', labels[0])).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'v'));
+    expect(() => g.createEdge(labels[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));    
+  });
+});
+
+describe('addEdge()', () => {
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  it('# should add all valid label types', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+
+    let expected = new Edge(labels[0], labels[2]);
+    let e = g.addEdge(expected);
+    expected.equals(e).should.be.true();
+
+    g.hasEdge(expected).should.be.true();
+  });
+
+  it('# should throw when vertices are not in the graph', function () {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, {size: Math.random()});
+    });
+    let e1 = new Edge('a', labels[0]);
+    let e2 = new Edge(labels[1], -Math.random());
+    expect(() => g.addEdge(e1)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e1.source));
+    expect(() => g.addEdge(e2)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e2.destination));    
   });
 });
 
