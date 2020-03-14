@@ -12,8 +12,19 @@ const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
  *
  */
 class Vertex {
+  /**
+   * @private
+   */
   #label;
+
+  /**
+   * @private
+   */
   #size;
+
+  /**
+   * @private
+   */
   #adjacencyMap;
 
   static fromJson(json) {
@@ -157,6 +168,13 @@ class Vertex {
 
   labelEquals(label) {
     return consistentStringify(label) === consistentStringify(this.#label);
+  }
+
+  /**
+   * Clones a vertex, copying over the label and size, NOT the adjacency map.
+   */
+  clone() {
+    return new Vertex(JSON.parse(JSON.stringify(this.label)), { size: this.size });
   }
 }
 

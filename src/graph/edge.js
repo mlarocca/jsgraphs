@@ -6,12 +6,24 @@ import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 const DEFAULT_EDGE_WEIGHT = 1;
 
 class Edge {
+  /**
+   * @private
+   */
   #source;
 
+  /**
+   * @private
+   */
   #destination;
 
+  /**
+   * @private
+   */
   #weight;
 
+  /**
+   * @private
+   */
   #label;
 
   static fromJson(json) {
@@ -102,6 +114,16 @@ class Edge {
 
   labelEquals(label) {
     return consistentStringify(label) === consistentStringify(this.label);
+  }
+
+  /**
+   * Clones an edge.
+   */
+  clone() {
+    return new Edge(
+      JSON.parse(JSON.stringify(this.source)),
+      JSON.parse(JSON.stringify(this.destination)),
+      { weight: this.weight, label: this.label });
   }
 }
 

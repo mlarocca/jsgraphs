@@ -24,7 +24,7 @@ describe('Edge API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Edge(1, 2);
-    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'labelEquals'];
+    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'labelEquals', 'clone'];
     let attributes = ['source', 'destination', 'weight', 'label'];
     testAPI(edge, attributes, methods);
   });
@@ -332,6 +332,40 @@ describe('Methods', () => {
         let e = new Edge(source, dest, { label: label });
         e.labelEquals(label2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
       });
+    });
+  });
+
+  describe('clone()', () => {
+    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14', { "a": [true, { false: 3.0 }] }];
+    it('# should clone all fields', () => {
+      labels.forEach(label => {
+        let source = choose(labels);
+        let dest = choose(labels);
+        let e1 = new Edge(source, dest, { label: label, weight: Math.random() });
+        let e2 = e1.clone();
+        e1.equals(e2).should.be.true();
+      });
+    });
+
+    it('# changing the cloned instance should not affect the original', () => {
+      let e1 = new Edge([1, 2, { 3: '3' }], { 'a': [true, { false: 3.0 }] }, { label: choose(labels), weight: Math.random() });
+      let e2 = e1.clone();
+      let e3 = e2.clone();
+
+      e1.equals(e2).should.be.true();
+      e1.equals(e3).should.be.true();
+      e3.equals(e2).should.be.true();
+
+      e2.source[2][1] = 'new';
+      e1.equals(e2).should.be.false();
+      e1.source.should.eql([1, 2, { 3: '3' }]);
+      e2.source.should.eql([1, 2, { 3: '3', 1: 'new' }]);
+      e1.equals(e3).should.be.true();
+
+      e3.destination['a'] = 'changed';
+      e1.equals(e3).should.be.false();
+      e1.destination.should.eql({ 'a': [true, { false: 3.0 }] });
+      e3.destination.should.eql({ 'a': 'changed' });
     });
   });
 

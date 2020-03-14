@@ -24,7 +24,8 @@ describe('Vertex API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'edgeTo', 'addEdge', 'addEdgeTo', 'removeEdge', 'removeEdgeTo', 'equals', 'labelEquals', 'toJson'];
+    let methods = ['constructor', 'edgeTo', 'addEdge', 'addEdgeTo', 'removeEdge', 'removeEdgeTo', 'equals', 'labelEquals',
+      'toJson', 'clone'];
     let attributes = ['label', 'size', 'outDegree', 'outgoingEdges'];
     testAPI(vertex, attributes, methods);
   });
@@ -567,6 +568,30 @@ describe('Methods', () => {
         const label2 = choose(labels);
         v.labelEquals(label2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
       });
+    });
+  });
+
+  describe('clone()', () => {
+    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+    it('# should clone the vertex fields', () => {
+      labels.forEach(label => {
+        let v = new Vertex(label);
+        v.clone().labelEquals(label).should.be.true();
+        v.clone().equals(v).should.be.true();
+      });
+    });
+
+    it('# changing the cloned instance should not affect the original', () => {
+      let v = new Vertex({'test': 1}, {size: -3});
+      let w = v.clone();
+      v.label.should.eql(w.label);
+      v.size.should.eql(w.size);
+      v.equals(w).should.be.true();
+      v.label['test'] = 2;
+      v.label['new'] = 3;
+
+      v.label.should.not.eql(w.label);
+      v.equals(w).should.not.be.true();
     });
   });
 

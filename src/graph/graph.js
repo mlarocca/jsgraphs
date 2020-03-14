@@ -66,15 +66,11 @@ class Graph {
    * 
    */
   get vertices() {
-    return Array.from(_vertices.get(this).values());
+    return [...getVertices(this)].map(v => v.clone());
   }
 
   get edges() {
-    return this.vertices.flatMap(v => v.outgoingEdges);
-  }
-
-  get size() {
-    return _size.get(this);
+    return [...getEdges(this)].map(e => e.clone());
   }
 
   createVertex(label, { size } = {}) {
@@ -104,15 +100,14 @@ class Graph {
     _vertices.set(this, vcs);
   }
 
-  hasVertex(v) {
-    let label;
-    if (v instanceof Vertex) {
-      label = v.label;
-    } else {
-      label = v;
-    }
+  hasVertex(vertex) {
+    let v = getGraphVertex(this, vertex);
+    return isDefined(v) && (v instanceof Vertex);
+  }
 
-    return _vertices.get(this).has(consistentStringify(label));
+  getVertex(vertex) {
+    let v = getGraphVertex(this, vertex);
+    return isDefined(v) ? v.clone() : undefined;
   }
 
   getVertexSize(vertex) { 
@@ -158,6 +153,16 @@ class Graph {
     return es.some(e => e.equals(edge));
   }
 
+  hasEdgeBetween(source, destination) {
+    let e = getGraphEdge(this, source, destination);
+    return isDefined(e) && (e instanceof Edge);
+  }
+
+  getEdge(source, destination) {
+    let e = getGraphEdge(this, source, destination);
+    return isDefined(e) ? e.clone() : undefined;
+  }
+
   getEdgeWeight(sourceLabel, destinationLabel) {
     let e = getGraphEdge(this, sourceLabel, destinationLabel);
     return isDefined(e) ? e.weight : undefined;
@@ -168,17 +173,10 @@ class Graph {
     return isDefined(e) ? e.label : undefined;
   }
 
-  hasEdgeBetween(sourceLabel, destinationLabel) {
-    if (!(this.hasVertex(sourceLabel) && this.hasVertex(destinationLabel))) {
-      return false;
-    }
-    return isDefined(getGraphVertex(this, sourceLabel).edgeTo(getGraphVertex(this, destinationLabel)));
-  }
-
   toJson() {
     return JSON.stringify({
-      vertices: this.vertices.map(v => v.toJson()),
-      edges: this.edges.map(e => e.toJson())
+      vertices: [...getVertices(this)].map(v => v.toJson()),
+      edges: [...getEdges(this)].map(e => e.toJson())
     });
   }
 
@@ -188,7 +186,7 @@ class Graph {
 }
 
 /**
- * @method getVertexFromGraph
+ * @method getGraphVertex
  * @for Graph
  * @private
  * 
@@ -234,42 +232,27 @@ function getGraphEdge(graph, source, destination) {
  * @private
  * 
  * @param {*} graph 
+ * 
  */
-function allGraphVertices(graph) {
-
+function* getVertices(graph) {
+  yield* _vertices.get(graph).values();
 }
-
 
 /**
  * @private
  * 
  * @param {*} graph 
  */
-function allGraphEdges(graph) {
-
+function* getEdges(graph) {
+  for (let v of getVertices(graph)) {
+    for (let e of v.outgoingEdges) {
+      yield e;
+    }
+  }
 }
-
-
 
 export class UndirectedGraph extends Graph {
 
-}
-
-export class GraphEmbedding {
-  #graph;
-  #coordinates;
-
-  constructor(graph, coordinates) {
-    this.#graph = graph;
-    this.#coordinates = coordinates;
-  }
-
-  getVertexCoordinates(vertex) {
-    if (!this.#graph.hasVertex(vertex)) {
-      throw new ERROR_MSG_VERTEX_NOT_FOUND('GraphEmbedding.getVertexCoordinates()', vertex);
-    }
-    return this.#coordinates.get(vertex);
-  }
 }
 
 export default Graph;

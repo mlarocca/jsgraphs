@@ -21,7 +21,6 @@ function createExampleGraph() {
   let v4 = { 'what': -3 };
   let v5 = [1, true, -3];
 
-
   g.createVertex(v1);
   g.createVertex(v2, { size: -21 });
   g.createVertex(v3);
@@ -64,15 +63,15 @@ describe('Graph API', () => {
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'equals',
-      'createVertex', 'addVertex', 'hasVertex', 'getVertexSize',
-      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
-    let attributes = ['vertices', 'edges', 'size'];
+      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexSize',
+      'createEdge', 'addEdge', 'hasEdge', 'getEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
+    let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
 });
 
 describe('createVertex()', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
@@ -97,7 +96,7 @@ describe('createVertex()', () => {
 });
 
 describe('addVertex()', () => {
-  const vertices = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()].map(v => new Vertex(v));
+  const vertices = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(v => new Vertex(v));
   it('# should add all valid label types', function () {
     let g = new Graph();
     vertices.forEach(v => {
@@ -138,7 +137,7 @@ describe('getVertexSize', () => {
 });
 
 describe('createEdge()', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
@@ -179,7 +178,7 @@ describe('createEdge()', () => {
 });
 
 describe('addEdge()', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
@@ -342,7 +341,8 @@ describe('fromJson()', () => {
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
   g.createEdge(v3, v1, { weight: 33, label: 'edge' });
-
+  console.log(g.vertices);
+  console.log(g.edges);
   it('# applyed to the result of toJson, it should match source graph ', () => {
     Graph.fromJson(g.toJson()).should.eql(g);
   });
