@@ -1,30 +1,30 @@
 import UnionFind from '../disjointset/disjointset.js';
 import DWayHeap from '../dway_heap/dway_heap.js';
-import { consistentStringify } from '../common/strings.js';
+import Edge from './edge.js';
 import Vertex from './vertex.js';
+import { isDefined, isUndefined } from '../common/basic.js';
+import { consistentStringify } from '../common/strings.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
-import Edge from './edge.js';
-import { isDefined, isUndefined } from '../common/basic.js';
 
-const _vertices = new Map();
+const _vertices = new WeakMap();
 
-/** @module jsgraphs
+/** @class Graph
  *
- * This module exposes three methods to create instances of graphs objects.
- * It is possible to create both undirected graphs (via UndirectedGraph and Graph constructors)
- * and directed graphs (via the DirectedGraph constructor method).
+ * This module exports two classes to create instances of graphs objects.
+ * It is possible to create both directed graphs (default Graph) 
+ * and undirected graphs (via the UndirectedGraph class).
  * Hypergraphs are not available yet, so for both directed and undirected graphs,
- * parallel edges are forbidden, although self-edges are not.
+ * parallel edges are forbidden, although loops are not.
  * After creating each graph instance, a number of algorithms can be run on it:
- *   - DFS
- *   - BFS
- *   - Kruskal and Prim's algorithms (on undirected graphs)
- *   - Connected components computation
- *   - Strongly connected components computation
- *   - Dijkstra's
- *   - Bellman-Ford's
- *   - Floyd-Warshall's
+ *   - DFS (ToDo)
+ *   - BFS (ToDo)
+ *   - Kruskal and Prim's algorithms (on undirected graphs) (ToDo)
+ *   - Connected components computation (ToDo)
+ *   - Strongly connected components computation (directed graphs) (ToDo)
+ *   - Dijkstra's (ToDo)
+ *   - Bellman-Ford's (ToDo)
+ *   - Floyd-Warshall's (ToDo)
  *   - ...
  */
 class Graph {
@@ -230,12 +230,46 @@ function getGraphEdge(graph, source, destination) {
   return u.edgeTo(v);
 }
 
-export class DirectedGraph extends Graph {
+/**
+ * @private
+ * 
+ * @param {*} graph 
+ */
+function allGraphVertices(graph) {
 
 }
 
+
+/**
+ * @private
+ * 
+ * @param {*} graph 
+ */
+function allGraphEdges(graph) {
+
+}
+
+
+
 export class UndirectedGraph extends Graph {
 
+}
+
+export class GraphEmbedding {
+  #graph;
+  #coordinates;
+
+  constructor(graph, coordinates) {
+    this.#graph = graph;
+    this.#coordinates = coordinates;
+  }
+
+  getVertexCoordinates(vertex) {
+    if (!this.#graph.hasVertex(vertex)) {
+      throw new ERROR_MSG_VERTEX_NOT_FOUND('GraphEmbedding.getVertexCoordinates()', vertex);
+    }
+    return this.#coordinates.get(vertex);
+  }
 }
 
 export default Graph;

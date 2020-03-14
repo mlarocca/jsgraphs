@@ -219,19 +219,19 @@ describe('Methods', () => {
       let u = new Vertex(2);
 
       const v = 'a string';
-      expect(() => u.getEdgeTo(v)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.edgeTo', 'v', v));
+      expect(() => u.edgeTo(v)).to.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex.edgeTo', 'v', v));
     });
 
     it('# should return undefined if no such edge exists', () => {
       let v = new Vertex(2, { outgoingEdges: [new Edge(2, 2)] });
-      expect(v.getEdgeTo(new Vertex('any'))).to.be.eql(undefined);
+      expect(v.edgeTo(new Vertex('any'))).to.be.eql(undefined);
     });
 
     it('# should return the edge if exists', () => {
       let e = new Edge(2, 2);
       let v = new Vertex(2, { outgoingEdges: [e] });
-      v.getEdgeTo(v).should.be.eql(e);
-      v.getEdgeTo(v).equals(e).should.be.true();
+      v.edgeTo(v).should.be.eql(e);
+      v.edgeTo(v).equals(e).should.be.true();
     });
 
 
@@ -242,8 +242,8 @@ describe('Methods', () => {
       let e1 = new Edge(2, 3, { label: 'label' });
       v.addEdge(e1);
 
-      v.getEdgeTo(u).should.be.eql(e1);
-      v.getEdgeTo(u).equals(e1).should.be.true();
+      v.edgeTo(u).should.be.eql(e1);
+      v.edgeTo(u).equals(e1).should.be.true();
     });
   });
 
@@ -267,19 +267,19 @@ describe('Methods', () => {
         let e1 = new Edge(2, 3, { label: 'label', weight: -0.5 });
         v.addEdge(e1);
 
-        v.getEdgeTo(u).should.be.eql(e1);
-        v.getEdgeTo(u).equals(e1).should.be.true();
+        v.edgeTo(u).should.be.eql(e1);
+        v.edgeTo(u).equals(e1).should.be.true();
 
         let e2 = new Edge(2, '44', { label: 'x', weight: -10.5 });
         v.addEdge(e2);
         let e3 = new Edge(2, 3, { label: 'x', weight: 5 });
         v.addEdge(e3);
 
-        v.getEdgeTo(u).should.be.eql(e3);
-        v.getEdgeTo(u).equals(e3).should.be.true();
+        v.edgeTo(u).should.be.eql(e3);
+        v.edgeTo(u).equals(e3).should.be.true();
 
-        v.getEdgeTo(w).should.be.eql(e2);
-        v.getEdgeTo(w).equals(e2).should.be.true();
+        v.edgeTo(w).should.be.eql(e2);
+        v.edgeTo(w).equals(e2).should.be.true();
       });
     });
   });
@@ -304,7 +304,7 @@ describe('Methods', () => {
         const eLabel1 = 'lab1';
         v.addEdgeTo(u, { edgeLabel: eLabel1 });
 
-        e = v.getEdgeTo(u);
+        e = v.edgeTo(u);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(u.label);
         e.label.should.be.eql(eLabel1);
@@ -315,12 +315,12 @@ describe('Methods', () => {
         v.addEdgeTo(w, { edgeLabel: eLabel2 });
         v.addEdgeTo(u, { edgeLabel: eLabel3 });
 
-        e = v.getEdgeTo(u);
+        e = v.edgeTo(u);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(u.label);
         e.label.should.be.eql(eLabel3);
 
-        e = v.getEdgeTo(w);
+        e = v.edgeTo(w);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(w.label);
         e.label.should.be.eql(eLabel2);
@@ -334,7 +334,7 @@ describe('Methods', () => {
         const eWeight1 = 10.1;
         v.addEdgeTo(u, { edgeWeight: eWeight1 });
 
-        e = v.getEdgeTo(u);
+        e = v.edgeTo(u);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(u.label);
         e.weight.should.be.eql(eWeight1);
@@ -345,12 +345,12 @@ describe('Methods', () => {
         v.addEdgeTo(w, { edgeWeight: eWeight2 });
         v.addEdgeTo(u, { edgeWeight: eWeight3 });
 
-        e = v.getEdgeTo(u);
+        e = v.edgeTo(u);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(u.label);
         e.weight.should.be.eql(eWeight3);
 
-        e = v.getEdgeTo(w);
+        e = v.edgeTo(w);
         e.source.should.be.eql(v.label);
         e.destination.should.be.eql(w.label);
         e.weight.should.be.eql(eWeight2);
@@ -386,25 +386,25 @@ describe('Methods', () => {
         let e4 = new Edge(2, 3, { label: 'label', weight: 15 });
         v.addEdge(e4);
 
-        v.getEdgeTo(u).should.be.eql(e4);
-        v.getEdgeTo(u).equals(e4).should.be.true();
+        v.edgeTo(u).should.be.eql(e4);
+        v.edgeTo(u).equals(e4).should.be.true();
 
-        v.getEdgeTo(w).should.be.eql(e2);
-        v.getEdgeTo(w).equals(e2).should.be.true();
+        v.edgeTo(w).should.be.eql(e2);
+        v.edgeTo(w).equals(e2).should.be.true();
 
         v.removeEdge(e4);
-        v.getEdgeTo(u).should.be.eql(e3);
-        v.getEdgeTo(u).equals(e3).should.be.true();
+        v.edgeTo(u).should.be.eql(e3);
+        v.edgeTo(u).equals(e3).should.be.true();
 
         v.removeEdge(e3);
-        v.getEdgeTo(u).should.be.eql(e);
-        v.getEdgeTo(u).equals(e).should.be.true();
+        v.edgeTo(u).should.be.eql(e);
+        v.edgeTo(u).equals(e).should.be.true();
 
         v.removeEdge(e);
-        expect(v.getEdgeTo(u)).to.be.undefined;
+        expect(v.edgeTo(u)).to.be.undefined;
 
         v.removeEdge(e2);
-        expect(v.getEdgeTo(w)).to.be.undefined;
+        expect(v.edgeTo(w)).to.be.undefined;
       });
     });
   });
@@ -436,29 +436,29 @@ describe('Methods', () => {
         let e4 = new Edge(2, 3, { label: 'label', weight: 15 });
         v.addEdge(e4);
 
-        v.getEdgeTo(u).should.be.eql(e4);
-        v.getEdgeTo(u).equals(e4).should.be.true();
+        v.edgeTo(u).should.be.eql(e4);
+        v.edgeTo(u).equals(e4).should.be.true();
 
-        v.getEdgeTo(w).should.be.eql(e2);
-        v.getEdgeTo(w).equals(e2).should.be.true();
+        v.edgeTo(w).should.be.eql(e2);
+        v.edgeTo(w).equals(e2).should.be.true();
 
         v.removeEdgeTo(u, { edgeLabel: 'label' });
-        v.getEdgeTo(u).should.be.eql(e3);
-        v.getEdgeTo(u).equals(e3).should.be.true();
+        v.edgeTo(u).should.be.eql(e3);
+        v.edgeTo(u).equals(e3).should.be.true();
 
         v.removeEdgeTo(u, { edgeLabel: 'x' });
-        v.getEdgeTo(u).should.be.eql(e);
-        v.getEdgeTo(u).equals(e).should.be.true();
+        v.edgeTo(u).should.be.eql(e);
+        v.edgeTo(u).equals(e).should.be.true();
 
         v.removeEdgeTo(u, { edgeLabel: undefined });
-        expect(v.getEdgeTo(u)).to.be.undefined;
+        expect(v.edgeTo(u)).to.be.undefined;
 
         v.removeEdgeTo(w, { edgeLabel: 'any' });
-        v.getEdgeTo(w).should.be.eql(e2);
-        v.getEdgeTo(w).equals(e2).should.be.true();
+        v.edgeTo(w).should.be.eql(e2);
+        v.edgeTo(w).equals(e2).should.be.true();
 
         v.removeEdgeTo(w, { edgeLabel: 'x' });
-        expect(v.getEdgeTo(w)).to.be.undefined;
+        expect(v.edgeTo(w)).to.be.undefined;
       });
 
       it('# should remove all edges to dest if no label is passed', () => {
@@ -476,17 +476,17 @@ describe('Methods', () => {
         let e4 = new Edge(2, 3, { label: 'label', weight: 15 });
         v.addEdge(e4);
 
-        v.getEdgeTo(u).should.be.eql(e4);
-        v.getEdgeTo(u).equals(e4).should.be.true();
+        v.edgeTo(u).should.be.eql(e4);
+        v.edgeTo(u).equals(e4).should.be.true();
 
-        v.getEdgeTo(w).should.be.eql(e2);
-        v.getEdgeTo(w).equals(e2).should.be.true();
+        v.edgeTo(w).should.be.eql(e2);
+        v.edgeTo(w).equals(e2).should.be.true();
 
         v.removeEdgeTo(u, { edgeLabel: null });
-        expect(v.getEdgeTo(u)).to.be.undefined;
+        expect(v.edgeTo(u)).to.be.undefined;
 
         v.removeEdgeTo(w, { edgeLabel: null });
-        expect(v.getEdgeTo(w)).to.be.undefined;
+        expect(v.edgeTo(w)).to.be.undefined;
       });
     });
   });

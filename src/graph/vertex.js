@@ -5,9 +5,6 @@ import { consistentStringify } from '../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_VERTEX_SIZE = 1;
-const _label = new WeakMap();
-const _size = new WeakMap();
-const _adjacencyMap = new WeakMap();
 
 const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
 
@@ -15,6 +12,10 @@ const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
  *
  */
 class Vertex {
+  #label;
+  #size;
+  #adjacencyMap;
+
   static fromJson(json) {
     return Vertex.fromJsonObject(JSON.parse(json));
   }
@@ -46,10 +47,10 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', outgoingEdges));
     }
 
-    _label.set(this, label);
-    _size.set(this, toNumber(size));
+    this.#label = label;
+    this.#size = toNumber(size);
 
-    _adjacencyMap.set(this, new Map());
+    this.#adjacencyMap = new Map();
 
     outgoingEdges.forEach(edge => {
       if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
@@ -61,11 +62,11 @@ class Vertex {
   }
 
   get label() {
-    return _label.get(this);
+    return this.#label;
   }
 
   get size() {
-    return _size.get(this);
+    return this.#size;
   }
 
   /**
@@ -74,8 +75,7 @@ class Vertex {
    * @returns {*}
    */
   get outDegree() {
-    let adj = _adjacencyMap.get(this);
-    return adj.size;
+    return this.#adjacencyMap.size;
   }
 
   /**
@@ -85,7 +85,7 @@ class Vertex {
    */
   get outgoingEdges() {
     let outEdges = [];
-    for (let [key, edgesArray] of _adjacencyMap.get(this)) {
+    for (let [key, edgesArray] of this.#adjacencyMap) {
       let n = edgesArray.length;
       if (n > 0) {
         outEdges.push(edgesArray[n - 1]);
@@ -103,8 +103,7 @@ class Vertex {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.edgeTo', 'v', v));
     }
-    let adj = _adjacencyMap.get(this);
-    let edges = adj.has(v.label) ? adj.get(v.label) : [];
+    let edges = this.#adjacencyMap.has(v.label) ? this.#adjacencyMap.get(v.label) : [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
@@ -113,7 +112,7 @@ class Vertex {
     if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdge', 'edge', edge));
     }
-    return replaceEdgeFromTo(this, edge.destination, edge.label, edge);
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label, edge);
   }
 
   addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
@@ -129,14 +128,14 @@ class Vertex {
     if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdge', 'edge', edge));
     }
-    return replaceEdgeFromTo(this, edge.destination, edge.label);
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label);
   }
 
   removeEdgeTo(v, { edgeLabel } = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdgeTo', 'v', v));
     }
-    return replaceEdgeFromTo(this, v.label, edgeLabel);
+    return replaceEdgeFromTo(this.#adjacencyMap, v.label, edgeLabel);
   }
 
   toJson() {
@@ -157,7 +156,7 @@ class Vertex {
   }
 
   labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(_label.get(this));
+    return consistentStringify(label) === consistentStringify(this.#label);
   }
 }
 
@@ -167,14 +166,13 @@ class Vertex {
  * @for Vertex
  * @private
  *
- * @param vertex
+ * @param adj
  * @param destination
  * @param {*?} label
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
-function replaceEdgeFromTo(vertex, destination, label, newEdge = null) {
-  let adj = _adjacencyMap.get(vertex);
+function replaceEdgeFromTo(adj, destination, label, newEdge = null) {
   let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
 
   if (label !== null) {
