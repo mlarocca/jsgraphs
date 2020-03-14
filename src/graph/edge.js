@@ -4,12 +4,15 @@ import { consistentStringify } from '../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_EDGE_WEIGHT = 1;
-const _source = new WeakMap();
-const _destination = new WeakMap();
-const _weight = new WeakMap();
-const _label = new WeakMap();
 
 class Edge {
+  #source;
+
+  #destination;
+
+  #weight;
+
+  #label;
 
   static fromJson(json) {
     return Edge.fromJsonObject(JSON.parse(json));
@@ -46,26 +49,26 @@ class Edge {
       label = undefined;
     }
 
-    _source.set(this, source);
-    _destination.set(this, destination);
-    _weight.set(this, toNumber(weight));
-    _label.set(this, label);
+    this.#source = source;
+    this.#destination = destination;
+    this.#weight = toNumber(weight);
+    this.#label = label;
   }
 
   get source() {
-    return _source.get(this);
+    return this.#source;
   }
 
   get destination() {
-    return _destination.get(this);
+    return this.#destination;
   }
 
   get weight() {
-    return _weight.get(this);
+    return this.#weight;
   }
 
   get label() {
-    return _label.get(this);
+    return this.#label;
   }
 
   hasNegativeWeight() {
