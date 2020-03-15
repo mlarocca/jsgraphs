@@ -117,13 +117,23 @@ class Edge {
   }
 
   /**
+   * 
    * Clones an edge.
+   * 
+   * @param {*} shallow When true, source's and destination's labels are copied by reference, not cloned. 
    */
-  clone() {
-    return new Edge(
-      JSON.parse(JSON.stringify(this.source)),
-      JSON.parse(JSON.stringify(this.destination)),
-      { weight: this.weight, label: this.label });
+  clone(shallow = false) {
+    if (shallow) {
+      return new Edge(
+        this.source,
+        this.destination,
+        { weight: this.weight, label: this.label });  
+    } else {
+      return new Edge(
+        JSON.parse(JSON.stringify(this.source)),
+        JSON.parse(JSON.stringify(this.destination)),
+        { weight: this.weight, label: this.label });
+    }
   }
 }
 

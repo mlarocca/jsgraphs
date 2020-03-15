@@ -89,10 +89,17 @@ class Vertex {
   }
 
   /**
+  /**
    * Clones a vertex, copying over the label and weight, NOT the adjacency map.
+   * 
+   * @param {*} shallow When true, label is copied by reference, not cloned. 
    */
-  clone() {
-    return new Vertex(JSON.parse(JSON.stringify(this.label)), { weight: this.weight });
+  clone(shallow = false) {
+    if (shallow) {
+      return new Vertex(this.label, { weight: this.weight });
+    } else {
+      return new Vertex(JSON.parse(JSON.stringify(this.label)), { weight: this.weight });
+    }
   }
 }
 

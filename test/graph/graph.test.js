@@ -62,7 +62,7 @@ describe('Graph API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
-    let methods = ['constructor', 'toJson', 'equals',
+    let methods = ['constructor', 'toJson', 'equals', 'clone',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
       'createEdge', 'addEdge', 'hasEdge', 'getEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
     let attributes = ['vertices', 'edges'];
