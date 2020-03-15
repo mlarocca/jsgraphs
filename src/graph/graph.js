@@ -1,5 +1,7 @@
 import UnionFind from '../disjointset/disjointset.js';
 import DWayHeap from '../dway_heap/dway_heap.js';
+import Point from '../geometric/point.js';
+
 import Edge from './edge.js';
 import Vertex from './vertex.js';
 import { isDefined, isUndefined } from '../common/basic.js';
@@ -8,6 +10,133 @@ import { consistentStringify } from '../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 
 const _vertices = new WeakMap();
+
+class GVertex extends Vertex {
+  /**
+   * @private
+   */
+  #adjacencyMap;
+
+  /**
+   * @constructor
+   * @for GVertex
+   *
+   * Construct an object representation for a graph's vertex.
+   *
+   * @param {*} label  The vertex's label.
+   * @param {number?} weight  The weight associated to the vertex (by default, 1).
+   * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
+   * @return {GVertex}  The Vertex created.
+   * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, weight is not
+   *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
+   */
+  constructor(label, { weight, outgoingEdges = [] } = {}) {
+    super(label, {weight: weight});
+    if (!Array.isArray(outgoingEdges)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+    }
+
+    this.#adjacencyMap = new Map();
+
+    outgoingEdges.forEach(edge => {
+      if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
+        throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+      }
+
+      this.addEdge(edge);
+    });
+  }
+
+  /**
+   * For a multigraph, returns all the edges starting at this vertex.
+   * For a simple graph, returns only the last outgoing edge added between this vertex and each other vertex.
+   * @returns {Array}
+   */
+  get outgoingEdges() {
+    let outEdges = [];
+    for (let [key, edgesArray] of this.#adjacencyMap) {
+      let n = edgesArray.length;
+      if (n > 0) {
+        outEdges.push(edgesArray[n - 1]);
+      }
+    }
+    return outEdges;
+  }
+
+  /**
+   *
+   * @param {GVertex} v
+   * @returns {undefined}
+   */
+  edgeTo(v) {
+    if (!(v instanceof GVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
+    }
+    let edges = this.#adjacencyMap.has(v.label) ? this.#adjacencyMap.get(v.label) : [];
+    let n = edges.length;
+    return n > 0 ? edges[n - 1] : undefined;
+  }
+
+  addEdge(edge) {
+    if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
+    }
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label, edge);
+  }
+
+  addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
+    if (!(v instanceof GVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
+    }
+    let edge = new Edge(this.label, v.label, { weight: edgeWeight, label: edgeLabel });
+    this.addEdge(edge);
+    return edge;
+  }
+
+  removeEdge(edge) {
+    if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
+    }
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label);
+  }
+
+  removeEdgeTo(v, { edgeLabel } = {}) {
+    if (!(v instanceof GVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
+    }
+    return replaceEdgeFromTo(this.#adjacencyMap, v.label, edgeLabel);
+  }
+}
+
+/**
+ * @method replaceEdgeFromTo
+ * @for GVertex
+ * @private
+ *
+ * @param adj
+ * @param destination
+ * @param {*?} label
+ * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
+ *                        remove the old edge.
+ */
+function replaceEdgeFromTo(adj, destination, label, newEdge = null) {
+  let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
+
+  if (label !== null) {
+    // remove edge(s) with the same label
+    edgesToDest = edgesToDest.filter(e => !e.labelEquals(label));
+  } else {
+    // if no label is passed, removes all the edges to the destination
+    edgesToDest = [];
+  }
+
+  // then add the new edge (if defined)
+  if (isDefined(newEdge)) {
+    edgesToDest.push(newEdge);
+  }
+
+  adj.set(destination, edgesToDest);
+}
 
 /** @class Graph
  *
@@ -53,7 +182,7 @@ class Graph {
    */
   static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
-    vertices.forEach(v => g.addVertex(Vertex.fromJson(v)));
+    vertices.forEach(v => g.addVertex(GVertex.fromJson(v)));
     edges.forEach(e => g.addEdge(Edge.fromJson(e)));
     return g;
   }
@@ -73,14 +202,14 @@ class Graph {
     return [...getEdges(this)].map(e => e.clone());
   }
 
-  createVertex(label, { size } = {}) {
+  createVertex(label, { weight } = {}) {
     let vcs = _vertices.get(this);
 
     if (this.hasVertex(label)) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     }
 
-    let v = new Vertex(label, { size: size });
+    let v = new GVertex(label, { weight: weight });
 
     vcs.set(consistentStringify(v.label), v);
     _vertices.set(this, vcs);
@@ -96,13 +225,13 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
 
-    vcs.set(consistentStringify(v.label), v);
+    vcs.set(consistentStringify(v.label), new GVertex(v.label, {weight: v.weight}));
     _vertices.set(this, vcs);
   }
 
   hasVertex(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) && (v instanceof Vertex);
+    return isDefined(v) && (v instanceof GVertex);
   }
 
   getVertex(vertex) {
@@ -110,9 +239,19 @@ class Graph {
     return isDefined(v) ? v.clone() : undefined;
   }
 
-  getVertexSize(vertex) { 
+  getVertexWeight(vertex) { 
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? v.size : undefined;
+    return isDefined(v) ? v.weight : undefined;
+  }
+
+  /**
+   * For a regular graph, returns the size of the adjacency vector for this vertex (as to each destination,
+   * at most one edge is allowed).
+   * @returns {*}
+   */
+  getVertexOutDegree(vertex) {
+    let v = getGraphVertex(this, vertex);
+    return isDefined(v) ? vertex.outgoingEdges.size : undefined;
   }
 
   createEdge(source, destination, { weight, label } = {}) {
@@ -194,7 +333,7 @@ class Graph {
  * This method should not be exposed because clients shouldn't be able to directly manipulate vertices.
  * 
  * @param {Graph} graph 
- * @param {Vertex|any} vertex 
+ * @param {GVertex|any} vertex 
  */
 function getGraphVertex(graph, vertex) {
   let label;
@@ -204,8 +343,8 @@ function getGraphVertex(graph, vertex) {
     label = vertex;
   }
 
-  let v = _vertices.get(graph);
-  return isDefined(v) ? v.get(consistentStringify(label)) : undefined;
+  let vcs = _vertices.get(graph);
+  return vcs.get(consistentStringify(label));
 }
 
 /**
