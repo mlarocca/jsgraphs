@@ -1,8 +1,5 @@
 import Point from './point.js';
 
-const _x = new WeakMap();
-const _y = new WeakMap();
-
 /**
  * @class Point2D
  * @description
@@ -22,8 +19,6 @@ class Point2D extends Point {
    */
   constructor(x, y) {
     super(x, y);
-    _x.set(this, x);
-    _y.set(this, y);
   }
 
   /**
@@ -65,7 +60,7 @@ class Point2D extends Point {
    * @returns {number} The value of the x coordinate for the point.
    */
   get x() {
-    return _x.get(this);
+    return this.coordinates()[0];
   }
 
   /**
@@ -77,7 +72,7 @@ class Point2D extends Point {
    * @returns {number} The value of the y coordinate for the point.
    */
   get y() {
-    return _y.get(this);
+    return this.coordinates()[1];
   }
 }
 
