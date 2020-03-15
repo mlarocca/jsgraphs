@@ -3,10 +3,6 @@ import { isUndefined } from '../common/basic.js';
 import { range } from '../common/numbers.js';
 import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE } from '../common/errors.js';
 
-const _bottom = new WeakMap();
-const _top = new WeakMap();
-const _K = new WeakMap();
-
 const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
   `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
 
@@ -29,6 +25,10 @@ function validateVertices(bottomVertex, topVertex, fname = 'validateVertices') {
  * Models a KD Point in the Cartesian plane.
  */
 class Cube {
+  #bottom;
+  #top;
+  #K;
+
   /**
    * @constructor
    * @for Cube
@@ -44,9 +44,9 @@ class Cube {
    */
   constructor(bottomVertex, topVertex) {
     validateVertices(bottomVertex, topVertex, 'Cube.constructor');
-    _K.set(this, bottomVertex.dimensionality);
-    _bottom.set(this, bottomVertex);
-    _top.set(this, topVertex);
+    this.#K = bottomVertex.dimensionality;
+    this.#bottom = bottomVertex;
+    this.#top = topVertex;
   }
 
   /**
@@ -167,11 +167,11 @@ class Cube {
   }
 
   get bottom() {
-    return _bottom.get(this);
+    return new Point(...this.#bottom.coordinates());
   }
 
   get top() {
-    return _top.get(this);
+    return new Point(...this.#top.coordinates());
   }
 
   /**
@@ -185,7 +185,7 @@ class Cube {
    * @returns {number} The dimensionality of this point.
    */
   get dimensionality() {
-    return _K.get(this);
+    return this.#K;
   }
 
   /**

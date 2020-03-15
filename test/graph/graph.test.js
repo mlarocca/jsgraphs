@@ -341,8 +341,7 @@ describe('fromJson()', () => {
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
   g.createEdge(v3, v1, { weight: 33, label: 'edge' });
-  console.log(g.vertices);
-  console.log(g.edges);
+
   it('# applyed to the result of toJson, it should match source graph ', () => {
     Graph.fromJson(g.toJson()).should.eql(g);
   });

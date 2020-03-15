@@ -3,9 +3,6 @@ import { mean } from '../common/array.js';
 import { isUndefined } from '../common/basic.js';
 import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_MSG_PARAM_TYPE } from '../common/errors.js';
 
-const _coordinates = new WeakMap();
-const _K = new WeakMap();
-
 /**
  * @name validateCoordinates
  * @private
@@ -35,6 +32,10 @@ const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =
  * Models a Point in the K-dimensional Cartesian space.
  */
 class Point {
+  #coordinates;
+  #K;
+
+
   /**
    * @constructor
    * @for Point
@@ -47,8 +48,8 @@ class Point {
    */
   constructor(...coordinates) {
     validateCoordinates('constructor', ...coordinates);
-    _K.set(this, coordinates.length);
-    _coordinates.set(this, coordinates.slice());
+    this.#K = coordinates.length;
+    this.#coordinates = coordinates.slice();
   }
 
   /**
@@ -190,7 +191,7 @@ class Point {
    * @returns {Array<number>} A shallow copy of the coordinates array.
    */
   coordinates() {
-    return _coordinates.get(this).slice();
+    return this.#coordinates.slice();
   }
 
   /**
@@ -222,7 +223,7 @@ class Point {
    * @returns {number} The dimensionality of this point.
    */
   get dimensionality() {
-    return _K.get(this);
+    return this.#K;
   }
 
   /**
