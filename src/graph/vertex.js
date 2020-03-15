@@ -1,17 +1,10 @@
 import Edge from './edge.js';
-import {isDefined} from '../common/basic.js';
-import {isNumber, toNumber} from '../common/numbers.js';
-import {consistentStringify} from '../common/strings.js';
-import {arrayMin} from '../common/array.js';
-import {ERROR_MSG_INVALID_ARGUMENT,
-  ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS,
-  ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY} from '../common/errors.js';
+import { isDefined } from '../common/basic.js';
+import { isNumber, toNumber } from '../common/numbers.js';
+import { consistentStringify } from '../common/strings.js';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_VERTEX_SIZE = 1;
-const _label = new WeakMap();
-const _size = new WeakMap();
-const _adjacencyMap = new WeakMap();
-const _isMultiGraph = new WeakMap();
 
 const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
 
@@ -19,6 +12,29 @@ const EDGE_WEIGHT_FUNC = (edge) => edge.weight;
  *
  */
 class Vertex {
+  /**
+   * @private
+   */
+  #label;
+
+  /**
+   * @private
+   */
+  #size;
+
+  /**
+   * @private
+   */
+  #adjacencyMap;
+
+  static fromJson(json) {
+    return Vertex.fromJsonObject(JSON.parse(json));
+  }
+
+  static fromJsonObject({ label, size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] }) {
+    return new Vertex(label, { size: size, outgoingEdges: outgoingEdges.map(Edge.fromJsonObject) });
+  }
+
   /**
    * @constructor
    * @for Vertex
@@ -28,13 +44,11 @@ class Vertex {
    * @param {*} label  The vertex's label.
    * @param {number?} size  The size associated to the vertex (by default, 1).
    * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
-   * @param {boolean?} isMultiGraph   If true, the vertex will support multiple edges to the same vertex.
-   *                                  Any other value will be translated into false.
    * @return {Vertex}  The Vertex created.
    * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, size is not
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
-  constructor(label, { size=DEFAULT_VERTEX_SIZE, outgoingEdges=[], isMultiGraph=false } = {}) {
+  constructor(label, { size = DEFAULT_VERTEX_SIZE, outgoingEdges = [] } = {}) {
     if (!isDefined(label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', label));
     }
@@ -44,11 +58,10 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'outgoingEdges', outgoingEdges));
     }
 
-    _label.set(this, label);
-    _size.set(this, toNumber(size));
+    this.#label = label;
+    this.#size = toNumber(size);
 
-    _adjacencyMap.set(this, new Map());
-    _isMultiGraph.set(this, isMultiGraph === true);
+    this.#adjacencyMap = new Map();
 
     outgoingEdges.forEach(edge => {
       if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
@@ -60,11 +73,11 @@ class Vertex {
   }
 
   get label() {
-    return _label.get(this);
+    return this.#label;
   }
 
   get size() {
-    return _size.get(this);
+    return this.#size;
   }
 
   /**
@@ -73,8 +86,7 @@ class Vertex {
    * @returns {*}
    */
   get outDegree() {
-    let adj = _adjacencyMap.get(this);
-    return this.isMultiGraph() ? [...adj.values()].reduce((sum, adjList) => sum + adjList.length, 0) : adj.size;
+    return this.#adjacencyMap.size;
   }
 
   /**
@@ -83,28 +95,15 @@ class Vertex {
    * @returns {Array}
    */
   get outgoingEdges() {
-    if (this.isMultiGraph()) {
-      let outEdges = new Set();
-      for (let [key, edgesArray] of _adjacencyMap.get(this)) {
-        edgesArray.forEach(edge => outEdges.add(edge));
+    let outEdges = [];
+    for (let [key, edgesArray] of this.#adjacencyMap) {
+      let n = edgesArray.length;
+      if (n > 0) {
+        outEdges.push(edgesArray[n - 1]);
       }
-      return [...outEdges];
-    } else {
-      let outEdges = [];
-      for (let [key, edgesArray] of _adjacencyMap.get(this)) {
-        let n = edgesArray.length;
-        if (n > 0) {
-          outEdges.push(edgesArray[n - 1]);
-        }
-      }
-      return outEdges;
     }
+    return outEdges;
   }
-
-  isMultiGraph() {
-    return _isMultiGraph.get(this);
-  }
-
 
   /**
    *
@@ -112,62 +111,26 @@ class Vertex {
    * @returns {undefined}
    */
   edgeTo(v) {
-    if (this.isMultiGraph()) {
-      throw new TypeError(ERROR_MSG_METHOD_NOT_AVAILABLE_FOR_MULTIGRAPHS('Vertex.edgeTo'));
-    }
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.edgeTo', 'v', v));
     }
-    let adj = _adjacencyMap.get(this);
-    let edges =  adj.has(v.label) ? adj.get(v.label) : [];
+    let edges = this.#adjacencyMap.has(v.label) ? this.#adjacencyMap.get(v.label) : [];
     let n = edges.length;
-    return n > 0 ? edges[n-1] : undefined;
-  }
-
-  /**
-   *
-   * @param {Vertex} v
-   * @returns {Array}
-   */
-  smallestEdgeTo(v) {
-    if (!this.isMultiGraph()) {
-      throw new TypeError(ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY('Vertex.smallestEdgeTo'));
-    }
-    if (!(v instanceof Vertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.smallestEdgeTo', 'v', v));
-    }
-    let edges = this.allEdgesTo(v);
-    return edges.length > 0 ? arrayMin(edges, {key: EDGE_WEIGHT_FUNC}).value : undefined;
-  }
-
-  /**
-   *
-   * @param {Vertex} v
-   * @returns {Array}
-   */
-  allEdgesTo(v) {
-    if (!this.isMultiGraph()) {
-      throw new TypeError(ERROR_MSG_METHOD_AVAILABLE_FOR_MULTIGRAPHS_ONLY('Vertex.allEdgesTo'));
-    }
-    if (!(v instanceof Vertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.allEdgesTo', 'v', v));
-    }
-    let adj = _adjacencyMap.get(this);
-    return adj.has(v.label) ? adj.get(v.label) : [];
+    return n > 0 ? edges[n - 1] : undefined;
   }
 
   addEdge(edge) {
     if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdge', 'edge', edge));
     }
-    return replaceEdgeToWith(this, edge.destination, edge.label, edge);
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label, edge);
   }
 
-  addEdgeTo(v, {edgeWeight, edgeLabel} = {}) {
+  addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.addEdgeTo', 'v', v));
     }
-    let edge = new Edge(this.label, v.label, {weight: edgeWeight, label: edgeLabel});
+    let edge = new Edge(this.label, v.label, { weight: edgeWeight, label: edgeLabel });
     this.addEdge(edge);
     return edge;
   }
@@ -176,23 +139,23 @@ class Vertex {
     if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdge', 'edge', edge));
     }
-    return replaceEdgeToWith(this, edge.destination, edge.label);
+    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label);
   }
 
-  removeEdgeTo(v, {edgeLabel} = {}) {
+  removeEdgeTo(v, { edgeLabel } = {}) {
     if (!(v instanceof Vertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.removeEdgeTo', 'v', v));
     }
-    return replaceEdgeToWith(this, v.label, edgeLabel);
+    return replaceEdgeFromTo(this.#adjacencyMap, v.label, edgeLabel);
   }
 
   toJson() {
     return consistentStringify({
       label: this.label,
-      size: this.size,
-      edges: this.outgoingEdges.map(e => e.toJson())
+      size: this.size
     });
   }
+
 
   /**
    *
@@ -204,25 +167,30 @@ class Vertex {
   }
 
   labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(_label.get(this));
+    return consistentStringify(label) === consistentStringify(this.#label);
+  }
+
+  /**
+   * Clones a vertex, copying over the label and size, NOT the adjacency map.
+   */
+  clone() {
+    return new Vertex(JSON.parse(JSON.stringify(this.label)), { size: this.size });
   }
 }
 
 
 /**
- * @method replaceEdgeToWith
+ * @method replaceEdgeFromTo
  * @for Vertex
  * @private
  *
- * @param vertex
+ * @param adj
  * @param destination
  * @param {*?} label
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
-function replaceEdgeToWith(vertex, destination, label, newEdge=null) {
-  'use strict';
-  let adj = _adjacencyMap.get(vertex);
+function replaceEdgeFromTo(adj, destination, label, newEdge = null) {
   let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
 
   if (label !== null) {

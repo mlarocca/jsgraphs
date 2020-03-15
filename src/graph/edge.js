@@ -1,15 +1,39 @@
-import {isDefined} from '../common/basic.js';
-import {isNumber, toNumber} from '../common/numbers.js';
-import {consistentStringify} from '../common/strings.js';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../common/errors.js';
+import { isDefined } from '../common/basic.js';
+import { isNumber, toNumber } from '../common/numbers.js';
+import { consistentStringify } from '../common/strings.js';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
 
 const DEFAULT_EDGE_WEIGHT = 1;
-const _source = new WeakMap();
-const _destination = new WeakMap();
-const _weight = new WeakMap();
-const _label = new WeakMap();
 
 class Edge {
+  /**
+   * @private
+   */
+  #source;
+
+  /**
+   * @private
+   */
+  #destination;
+
+  /**
+   * @private
+   */
+  #weight;
+
+  /**
+   * @private
+   */
+  #label;
+
+  static fromJson(json) {
+    return Edge.fromJsonObject(JSON.parse(json));
+  }
+
+  static fromJsonObject({ source, destination, weight = DEFAULT_EDGE_WEIGHT, label = undefined }) {
+    return new Edge(source, destination, { weight: weight, label: label });
+  }
+
   /**
    * @constructor
    * @for Edge
@@ -25,7 +49,7 @@ class Edge {
    * @throws {TypeError} if the arguments are not valid, i.e. source or destination are not defined, or weight is not
    *                     (parsable to) a number.
    */
-  constructor(source, destination, { weight=DEFAULT_EDGE_WEIGHT, label} = {}) {
+  constructor(source, destination, { weight = DEFAULT_EDGE_WEIGHT, label } = {}) {
     if (!isDefined(source)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', source));
     }
@@ -34,29 +58,29 @@ class Edge {
     } if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', weight));
     } if (label === null) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'label', label));
+      label = undefined;
     }
 
-    _source.set(this, source);
-    _destination.set(this, destination);
-    _weight.set(this, toNumber(weight));
-    _label.set(this, label);
+    this.#source = source;
+    this.#destination = destination;
+    this.#weight = toNumber(weight);
+    this.#label = label;
   }
 
   get source() {
-    return _source.get(this);
+    return this.#source;
   }
 
   get destination() {
-    return _destination.get(this);
+    return this.#destination;
   }
 
   get weight() {
-    return _weight.get(this);
+    return this.#weight;
   }
 
   get label() {
-    return _label.get(this);
+    return this.#label;
   }
 
   hasNegativeWeight() {
@@ -80,12 +104,26 @@ class Edge {
     });
   }
 
+  toString() {
+    return `Edge: ${this.toJson}`;
+  }
+
   equals(e) {
     return (e instanceof Edge) && this.toJson() === e.toJson();
   }
 
   labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(_label.get(this));
+    return consistentStringify(label) === consistentStringify(this.label);
+  }
+
+  /**
+   * Clones an edge.
+   */
+  clone() {
+    return new Edge(
+      JSON.parse(JSON.stringify(this.source)),
+      JSON.parse(JSON.stringify(this.destination)),
+      { weight: this.weight, label: this.label });
   }
 }
 

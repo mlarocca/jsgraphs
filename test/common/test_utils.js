@@ -345,7 +345,6 @@ describe('xrange()', () => {
     });
 
     it('# should throw if a is not a safe integer', function () {
-      console.log("")
       expect(() => numbers.xrange('a').next()).to.throw(errors.ERROR_MSG_RANGE_LOWER('xrange', 'a'));
       expect(() => numbers.xrange('1').next()).to.throw(errors.ERROR_MSG_RANGE_LOWER('xrange', '1'));
       expect(() => numbers.xrange(1.2).next()).to.throw(errors.ERROR_MSG_RANGE_LOWER('xrange', 1.2));
@@ -717,8 +716,6 @@ describe('randomizedSelect()', () => {
     });
 
     it('# should throw when the second parameter is not a (safe) integer', function () {
-      console.log("******************************************")
-      console.log(errors)
       expect(() => sort.randomizedSelect([], null)).to.throw(errors.ERROR_MSG_POSITION_OUT_OF_BOUNDARIES('randomizedSelect', 'array', null));
       expect(() => sort.randomizedSelect([], true)).to.throw(errors.ERROR_MSG_POSITION_OUT_OF_BOUNDARIES('randomizedSelect', 'array', true));
       expect(() => sort.randomizedSelect([], 1.3)).to.throw(errors.ERROR_MSG_POSITION_OUT_OF_BOUNDARIES('randomizedSelect', 'array', 1.3));
