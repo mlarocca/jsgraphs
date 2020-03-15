@@ -312,6 +312,17 @@ class Graph {
     return isDefined(e) ? e.label : undefined;
   }
 
+  clone(shallow = false) {
+    let g = new Graph();
+    for (let v of getVertices(this)) {
+      g.addVertex(v.clone(shallow));
+    }
+    for (let e of getEdges(this)) {
+      g.addEdge(e.clone(shallow));
+    }
+    return g;
+  }
+
   toJson() {
     return JSON.stringify({
       vertices: [...getVertices(this)].map(v => v.toJson()),

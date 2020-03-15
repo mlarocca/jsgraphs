@@ -190,7 +190,7 @@ describe('Methods', () => {
     });
 
     it('# changing the cloned instance should not affect the original', () => {
-      let v = new Vertex({'test': 1}, {weight: -3});
+      let v = new Vertex({ 'test': 1 }, { weight: -3 });
       let w = v.clone();
       v.label.should.eql(w.label);
       v.weight.should.eql(w.weight);
