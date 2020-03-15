@@ -22,7 +22,7 @@ function createExampleGraph() {
   let v5 = [1, true, -3];
 
   g.createVertex(v1);
-  g.createVertex(v2, { size: -21 });
+  g.createVertex(v2, { weight: -21 });
   g.createVertex(v3);
   g.createVertex(v4);
   g.createVertex(v5);
@@ -63,7 +63,7 @@ describe('Graph API', () => {
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'equals',
-      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexSize',
+      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
       'createEdge', 'addEdge', 'hasEdge', 'getEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
@@ -75,7 +75,7 @@ describe('createVertex()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
 
     labels.forEach(label => {
@@ -86,11 +86,11 @@ describe('createVertex()', () => {
   it('# should throw on duplicates', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
     // Try to add each label once more
     labels.forEach(label => {
-      expect(() => g.createVertex(label, { size: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+      expect(() => g.createVertex(label, { weight: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     });
   });
 });
@@ -120,19 +120,19 @@ describe('addVertex()', () => {
   });
 });
 
-describe('getVertexSize', () => {
+describe('getVertexWeight', () => {
   const g = createExampleGraph();
 
-  it('# Should retrieve the right size', function () {
-    g.getVertexSize(1).should.eql(-21);
+  it('# Should retrieve the right weight', function () {
+    g.getVertexWeight(1).should.eql(-21);
     // defaults to 1 when not explicitly set
-    g.getVertexSize('a random unicòde string ☺').should.eql(1);
-    g.getVertexSize({ 'what': -3 }).should.eql(1);
+    g.getVertexWeight('a random unicòde string ☺').should.eql(1);
+    g.getVertexWeight({ 'what': -3 }).should.eql(1);
   });
 
   it('# Should return undefined when the graph does not have a vertex', function () {
-    expect(g.getVertexSize('not here')).to.be.undefined;
-    expect(g.getVertexSize(2)).to.be.undefined;
+    expect(g.getVertexWeight('not here')).to.be.undefined;
+    expect(g.getVertexWeight(2)).to.be.undefined;
   });
 });
 
@@ -141,7 +141,7 @@ describe('createEdge()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
 
     let e = g.createEdge(labels[1], labels[5]);
@@ -170,7 +170,7 @@ describe('createEdge()', () => {
   it('# should throw when vertices are not in the graph', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
     expect(() => g.createEdge('v', labels[0])).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'v'));
     expect(() => g.createEdge(labels[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));
@@ -182,7 +182,7 @@ describe('addEdge()', () => {
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
 
     let expected = new Edge(labels[0], labels[2]);
@@ -195,7 +195,7 @@ describe('addEdge()', () => {
   it('# should throw when vertices are not in the graph', function () {
     let g = new Graph();
     labels.forEach(label => {
-      g.createVertex(label, { size: Math.random() });
+      g.createVertex(label, { weight: Math.random() });
     });
     let e1 = new Edge('a', labels[0]);
     let e2 = new Edge(labels[1], -Math.random());
@@ -282,7 +282,7 @@ describe('toJson()', () => {
       const edgeLabel = choose(labels);
       const weight = Math.random();
       let e = new Edge(label, dest, { label: edgeLabel, weight: weight });
-      let v = new Vertex(label, { size: Math.random(), outgoingEdges: [e] });
+      let v = new Vertex(label, { weight: Math.random(), outgoingEdges: [e] });
     });
   });
 
@@ -303,7 +303,7 @@ describe('toJson()', () => {
 
     expect(() => JSON.parse(g.toJson())).not.to.throw();
 
-    g.toJson().should.eql('{"vertices":["{\\"label\\":\\"abc\\",\\"size\\":1}","{\\"label\\":1,\\"size\\":1}","{\\"label\\":3.1415,\\"size\\":1}","{\\"label\\":{\\"what\\":-3},\\"size\\":1}"],"edges":["{\\"destination\\":1,\\"label\\":\\"label\\",\\"source\\":\\"abc\\",\\"weight\\":-10000000000000}","{\\"destination\\":{\\"what\\":-3},\\"label\\":null,\\"source\\":3.1415,\\"weight\\":33}"]}');
+    g.toJson().should.eql('{"vertices":["{\\"label\\":\\"abc\\",\\"weight\\":1}","{\\"label\\":1,\\"weight\\":1}","{\\"label\\":3.1415,\\"weight\\":1}","{\\"label\\":{\\"what\\":-3},\\"weight\\":1}"],"edges":["{\\"destination\\":1,\\"label\\":\\"label\\",\\"source\\":\\"abc\\",\\"weight\\":-10000000000000}","{\\"destination\\":{\\"what\\":-3},\\"label\\":null,\\"source\\":3.1415,\\"weight\\":33}"]}');
   });
 });
 

@@ -37,3 +37,4 @@ export const ERROR_MSG_EDMONDSKARP = `Illegal argument for Edmonds-Karp method: 
 export const ERROR_MSG_CONNECTTO_ILLEGAL_GRAPH_PARAM = `Illegal argument for connecTo: \'other\' must be a Graph`;
 export const ERROR_MSG_CONNECTTO_ILLEGAL_EDGES_PARAM = `Illegal argument for connectTo: \'edges\' must be an array of edges`;
 export const ERROR_MSG_CONNECTTO_VERTICES_COLLISION = `At least one vertex in \'other\' already belongs to this graph`;
+export const ERROR_MSG_COORDINATES_NOT_FOUND = (fname, vertex) => `Method ${fname}: No coordinates passed for vertex ${vertex}`;
