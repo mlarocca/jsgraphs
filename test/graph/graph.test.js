@@ -307,6 +307,33 @@ describe('toJson()', () => {
   });
 });
 
+describe('clone()', () => {
+  it('# should clone the graph correctly', () => {
+    let g = createRandomGraph(8, 11, 3, 15);
+    g.clone().equals(g).should.be.true();
+  });
+
+  it('# modifying deep clones should not affect originals', () => {
+    let g = new Graph();
+    
+    let v1 = { 'what': -3 };
+    let v2 = [1, true, -3];
+
+    g.createVertex(v1);
+    g.createVertex(v2);
+    g.createEdge(v1, v2);
+    let g1 = g.clone();
+
+    v1['new'] = true;
+
+    g1.equals(g).should.be.false();
+    g.hasVertex(v1).should.be.false();
+    // g.hasVertex(v1).should.be.true();
+    g1.hasVertex(v1).should.be.false();
+    g1.hasVertex({ 'what': -3 }).should.be.true();
+  });
+});
+
 describe('fromJsonObject()', () => {
   const g = new Graph();
   let v1 = 'abc';
