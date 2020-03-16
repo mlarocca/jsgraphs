@@ -23,7 +23,7 @@ export const ERROR_MSG_RANGE_TOO_LARGE = (fname, a, b) => `Illegal argument for 
 export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for randomString: length = ${val} must be a non-negative SafeInteger`;
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
 // graph
-export const ERROR_MSG_INIT = `Illegal argument: Graph template parameter`;
+export const ERROR_MSG_ILLEGAL_LABEL = (fname, val) => `Illegal label in method ${fname}: ${val} is not JSON-serializable`;
 export const ERROR_MSG_VERTEX_NOT_FOUND = (fname, val) => `Illegal parameter for ${fname}: Vertex ${val} not in graph`;
 export const ERROR_MSG_VERTEX_DUPLICATED = (fname, val) => `Illegal argument for  ${fname}: v = ${val}: is already in the graph.`;
 export const ERROR_MSG_DIJKSTRA_NEGATIVE_EDGE = `Cannot apply Dijkstra\'s Algorithm to this graph: negative edge(s) found`;

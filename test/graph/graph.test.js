@@ -150,6 +150,7 @@ describe('createEdge()', () => {
     g.hasEdge(e).should.be.true();
 
     e = g.createEdge(labels[0], labels[6], { weight: 5, label: 'edge label' });
+
     e.source.should.eql(labels[0]);
     e.destination.should.eql(labels[6]);
     e.weight.should.eql(5);
@@ -326,10 +327,9 @@ describe('clone()', () => {
 
     v1['new'] = true;
 
-    g1.equals(g).should.be.false();
     g.hasVertex(v1).should.be.false();
-    // g.hasVertex(v1).should.be.true();
     g1.hasVertex(v1).should.be.false();
+    g.hasVertex({ 'what': -3 }).should.be.true();
     g1.hasVertex({ 'what': -3 }).should.be.true();
   });
 });

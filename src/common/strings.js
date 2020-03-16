@@ -1,4 +1,4 @@
-import {isObject, isUndefined} from './basic';
+import {isObject, isPlainObject, isUndefined} from './basic';
 import {ERROR_MSG_RANDOM_STRING_LENGTH, ERROR_MSG_RANDOM_STRING_TOO_LARGE} from './errors.js';
 
 const ASCII_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\ \t\n';
@@ -34,13 +34,11 @@ export function consistentStringify(key) {
     return JSON.stringify(key.map(consistentStringify));
   } else if (respondsToToJson(key)) {
     return key.toJson();
-  } else if (key instanceof Set) {
-    return `Set(${consistentStringify([...key].sort())})`;
-  } else if (key instanceof Map) {
-    return `Map(${consistentStringify([...key.entries()].sort())})`;
+  } else if (isPlainObject(key)) {
+    return `{${Object.keys(key).sort().map((k) => `${consistentStringify(k)}:${consistentStringify(key[k])}`).join(',')}}`
   } else {
-    // WeakMap and WeakSet are not iterable -_-
-    return `{${Object.keys(key).sort().map((k) => `${consistentStringify(k)}:${consistentStringify(key[k])}`).join(',')}}`;
+    // Map, WeakMap, Set and WeakSet are not directly stringifiable.
+    return null;
   }
 }
 

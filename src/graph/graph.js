@@ -5,7 +5,6 @@ import Point from '../geometric/point.js';
 import Edge from './edge.js';
 import Vertex from './vertex.js';
 import { isDefined, isUndefined } from '../common/basic.js';
-import { consistentStringify } from '../common/strings.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 
@@ -52,15 +51,23 @@ class GVertex extends Vertex {
    * For a simple graph, returns only the last outgoing edge added between this vertex and each other vertex.
    * @returns {Array}
    */
-  get outgoingEdges() {
-    let outEdges = [];
-    for (let [key, edgesArray] of this.#adjacencyMap) {
+  *outgoingEdges() {
+    for (let edgesArray of this.#adjacencyMap.values()) {
       let n = edgesArray.length;
       if (n > 0) {
-        outEdges.push(edgesArray[n - 1]);
+        yield edgesArray[n - 1];
       }
     }
-    return outEdges;
+  }
+
+  outDegree() {
+    let n = 0;
+    for (let edgesArray of this.#adjacencyMap.values()) {
+      if (edgesArray.length > 0) {
+        ++n;
+      }
+    }
+    return n;
   }
 
   /**
@@ -72,7 +79,8 @@ class GVertex extends Vertex {
     if (!(v instanceof GVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
-    let edges = this.#adjacencyMap.has(v.label) ? this.#adjacencyMap.get(v.label) : [];
+
+    let edges = this.#adjacencyMap.has(v.consistentLabel) ? this.#adjacencyMap.get(v.consistentLabel) : [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
@@ -106,6 +114,10 @@ class GVertex extends Vertex {
     }
     return replaceEdgeFromTo(this.#adjacencyMap, v.label, edgeLabel);
   }
+
+  toString() {
+    return `GVertex: ${this.toJson()}`;
+  }
 }
 
 /**
@@ -135,7 +147,7 @@ function replaceEdgeFromTo(adj, destination, label, newEdge = null) {
     edgesToDest.push(newEdge);
   }
 
-  adj.set(destination, edgesToDest);
+  adj.set(Vertex.serializeLabel(destination), edgesToDest);
 }
 
 /** @class Graph
@@ -211,7 +223,7 @@ class Graph {
 
     let v = new GVertex(label, { weight: weight });
 
-    vcs.set(consistentStringify(v.label), v);
+    vcs.set(v.consistentLabel, v);
     _vertices.set(this, vcs);
   }
 
@@ -225,7 +237,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
 
-    vcs.set(consistentStringify(v.label), new GVertex(v.label, {weight: v.weight}));
+    vcs.set(Vertex.serializeLabel(v.label), new GVertex(v.label, {weight: v.weight}));
     _vertices.set(this, vcs);
   }
 
@@ -251,7 +263,7 @@ class Graph {
    */
   getVertexOutDegree(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? vertex.outgoingEdges.size : undefined;
+    return isDefined(v) ? vertex.outDegree() : undefined;
   }
 
   createEdge(source, destination, { weight, label } = {}) {
@@ -355,7 +367,7 @@ function getGraphVertex(graph, vertex) {
   }
 
   let vcs = _vertices.get(graph);
-  return vcs.get(consistentStringify(label));
+  return vcs.get(Vertex.serializeLabel(label));
 }
 
 /**
@@ -395,9 +407,7 @@ function* getVertices(graph) {
  */
 function* getEdges(graph) {
   for (let v of getVertices(graph)) {
-    for (let e of v.outgoingEdges) {
-      yield e;
-    }
+    yield* v.outgoingEdges();
   }
 }
 

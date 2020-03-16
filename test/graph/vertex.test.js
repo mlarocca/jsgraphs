@@ -2,8 +2,8 @@ import 'mjs-mocha';
 
 import Vertex from '../../src/graph/vertex.js';
 import Edge from '../../src/graph/edge.js';
-import { choose, compareAsSets } from '../../src/common/array.js';
-import { ERROR_MSG_INVALID_ARGUMENT } from '../../src/common/errors.js'
+import { choose } from '../../src/common/array.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../../src/common/errors.js'
 import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
 
@@ -18,14 +18,14 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject'];
+    let staticMethods = ['fromJson', 'fromJsonObject', 'isSerializable', 'serializeLabel'];
     testStaticAPI(Vertex, staticMethods);
   });
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'clone'];
-    let attributes = ['label', 'weight'];
+    let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toString', 'clone'];
+    let attributes = ['label', 'consistentLabel', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });
@@ -34,8 +34,13 @@ describe('Vertex Creation', () => {
   describe('# Parameters', () => {
     describe('# 1st argument (mandatory)', () => {
       it('should throw when label is null or undefined', () => {
-        (() => new Vertex(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', null));
-        (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'label', undefined));
+        (() => new Vertex(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', null));
+        (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', undefined));
+      });
+
+      it('should throw when label is not convetible to JSON', () => {
+        (() => new Vertex(new Map())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Vertex()', 'label', new Map()));
+        (() => new Vertex(new Set())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Vertex()', 'label', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -44,7 +49,6 @@ describe('Vertex Creation', () => {
         (() => new Vertex([])).should.not.throw();
         (() => new Vertex({})).should.not.throw();
         (() => new Vertex(false)).should.not.throw();
-        (() => new Vertex(new Map())).should.not.throw();
       });
     });
 
@@ -54,9 +58,9 @@ describe('Vertex Creation', () => {
       });
 
       it('should throw when weight is not (parsable to) a number', () => {
-        (() => new Vertex(1, { weight: null })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'weight', null));
-        (() => new Vertex('1', { weight: 'a' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'weight', 'a'));
-        (() => new Vertex([1, 2, 3], { weight: new Map() })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex constructor', 'weight', new Map()));
+        (() => new Vertex(1, { weight: null })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', null));
+        (() => new Vertex('1', { weight: 'a' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', 'a'));
+        (() => new Vertex([1, 2, 3], { weight: new Map() })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', new Map()));
       });
 
       it('should NOT throw with numbers and numeric strings', () => {
@@ -77,7 +81,7 @@ describe('Vertex Creation', () => {
 
 
 describe('Attributes', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map()];
+  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
 
   describe('label', () => {
     it('# should return the correct value for label', () => {
