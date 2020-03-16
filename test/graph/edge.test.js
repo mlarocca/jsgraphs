@@ -4,7 +4,7 @@ import Edge from '../../src/graph/edge.js';
 import { choose } from '../../src/common/array.js';
 import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
-import { ERROR_MSG_INVALID_ARGUMENT } from '../../src/common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../../src/common/errors.js';
 
 import chai from "chai";
 import should from "should";
@@ -34,8 +34,13 @@ describe('Edge Creation', () => {
   describe('# Parameters', () => {
     describe('# 1st argument (mandatory)', () => {
       it('should throw when source is null or undefined', () => {
-        (() => new Edge(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', null));
-        (() => new Edge(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', undefined));
+        (() => new Edge(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', null));
+        (() => new Edge(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', undefined));
+      });
+
+      it('should throw when label is not convetible to JSON', () => {
+        (() => new Edge(new Map(), 1)).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', new Map()));
+        (() => new Edge(new Set(), 2)).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -44,14 +49,18 @@ describe('Edge Creation', () => {
         (() => new Edge([], 1)).should.not.throw();
         (() => new Edge({}, 1)).should.not.throw();
         (() => new Edge(false, 1)).should.not.throw();
-        (() => new Edge(new Map(), 1)).should.not.throw();
       });
     });
 
     describe('# 2nd argument (mandatory)', () => {
       it('should throw when destination is null or undefined', () => {
-        (() => new Edge(1, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', null));
-        (() => new Edge('1', undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', undefined));
+        (() => new Edge(1, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', null));
+        (() => new Edge('1', undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', undefined));
+      });
+
+      it('should throw when label is not convetible to JSON', () => {
+        (() => new Edge(1, new Map())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', new Map()));
+        (() => new Edge(3, new Set())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -60,7 +69,6 @@ describe('Edge Creation', () => {
         (() => new Edge([], true)).should.not.throw();
         (() => new Edge({}, [])).should.not.throw();
         (() => new Edge(false, {})).should.not.throw();
-        (() => new Edge(new Map(), new WeakMap())).should.not.throw();
       });
     });
 
@@ -70,10 +78,10 @@ describe('Edge Creation', () => {
       });
 
       it('should throw if it\'s not a number', () => {
-        (() => new Edge(3, [], { weight: 'r' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', 'r'));
-        (() => new Edge(3, [], { weight: [] })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', []));
-        (() => new Edge(3, [], { weight: false })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', false));
-        (() => new Edge(3, [], { weight: {} })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', {}));
+        (() => new Edge(3, [], { weight: 'r' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', 'r'));
+        (() => new Edge(3, [], { weight: [] })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', []));
+        (() => new Edge(3, [], { weight: false })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', false));
+        (() => new Edge(3, [], { weight: {} })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', {}));
       });
 
       it('should NOT throw with numbers', () => {
@@ -108,13 +116,12 @@ describe('Edge Creation', () => {
       (() => new Edge([], true, { label: true })).should.not.throw();
       (() => new Edge({}, [], { label: [12, 2] })).should.not.throw();
       (() => new Edge(false, {}, { label: {} })).should.not.throw();
-      (() => new Edge(new Map(), new WeakMap(), { label: new WeakMap() })).should.not.throw();
     });
   });
 });
 
 describe('Attributes', () => {
-  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, new Map(), (a, b) => 1];
+  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
 
   describe('source', () => {
     it('# should return the correct value for source', () => {
@@ -190,7 +197,7 @@ describe('Methods', () => {
   });
 
   describe('isLoop()', () => {
-    let sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }, new Set()];
+    let sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }];
     it('# should return true if source and destination are the same value (and reference)', () => {
       sources.forEach(s => {
         let e = new Edge(s, s);
@@ -212,16 +219,16 @@ describe('Methods', () => {
       e.isLoop().should.be.false();
       e = new Edge({ a: 1 }, { a: 1 });
       e.isLoop().should.be.true();
-      e = new Edge(new Set([1, 1, 2]), new Set([1, 2]));
+      e = new Edge({ a: [1, 2, 3] }, { a: [1, 2, 3] });
       e.isLoop().should.be.true();
     });
 
     it('# should do deep comparison', () => {
-      let s = { a: 3, b: { c: [1, 2, 3], d: new Map() } };
-      let d = { a: 3, b: { c: [1, 2, 3], d: new Map() } };
+      let s = { a: 3, b: { c: [1, 2, 3], d: [1] } };
+      let d = { a: 3, b: { c: [1, 2, 3], d: [1] } };
       let e = new Edge(s, d);
       e.isLoop().should.be.true();
-      d = { a: 3, b: { c: [1, 2, 3, 4], d: new Map() } };
+      d = { a: 3, b: { c: [1, 2, 3, 4], d: [true, false] } };
       e = new Edge(s, d);
       e.isLoop().should.be.false();
     });
@@ -242,7 +249,7 @@ describe('Methods', () => {
   });
 
   describe('equals()', () => {
-    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14', new Map()];
+    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return true if two edges are equals in all their fields', () => {
       labels.forEach(label => {
         let source = choose(labels);
@@ -388,11 +395,11 @@ describe('Methods', () => {
 
     it('# should deep-stringify all the fields', () => {
       let source = { a: 1, b: [{ c: 'cLab' }, 4] };
-      let dest = [1, 2, 3, new Set([1, 2, 3])];
+      let dest = [1, 2, 3, [4, 5, 6]];
       let label = "undefined label"
       let weight = 1.1e4;
       let e = new Edge(source, dest, { label: label, weight: weight });
-      e.toJson().should.eql('{"destination":["1","2","3","Set([\\\"1\\\",\\\"2\\\",\\\"3\\\"])"],"label":"undefined label","source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
+      e.toJson().should.eql('{"destination":["1","2","3","[\\\"4\\\",\\\"5\\\",\\\"6\\\"]"],"label":"undefined label","source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
     });
   });
 

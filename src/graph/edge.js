@@ -1,9 +1,14 @@
+import Vertex from './vertex.js'
+
 import { isDefined } from '../common/basic.js';
 import { isNumber, toNumber } from '../common/numbers.js';
 import { consistentStringify } from '../common/strings.js';
-import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../common/errors.js';
+
+import rfdc from 'rfdc';
 
 const DEFAULT_EDGE_WEIGHT = 1;
+const deepClone = rfdc({ proto: true, circles: false });
 
 class Edge {
   /**
@@ -51,18 +56,26 @@ class Edge {
    */
   constructor(source, destination, { weight = DEFAULT_EDGE_WEIGHT, label } = {}) {
     if (!isDefined(source)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'source', source));
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', source));
+    }
+    if (!Vertex.isSerializable(source)) {
+      throw new TypeError(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', source));
     }
     if (!isDefined(destination)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'destination', destination));
-    } if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge constructor', 'weight', weight));
-    } if (label === null) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', destination));
+    }
+    if (!Vertex.isSerializable(destination)) {
+      throw new TypeError(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', destination));
+    }
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', weight));
+    }
+    if (label === null) {
       label = undefined;
     }
 
-    this.#source = source;
-    this.#destination = destination;
+    this.#source = deepClone(source);
+    this.#destination = deepClone(destination);
     this.#weight = toNumber(weight);
     this.#label = label;
   }
@@ -105,7 +118,7 @@ class Edge {
   }
 
   toString() {
-    return `Edge: ${this.toJson}`;
+    return `Edge: ${this.toJson()}`;
   }
 
   equals(e) {
@@ -127,11 +140,11 @@ class Edge {
       return new Edge(
         this.source,
         this.destination,
-        { weight: this.weight, label: this.label });  
+        { weight: this.weight, label: this.label });
     } else {
       return new Edge(
-        JSON.parse(JSON.stringify(this.source)),
-        JSON.parse(JSON.stringify(this.destination)),
+        deepClone(this.source),
+        deepClone(this.destination),
         { weight: this.weight, label: this.label });
     }
   }

@@ -13,6 +13,18 @@ export function isObject(maybeObject) {
 }
 
 /**
+ * @name isPlainObject
+ * @description
+ * Check if the input is a non null plain JavaScript object (versus an instance of a class).
+ *
+ * @param maybeObject
+ * @returns {boolean}
+ */
+export function isPlainObject(maybeObject) {
+  return isObject(maybeObject) && maybeObject.constructor === Object;
+}
+
+/**
  * @name isFunction
  * @description
  * Check if the input is a function.
