@@ -2,7 +2,7 @@ import Edge from './edge.js';
 import { isDefined } from '../common/basic.js';
 import { isNumber, toNumber } from '../common/numbers.js';
 import { consistentStringify } from '../common/strings.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.js';
 
 import rfdc from 'rfdc';
 
@@ -63,7 +63,7 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
     }
     if (!Vertex.isSerializable(label)) {
-      throw new TypeError(ERROR_MSG_ILLEGAL_LABEL('Vertex()', 'label', label));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', label));
     }
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));
@@ -78,7 +78,7 @@ class Vertex {
     return this.#label;
   }
 
-  get consistentLabel() {
+  get serializedLabel() {
     return Vertex.serializeLabel(this.label);
   }
 
@@ -114,14 +114,9 @@ class Vertex {
   /**
    * Clones a vertex, copying over the label and weight, NOT the adjacency map.
    * 
-   * @param {*} shallow When true, label is copied by reference, not cloned. 
    */
-  clone(shallow = false) {
-    if (shallow) {
-      return new Vertex(this.label, { weight: this.weight });
-    } else {
-      return new Vertex(deepClone(this.label), { weight: this.weight });
-    }
+  clone() {
+    return new Vertex(this.label, { weight: this.weight });
   }
 }
 

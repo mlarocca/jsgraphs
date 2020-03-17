@@ -4,7 +4,7 @@ import Edge from '../../src/graph/edge.js';
 import { choose } from '../../src/common/array.js';
 import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../../src/common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/common/errors.js';
 
 import chai from "chai";
 import should from "should";
@@ -39,8 +39,8 @@ describe('Edge Creation', () => {
       });
 
       it('should throw when label is not convetible to JSON', () => {
-        (() => new Edge(new Map(), 1)).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', new Map()));
-        (() => new Edge(new Set(), 2)).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', new Set()));
+        (() => new Edge(new Map(), 1)).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'source', new Map()));
+        (() => new Edge(new Set(), 2)).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'source', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -59,8 +59,8 @@ describe('Edge Creation', () => {
       });
 
       it('should throw when label is not convetible to JSON', () => {
-        (() => new Edge(1, new Map())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', new Map()));
-        (() => new Edge(3, new Set())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', new Set()));
+        (() => new Edge(1, new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', new Map()));
+        (() => new Edge(3, new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -108,14 +108,19 @@ describe('Edge Creation', () => {
         expect(() => new Edge(3, [], { label: null })).not.to.throw();
         expect(new Edge(3, [], { label: null }).label).to.be.undefined;
       });
-    });
+      
+      it('should not throw if label is a string', () => {
+        expect(() => new Edge(3, [], { label: '' })).not.to.throw();
+        expect(() => new Edge(3, [], { label: 'some string' })).not.to.throw();
+        expect(() => new Edge(3, [], { label: 'unicode! ☺☺☻' })).not.to.throw();
+      });
 
-    it('should NOT throw with other types', () => {
-      (() => new Edge(3, '2', { label: '2' })).should.not.throw();
-      (() => new Edge('2', 3, { label: 3 })).should.not.throw();
-      (() => new Edge([], true, { label: true })).should.not.throw();
-      (() => new Edge({}, [], { label: [12, 2] })).should.not.throw();
-      (() => new Edge(false, {}, { label: {} })).should.not.throw();
+      it('should throw with other types', () => {
+        (() => new Edge('2', 3, { label: 3 })).should.throw();
+        (() => new Edge([], true, { label: true })).should.throw();
+        (() => new Edge({}, [], { label: [12, 2] })).should.throw();
+        (() => new Edge(false, {}, { label: {} })).should.throw();
+      });
     });
   });
 });
@@ -153,7 +158,8 @@ describe('Attributes', () => {
 
   describe('label', () => {
     it('# should return the correct label', () => {
-      sources.forEach(label => {
+      let labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻']
+      labels.forEach(label => {
         let e = new Edge(choose(sources), choose(destinations), { label: label });
         e.label.should.eql(label);
       });
@@ -162,9 +168,12 @@ describe('Attributes', () => {
 });
 
 describe('Methods', () => {
+  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
+  const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  
   describe('hasNegativeWeight()', () => {
     it('# should return true iff the edge\'s weight is negative', () => {
-      let weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
       weights.forEach(w => {
         let e = new Edge('a', 'b', { weight: w });
         e.hasNegativeWeight().should.eql(Number.parseFloat(w) < 0);
@@ -183,7 +192,6 @@ describe('Methods', () => {
 
   describe('hasNegativeWeight()', () => {
     it('# should return true iff the edge\'s weight is negative', () => {
-      let weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
       weights.forEach(w => {
         let e = new Edge('a', 'b', { weight: w });
         e.hasNegativeWeight().should.eql(Number.parseFloat(w) < 0);
@@ -236,7 +244,7 @@ describe('Methods', () => {
 
   describe('hasLabel()', () => {
     it('# should return true iff the edge has a defined label', () => {
-      let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+      let labels = ['1', '-1e14'];
       labels.forEach(label => {
         let e = new Edge('a', 'b', { label: label });
         e.hasLabel().should.be.true();
@@ -248,12 +256,11 @@ describe('Methods', () => {
     });
   });
 
-  describe('equals()', () => {
-    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  describe('equals()', () => { 
     it('# should return true if two edges are equals in all their fields', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let weight = Math.random()
         let e1 = new Edge(source, dest, { label: label, weight: weight });
         let e2 = new Edge(source, dest, { label: label, weight: weight });
@@ -263,19 +270,19 @@ describe('Methods', () => {
 
     it('# should return false if the argument is not an edge', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let weight = Math.random()
         let e1 = new Edge(source, dest, { label: label, weight: weight });
-        e1.equals(choose(labels)).should.be.false();
+        e1.equals(choose(sources)).should.be.false();
       });
     });
 
     it('# should return false if source is different', () => {
       labels.forEach(label => {
-        let source1 = choose(labels);
-        let source2 = choose(labels);
-        let dest = choose(labels);
+        let source1 = choose(sources);
+        let source2 = choose(sources);
+        let dest = choose(sources);
         let weight = Math.random();
         let e1 = new Edge(source1, dest, { label: label, weight: weight });
         let e2 = new Edge(source2, dest, { label: label, weight: weight });
@@ -285,9 +292,9 @@ describe('Methods', () => {
 
     it('# should return false if dest is different', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest1 = choose(labels);
-        let dest2 = choose(labels);
+        let source = choose(sources);
+        let dest1 = choose(sources);
+        let dest2 = choose(sources);
         let weight = Math.random();
         let e1 = new Edge(source, dest1, { label: label, weight: weight });
         let e2 = new Edge(source, dest2, { label: label, weight: weight });
@@ -296,8 +303,8 @@ describe('Methods', () => {
     });
 
     it('# should return false if label is different', () => {
-      labels.forEach(source => {
-        let dest = choose(labels);
+      sources.forEach(source => {
+        let dest = choose(sources);
         let label1 = choose(labels);
         let label2 = choose(labels);
         let weight = Math.random();
@@ -308,8 +315,8 @@ describe('Methods', () => {
     });
 
     it('# should return false if weight is different', () => {
-      labels.forEach(source => {
-        let dest = choose(labels);
+      sources.forEach(source => {
+        let dest = choose(sources);
         let label = choose(labels);
         let weight1 = Math.random();
         let weight2 = Math.random();
@@ -321,11 +328,10 @@ describe('Methods', () => {
   });
 
   describe('labelEquals()', () => {
-    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return true if the edge\'s label is (deeply)equal to the argument', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let e = new Edge(source, dest, { label: label });
         e.labelEquals(label).should.be.true();
       });
@@ -333,8 +339,8 @@ describe('Methods', () => {
 
     it('# should return false iff label is different', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let label2 = choose(labels);
         let e = new Edge(source, dest, { label: label });
         e.labelEquals(label2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
@@ -343,11 +349,10 @@ describe('Methods', () => {
   });
 
   describe('clone()', () => {
-    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14', { "a": [true, { false: 3.0 }] }];
     it('# should clone all fields', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let e1 = new Edge(source, dest, { label: label, weight: Math.random() });
         let e2 = e1.clone();
         e1.equals(e2).should.be.true();
@@ -377,11 +382,10 @@ describe('Methods', () => {
   });
 
   describe('toJson()', () => {
-    let labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return a valid json', () => {
       labels.forEach(label => {
-        let source = choose(labels);
-        let dest = choose(labels);
+        let source = choose(sources);
+        let dest = choose(sources);
         let weight = Math.random();
         let e = new Edge(source, dest, { label: label, weight: weight });
         expect(() => JSON.parse(e.toJson())).not.to.throw();

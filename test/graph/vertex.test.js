@@ -3,7 +3,7 @@ import 'mjs-mocha';
 import Vertex from '../../src/graph/vertex.js';
 import Edge from '../../src/graph/edge.js';
 import { choose } from '../../src/common/array.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../../src/common/errors.js'
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/common/errors.js'
 import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
 
@@ -25,7 +25,7 @@ describe('Vertex API', () => {
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
     let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toString', 'clone'];
-    let attributes = ['label', 'consistentLabel', 'weight'];
+    let attributes = ['label', 'serializedLabel', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });
@@ -39,8 +39,8 @@ describe('Vertex Creation', () => {
       });
 
       it('should throw when label is not convetible to JSON', () => {
-        (() => new Vertex(new Map())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Vertex()', 'label', new Map()));
-        (() => new Vertex(new Set())).should.throw(ERROR_MSG_ILLEGAL_LABEL('Vertex()', 'label', new Set()));
+        (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Map()));
+        (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Set()));
       });
 
       it('should NOT throw with other types', () => {
@@ -104,10 +104,12 @@ describe('Attributes', () => {
 });
 
 describe('Methods', () => {
+  const vertexLabels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const edgeLabels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
+
   describe('equals()', () => {
-    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return true if two edges are equals in all their fields', () => {
-      labels.forEach(label => {
+      vertexLabels.forEach(label => {
         const weight = Math.random()
         let v1 = new Vertex(label, { weight: weight });
         let v2 = new Vertex(label, { weight: weight });
@@ -116,18 +118,16 @@ describe('Methods', () => {
     });
 
     it('# should return false if the argument is not a Vertex', () => {
-      labels.forEach(label => {
-        const dest = choose(labels);
+      vertexLabels.forEach(label => {
         const weight = Math.random();
         let v1 = new Vertex(label, { weight: weight });
-        v1.equals(choose(labels)).should.be.eql(false);
+        v1.equals(choose(vertexLabels)).should.be.eql(false);
       });
     });
 
     it('# should return false if label is different', () => {
-      labels.forEach(label => {
-        const label2 = choose(labels);
-        const dest = choose(labels);
+      vertexLabels.forEach(label => {
+        const label2 = choose(vertexLabels);
         const weight = Math.random();
         let v1 = new Vertex(label, { weight: weight });
         let v2 = new Vertex(label2, { weight: weight });
@@ -136,7 +136,7 @@ describe('Methods', () => {
     });
 
     it('# should return false if weight is different', () => {
-      labels.forEach(label => {
+      vertexLabels.forEach(label => {
         const weight1 = Math.random();
         const weight2 = Math.random();
         let v1 = new Vertex(label, { weight: weight1 });
@@ -146,10 +146,10 @@ describe('Methods', () => {
     });
 
     it('# should return true even if edges are different', () => {
-      labels.forEach(label => {
-        const dest = choose(labels);
-        const edgeLabel1 = choose(labels);
-        const edgeLabel2 = choose(labels);
+      vertexLabels.forEach(label => {
+        const dest = choose(vertexLabels);
+        const edgeLabel1 = choose(edgeLabels);
+        const edgeLabel2 = choose(edgeLabels);
 
         let e1 = new Edge(label, dest, { label: edgeLabel1, weight: Math.random() });
         let e2 = new Edge(label, dest, { label: edgeLabel2, weight: Math.random() });
@@ -184,9 +184,8 @@ describe('Methods', () => {
   });
 
   describe('clone()', () => {
-    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should clone the vertex fields', () => {
-      labels.forEach(label => {
+      vertexLabels.forEach(label => {
         let v = new Vertex(label);
         v.clone().labelEquals(label).should.be.true();
         v.clone().equals(v).should.be.true();
@@ -208,14 +207,13 @@ describe('Methods', () => {
   });
 
   describe('toJson()', () => {
-    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return a valid json', () => {
-      labels.forEach(label => {
-        const dest = choose(labels);
-        const edgeLabel = choose(labels);
+      vertexLabels.forEach(source => {
+        const dest = choose(vertexLabels);
+        const edgeLabel = choose(edgeLabels);
         const weight = Math.random();
-        let e = new Edge(label, dest, { label: edgeLabel, weight: weight });
-        let v = new Vertex(label, { weight: Math.random(), outgoingEdges: [e] });
+        let e = new Edge(source, dest, { label: edgeLabel, weight: weight });
+        let v = new Vertex(source, { weight: Math.random(), outgoingEdges: [e] });
         expect(() => JSON.parse(v.toJson())).not.to.throw();
       });
     });
@@ -228,13 +226,12 @@ describe('Methods', () => {
   });
 
   describe('fromJson()', () => {
-    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# applyed to the result of toJson, it should match source vertex ', () => {
-      labels.forEach(label => {
-        let e1 = new Edge(label, choose(labels), { label: choose(labels), weight: Math.random() });
-        let e2 = new Edge(label, choose(labels), { label: choose(labels), weight: Math.random() });
-        let e3 = new Edge(label, choose(labels), { label: choose(labels), weight: Math.random() });
-        let v = new Vertex(label, { weight: Math.random(), outgoingEdges: [e1, e2, e3] });
+      vertexLabels.forEach(source => {
+        let e1 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
+        let e2 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
+        let e3 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
+        let v = new Vertex(source, { weight: Math.random(), outgoingEdges: [e1, e2, e3] });
         Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
       });
     });

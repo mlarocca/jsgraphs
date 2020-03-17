@@ -276,14 +276,15 @@ describe('equals()', () => {
 });
 
 describe('toJson()', () => {
-  const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
   it('# should return a valid json', () => {
-    labels.forEach(label => {
-      const dest = choose(labels);
+    sources.forEach(sourceLabel => {
+      const dest = choose(sources);
       const edgeLabel = choose(labels);
       const weight = Math.random();
-      let e = new Edge(label, dest, { label: edgeLabel, weight: weight });
-      let v = new Vertex(label, { weight: Math.random(), outgoingEdges: [e] });
+      let e = new Edge(sourceLabel, dest, { label: edgeLabel, weight: weight });
+      let v = new Vertex(sourceLabel, { weight: Math.random(), outgoingEdges: [e] });
     });
   });
 
