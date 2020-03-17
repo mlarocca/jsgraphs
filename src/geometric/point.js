@@ -52,6 +52,10 @@ class Point {
     this.#coordinates = coordinates.slice();
   }
 
+  static fromJson(json) {
+    new Point(JSON.parse());
+  }
+
   /**
    * @name validatePoint
    * @static
@@ -123,10 +127,10 @@ class Point {
    * @static
    * @for Point
    * @description
-   * Validates a points array, and throws an error if the validation fails.
+   * Takes a list of points and creates a point whose coordinates are the mean of the list's coordinates.
+   * For instance, given [[1,1,1], [2,3,4]], it will return the point [[1.5, 2, 2.5]].
    *
-   * @param {Array<Point>} pointsArray The array of points to validate.
-
+   * @param {Array<Point>} pointsArray The array of points for which we need to find a centroid.
    * @param {?string} fname The name of the caller function, for logging purposes.
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the argument is not an array, or any point contains invalid coordiantes.
    * @throws TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY) if the argument is an empty array.
@@ -224,6 +228,17 @@ class Point {
    */
   get dimensionality() {
     return this.#K;
+  }
+  
+  /**
+   * @name clone
+   * @for Point
+   * @description
+   * Clones current point.
+   * @returns {Point} A new point with the same coordinates as this.
+   */
+  clone() {
+    return new Point(...this.coordinates());
   }
 
   /**
@@ -334,6 +349,19 @@ class Point {
   toString() {
     return `(${this.coordinates().map(_ => _.toString()).join(',')})`;
   }
+
+  /**
+   * @name toJson
+   * @for Point
+   * @description
+   * Serialize the point to the JSON format.
+   *
+   * @returns {string} A JSON for the point.
+   */
+  toJson() {
+    return JSON.stringify(this.coordinates());
+  }
+
 }
 
 export default Point;

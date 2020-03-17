@@ -6,7 +6,6 @@ import Point from '../geometric/point.js';
 import { isUndefined } from '../common/basic.js';
 
 import { ERROR_MSG_COORDINATES_NOT_FOUND, ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
-import { consistentStringify } from '../common/strings.js';
 
 export class EmbeddedVertex extends Vertex {
   #coordinates;
@@ -16,15 +15,34 @@ export class EmbeddedVertex extends Vertex {
     if (!(coordinates instanceof Point)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex', 'coordinates', coordinates));
     }
-    this.#coordinates = new Point(coordinates);
+    this.#coordinates = coordinates.clone();
   }
 
   get coordinates() {
-    return new Point(...coordinates.coordinates());
+    return coordinates.clone();
+  }
+
+  clone() {
+    return new EmbeddedVertex(this.label, this.coordinates, {weight: this.weight});
+  }
+
+  toJson() {
+    return JSON.stringify({
+      label: this.serializedLabel,
+      weight: this.weight,
+      coordinates: this.coordinates.toJson()
+    });
+  }
+
+  toSvg() {
+
   }
 }
 
 export class EmbeddedEdge extends Edge {
+  #sourceVertex
+  #destinationVertex
+
   constructor(source, destination, {weight, label }  = {}) {
     if (!(source instanceof EmbeddedVertex)) {
       throw new ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'source', source);
@@ -32,15 +50,30 @@ export class EmbeddedEdge extends Edge {
     if (!(destination instanceof EmbeddedVertex)) {
       throw new ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'destination', destination);
     }
-    super(source, destination, {weight, label});
+    super(source.label, destination.label, {weight, label});
+    this.#sourceVertex = source;
+    this.#destinationVertex = destination;
   }
 
-  get sourceCoordinates() {
-    return this.source.coordinates;
+  get source() {
+    return this.#sourceVertex.clone();
   }
 
-  get destinationCoordinates() {
-    return this.destination.coordinates;
+  get destination() {
+    return this.#destinationVertex.clone();
+  }
+  
+  toJson() {
+    return JSON.stringify({
+      source: this.source.toJson(),
+      destination: this.destination.toJson(),
+      label: this.label,
+      weight: this.weight,
+    });
+  }
+  
+  toSvg() {
+
   }
 }
 

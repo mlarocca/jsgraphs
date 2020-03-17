@@ -2,8 +2,8 @@ import Vertex from './vertex.js'
 
 import { isDefined } from '../common/basic.js';
 import { isNumber, toNumber } from '../common/numbers.js';
-import { consistentStringify } from '../common/strings.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_ILLEGAL_LABEL } from '../common/errors.js';
+import { consistentStringify, isString } from '../common/strings.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL, ERROR_MSG_INVALID_LABEL } from '../common/errors.js';
 
 import rfdc from 'rfdc';
 
@@ -48,7 +48,7 @@ class Edge {
    * @param {*} source  The source vertex (edge's startpoint).
    * @param {*} destination  The destination vertex (edge's endpoint).
    * @param {number?}  weight  Edge's weight.
-   * @param {*?}  label  Optional Edge's label. Can be any value but null.
+   * @param {String?}  label  Optional Edge's label. Can be any value but null.
    *
    * @return {Edge}  The edge created.
    * @throws {TypeError} if the arguments are not valid, i.e. source or destination are not defined, or weight is not
@@ -59,19 +59,22 @@ class Edge {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', source));
     }
     if (!Vertex.isSerializable(source)) {
-      throw new TypeError(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'source', source));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Edge()', 'source', source));
     }
     if (!isDefined(destination)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', destination));
     }
     if (!Vertex.isSerializable(destination)) {
-      throw new TypeError(ERROR_MSG_ILLEGAL_LABEL('Edge()', 'destination', destination));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', destination));
     }
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', weight));
     }
     if (label === null) {
       label = undefined;
+    }
+    if (isDefined(label) && !(isString(label))) {
+      throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', 'label', label));
     }
 
     this.#source = deepClone(source);
@@ -135,18 +138,12 @@ class Edge {
    * 
    * @param {*} shallow When true, source's and destination's labels are copied by reference, not cloned. 
    */
-  clone(shallow = false) {
-    if (shallow) {
-      return new Edge(
-        this.source,
-        this.destination,
-        { weight: this.weight, label: this.label });
-    } else {
-      return new Edge(
-        deepClone(this.source),
-        deepClone(this.destination),
-        { weight: this.weight, label: this.label });
-    }
+  clone() {
+    return new Edge(
+      this.source,
+      this.destination,
+      { weight: this.weight, label: this.label });
+
   }
 }
 

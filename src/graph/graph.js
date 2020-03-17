@@ -80,7 +80,7 @@ class GVertex extends Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
-    let edges = this.#adjacencyMap.has(v.consistentLabel) ? this.#adjacencyMap.get(v.consistentLabel) : [];
+    let edges = this.#adjacencyMap.has(v.serializedLabel) ? this.#adjacencyMap.get(v.serializedLabel) : [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
@@ -223,7 +223,7 @@ class Graph {
 
     let v = new GVertex(label, { weight: weight });
 
-    vcs.set(v.consistentLabel, v);
+    vcs.set(v.serializedLabel, v);
     _vertices.set(this, vcs);
   }
 
