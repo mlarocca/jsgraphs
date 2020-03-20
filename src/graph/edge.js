@@ -3,7 +3,7 @@ import Vertex from './vertex.js'
 import { isDefined } from '../common/basic.js';
 import { isNumber, toNumber } from '../common/numbers.js';
 import { consistentStringify, isString } from '../common/strings.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL, ERROR_MSG_INVALID_LABEL } from '../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL } from '../common/errors.js';
 
 import rfdc from 'rfdc';
 
@@ -36,7 +36,7 @@ class Edge {
   }
 
   static fromJsonObject({ source, destination, weight = DEFAULT_EDGE_WEIGHT, label = undefined }) {
-    return new Edge(source, destination, { weight: weight, label: label });
+    return new Edge(Vertex.fromJsonObject(source), Vertex.fromJsonObject(destination), { weight: weight, label: label });
   }
 
   /**
@@ -55,21 +55,18 @@ class Edge {
    *                     (parsable to) a number.
    */
   constructor(source, destination, { weight = DEFAULT_EDGE_WEIGHT, label } = {}) {
-    if (!isDefined(source)) {
+    if (!(isDefined(source) && (source instanceof Vertex))) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', source));
     }
-    if (!Vertex.isSerializable(source)) {
-      throw new TypeError(ERROR_MSG_INVALID_LABEL('Edge()', 'source', source));
-    }
-    if (!isDefined(destination)) {
+
+    if (!(isDefined(destination) && (destination instanceof Vertex))) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', destination));
     }
-    if (!Vertex.isSerializable(destination)) {
-      throw new TypeError(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', destination));
-    }
+
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', weight));
     }
+
     if (label === null) {
       label = undefined;
     }
@@ -77,8 +74,8 @@ class Edge {
       throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', 'label', label));
     }
 
-    this.#source = deepClone(source);
-    this.#destination = deepClone(destination);
+    this.#source = source;
+    this.#destination = destination;
     this.#weight = toNumber(weight);
     this.#label = label;
   }
@@ -104,7 +101,7 @@ class Edge {
   }
 
   isLoop() {
-    return Vertex.serializeLabel(this.source) === Vertex.serializeLabel(this.destination);
+    return this.source.serializedLabel === this.destination.serializedLabel;
   }
 
   hasLabel() {
@@ -112,12 +109,16 @@ class Edge {
   }
 
   toJson() {
-    return JSON.stringify({
-      source: Vertex.serializeLabel(this.source),
-      destination: Vertex.serializeLabel(this.destination),
+    return consistentStringify(this.toJsonObject());
+  }
+
+  toJsonObject() {
+    return {
+      source: this.source.toJsonObject(),
+      destination: this.destination.toJsonObject(),
       weight: this.weight,
       label: this.label
-    });
+    };
   }
 
   toString() {
@@ -136,8 +137,8 @@ class Edge {
    */
   clone() {
     return new Edge(
-      this.source,
-      this.destination,
+      this.source.clone(),
+      this.destination.clone(),
       { weight: this.weight, label: this.label });
 
   }

@@ -1,10 +1,9 @@
 import 'mjs-mocha';
 
 import Vertex from '../../src/graph/vertex.js';
-import Edge from '../../src/graph/edge.js';
+
 import { choose } from '../../src/common/array.js';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/common/errors.js'
-import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
 
 import chai from "chai";
@@ -23,7 +22,7 @@ describe('Vertex API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toString', 'clone'];
+    let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toJsonObject', 'toString', 'clone'];
     let attributes = ['label', 'serializedLabel', 'weight'];
     testAPI(vertex, attributes, methods);
   });
@@ -130,7 +129,7 @@ describe('Methods', () => {
         const weight = Math.random();
         let v1 = new Vertex(label, { weight: weight });
         let v2 = new Vertex(label2, { weight: weight });
-        v1.equals(v2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
+        v1.equals(v2).should.be.eql(Vertex.serializeLabel(label) === Vertex.serializeLabel(label2));
       });
     });
 
@@ -140,25 +139,7 @@ describe('Methods', () => {
         const weight2 = Math.random();
         let v1 = new Vertex(label, { weight: weight1 });
         let v2 = new Vertex(label, { weight: weight2 });
-        v1.equals(v2).should.be.eql(consistentStringify(weight1) === consistentStringify(weight2));
-      });
-    });
-
-    it('# should return true even if edges are different', () => {
-      vertexLabels.forEach(label => {
-        const dest = choose(vertexLabels);
-        const edgeLabel1 = choose(edgeLabels);
-        const edgeLabel2 = choose(edgeLabels);
-
-        let e1 = new Edge(label, dest, { label: edgeLabel1, weight: Math.random() });
-        let e2 = new Edge(label, dest, { label: edgeLabel2, weight: Math.random() });
-        const weight = Math.random();
-        let v1 = new Vertex(label, { weight: weight, outgoingEdges: [e1, e2] });
-        let v2 = new Vertex(label, { weight: weight, outgoingEdges: [] });
-        v1.equals(v2).should.be.eql(true);
-        v1 = new Vertex(label, { weight: weight, outgoingEdges: [e1] });
-        v2 = new Vertex(label, { weight: weight, outgoingEdges: [e2] });
-        v1.equals(v2).should.be.eql(true);
+        v1.equals(v2).should.be.eql(weight1 === weight2);
       });
     });
   });
@@ -177,7 +158,7 @@ describe('Methods', () => {
         let v = new Vertex(label);
         v.labelEquals(label).should.be.true();
         const label2 = choose(labels);
-        v.labelEquals(label2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
+        v.labelEquals(label2).should.be.eql(Vertex.serializeLabel(label) === Vertex.serializeLabel(label2));
       });
     });
   });
@@ -207,37 +188,32 @@ describe('Methods', () => {
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
-      vertexLabels.forEach(source => {
-        const dest = choose(vertexLabels);
+      vertexLabels.forEach(label => {
+        const source = new Vertex(label);
+        const dest = new Vertex(choose(vertexLabels));
         const edgeLabel = choose(edgeLabels);
         const weight = Math.random();
-        let e = new Edge(source, dest, { label: edgeLabel, weight: weight });
-        let v = new Vertex(source, { weight: Math.random(), outgoingEdges: [e] });
+        let v = new Vertex(label, { weight: Math.random() });
         expect(() => JSON.parse(v.toJson())).not.to.throw();
       });
     });
 
     it('# should stringify the fields consistently and deep-stringify all the fields', () => {
-      let e = new Edge('abc', '1', { label: 'label', weight: -0.1e14 });
-      let v = new Vertex('abc', { weight: 3.14, outgoingEdges: [e] });
-      v.toJson().should.eql('{"label":"abc","weight":3.14}');
+      let v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: 3.14 });
+      v.toJson().should.eql('{"label":{"test":["abc",1,3]},"weight":3.14}');
     });
   });
 
   describe('fromJson()', () => {
     it('# applyed to the result of toJson, it should match source vertex ', () => {
       vertexLabels.forEach(source => {
-        let e1 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
-        let e2 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
-        let e3 = new Edge(source, choose(vertexLabels), { label: choose(edgeLabels), weight: Math.random() });
-        let v = new Vertex(source, { weight: Math.random(), outgoingEdges: [e1, e2, e3] });
+        let v = new Vertex(source, { weight: Math.random() });
         Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
       });
     });
 
     it('# should parse the fields consistently and deep-parse all the fields', () => {
-      let e = new Edge('abc', '1', { label: 'label', weight: -0.1e14 });
-      let v = new Vertex('abc', { weight: 3.14, outgoingEdges: [e] });
+      let v = new Vertex('abc', { weight: 3.14 });
       Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
     });
   });
