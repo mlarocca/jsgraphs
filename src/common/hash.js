@@ -23,7 +23,6 @@ const ERROR_MSG_HASH_SEED = (fname, val) => `Illegal parameter for ${fname}: see
  * @throws {TypeError(ERROR_MSG_HASH_SEED)} If seed is not a Number.
  */
 export function murmurHash32(key, seed = 0) {
-  'use strict';
 
   if (typeof key !== 'string') {
     throw new TypeError(ERROR_MSG_HASH_KEY_TYPE('murmurHash32', key));
@@ -87,7 +86,6 @@ export function murmurHash32(key, seed = 0) {
  * @returns {number}
  */
 export function fnv1Hash32(key) {
-  'use strict';
 
   if (typeof key !== 'string') {
     throw new TypeError(ERROR_MSG_HASH_KEY_TYPE('fnv1Hash32', key));
@@ -104,6 +102,6 @@ export function fnv1Hash32(key) {
     hash ^= key.charCodeAt(i);
     hash += FNV1_PRIME_MUL(hash);
   }
-  
+
   return hash >>> 0;
 }

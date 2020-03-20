@@ -10,6 +10,7 @@ import { ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../../s
 
 import chai from "chai";
 import should from "should";
+import { consistentStringify } from '../../src/common/strings.js';
 
 const expect = chai.expect;
 
@@ -62,9 +63,9 @@ describe('Graph API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
-    let methods = ['constructor', 'toJson', 'equals', 'clone',
+    let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
-      'createEdge', 'addEdge', 'hasEdge', 'getEdge', 'hasEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
+      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeWeight', 'getEdgeLabel'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
@@ -145,19 +146,19 @@ describe('createEdge()', () => {
     });
 
     let e = g.createEdge(labels[1], labels[5]);
-    e.source.should.eql(labels[1]);
-    e.destination.should.eql(labels[5]);
+    e.source.label.should.eql(labels[1]);
+    e.destination.label.should.eql(labels[5]);
     g.hasEdge(e).should.be.true();
 
     e = g.createEdge(labels[0], labels[6], { weight: 5, label: 'edge label' });
 
-    e.source.should.eql(labels[0]);
-    e.destination.should.eql(labels[6]);
+    e.source.label.should.eql(labels[0]);
+    e.destination.label.should.eql(labels[6]);
     e.weight.should.eql(5);
     e.label.should.eql('edge label');
     g.hasEdge(e).should.be.true();
 
-    e = new Edge(labels[0], labels[2]);
+    e = new Edge(new Vertex(labels[0]), new Vertex(labels[2]));
     g.hasEdge(e).should.be.false();
 
     g.hasEdgeBetween(labels[0], labels[6]).should.be.true();
@@ -179,14 +180,14 @@ describe('createEdge()', () => {
 });
 
 describe('addEdge()', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
+  const sources = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(lab => new Vertex(lab));
   it('# should add all valid label types', function () {
     let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
+    sources.forEach(v => {
+      g.addVertex(v, { weight: Math.random() });
     });
 
-    let expected = new Edge(labels[0], labels[2]);
+    let expected = new Edge(sources[0], sources[2]);
     let e = g.addEdge(expected);
     expected.equals(e).should.be.true();
 
@@ -195,11 +196,11 @@ describe('addEdge()', () => {
 
   it('# should throw when vertices are not in the graph', function () {
     let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
+    sources.forEach(v => {
+      g.addVertex(v, { weight: Math.random() });
     });
-    let e1 = new Edge('a', labels[0]);
-    let e2 = new Edge(labels[1], -Math.random());
+    let e1 = new Edge(new Vertex('a'), sources[0]);
+    let e2 = new Edge(sources[1], new Vertex(-Math.random()));
     expect(() => g.addEdge(e1)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e1.source));
     expect(() => g.addEdge(e2)).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', e2.destination));
   });
@@ -276,15 +277,24 @@ describe('equals()', () => {
 });
 
 describe('toJson()', () => {
-  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'].map(label => new Vertex(label));
   const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
   it('# should return a valid json', () => {
-    sources.forEach(sourceLabel => {
+    sources.forEach(source => {
+      let g = new Graph();
       const dest = choose(sources);
       const edgeLabel = choose(labels);
       const weight = Math.random();
-      let e = new Edge(sourceLabel, dest, { label: edgeLabel, weight: weight });
-      let v = new Vertex(sourceLabel, { weight: Math.random(), outgoingEdges: [e] });
+      let e = new Edge(source, dest, { label: edgeLabel, weight: weight });
+      let u = new Vertex(source.label, { weight: Math.random(), outgoingEdges: [e] });
+      let v = new Vertex(dest.label, { weight: Math.random() });
+      g.addVertex(u);
+      if (!v.labelEquals(u.label)) {
+        g.addVertex(v);
+      }
+      g.addEdge(e);
+
+      expect(() => JSON.parse(g.toJson())).not.to.throw();
     });
   });
 
@@ -295,7 +305,6 @@ describe('toJson()', () => {
     let v3 = 3.1415;
     let v4 = { 'what': -3 };
 
-
     g.createVertex(v1);
     g.createVertex(v2);
     g.createVertex(v3);
@@ -304,8 +313,13 @@ describe('toJson()', () => {
     g.createEdge(v3, v4, { weight: 33 });
 
     expect(() => JSON.parse(g.toJson())).not.to.throw();
-
-    g.toJson().should.eql('{"vertices":["{\\"label\\":\\"abc\\",\\"weight\\":1}","{\\"label\\":1,\\"weight\\":1}","{\\"label\\":3.1415,\\"weight\\":1}","{\\"label\\":{\\"what\\":-3},\\"weight\\":1}"],"edges":["{\\"destination\\":1,\\"label\\":\\"label\\",\\"source\\":\\"abc\\",\\"weight\\":-10000000000000}","{\\"destination\\":{\\"what\\":-3},\\"label\\":null,\\"source\\":3.1415,\\"weight\\":33}"]}');
+    JSON.parse(g.toJson()).should.eql(
+      {
+        vertices: [{ label: "abc", weight: 1 }, { label: 1, weight: 1 }, { label: 3.1415, weight: 1 }, { label: { what: -3 }, weight: 1 }],
+        edges: [
+          { source: { label: "abc", weight: 1 }, destination: { label: 1, weight: 1 }, label: "label", weight: -10000000000000 },
+          { source: { label: 3.1415, weight: 1 }, destination: { label: { what: -3 }, weight: 1 }, weight: 33 }]
+      });
   });
 });
 
@@ -317,7 +331,7 @@ describe('clone()', () => {
 
   it('# modifying deep clones should not affect originals', () => {
     let g = new Graph();
-    
+
     let v1 = { 'what': -3 };
     let v2 = [1, true, -3];
 
@@ -358,7 +372,7 @@ describe('fromJsonObject()', () => {
 describe('fromJson()', () => {
   const g = new Graph();
   let v1 = 'abc';
-  let v2 = 1;
+  let v2 = { 'a': [true, { false: 3.0 }] };
   let v3 = 3.1415;
   let v4 = { 'what': -3 };
 
@@ -371,6 +385,11 @@ describe('fromJson()', () => {
   g.createEdge(v3, v1, { weight: 33, label: 'edge' });
 
   it('# applyed to the result of toJson, it should match source graph ', () => {
-    Graph.fromJson(g.toJson()).should.eql(g);
+    const g1 = Graph.fromJson(g.toJson());
+
+    g1.equals(g).should.be.true();
+    g1.hasVertex(v2).should.be.true();
+    g1.hasVertex(v4).should.be.true();
+    g1.hasVertex(new Vertex('def')).should.be.false();
   });
 });

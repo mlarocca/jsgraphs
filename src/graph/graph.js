@@ -1,12 +1,12 @@
 import UnionFind from '../disjointset/disjointset.js';
 import DWayHeap from '../dway_heap/dway_heap.js';
-import Point from '../geometric/point.js';
 
 import Edge from './edge.js';
 import Vertex from './vertex.js';
 import { isDefined, isUndefined } from '../common/basic.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
+import { consistentStringify } from '../common/strings.js';
 
 const _vertices = new WeakMap();
 
@@ -30,7 +30,7 @@ class GVertex extends Vertex {
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
   constructor(label, { weight, outgoingEdges = [] } = {}) {
-    super(label, {weight: weight});
+    super(label, { weight: weight });
     if (!Array.isArray(outgoingEdges)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
     }
@@ -86,68 +86,73 @@ class GVertex extends Vertex {
   }
 
   addEdge(edge) {
-    if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source)) {
+    if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source.label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
     }
-    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label, edge);
+    return replaceEdgeTo(this.#adjacencyMap, edge.destination, edge);
   }
 
   addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
     if (!(v instanceof GVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
     }
-    let edge = new Edge(this.label, v.label, { weight: edgeWeight, label: edgeLabel });
+    let edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
     this.addEdge(edge);
     return edge;
   }
 
   removeEdge(edge) {
-    if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
+    if (!(edge instanceof Edge) || !this.labelEquals(edge.source.label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
     }
-    return replaceEdgeFromTo(this.#adjacencyMap, edge.destination, edge.label);
+    return replaceEdgeTo(this.#adjacencyMap, edge.destination);
   }
 
-  removeEdgeTo(v, { edgeLabel } = {}) {
+  removeEdgeTo(v) {
     if (!(v instanceof GVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
     }
-    return replaceEdgeFromTo(this.#adjacencyMap, v.label, edgeLabel);
+    return replaceEdgeTo(this.#adjacencyMap, v);
   }
 
+  /**
+   * @override
+   */
+  clone() {
+    return new GVertex(this.label, { weight: this.weight });
+  }
+
+  /**
+   * @override
+   */
   toString() {
     return `GVertex: ${this.toJson()}`;
   }
 }
 
 /**
- * @method replaceEdgeFromTo
+ * @method replaceEdgeTo
  * @for GVertex
  * @private
  *
  * @param adj
- * @param destination
+ * @param {Vertex} destination
  * @param {*?} label
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
-function replaceEdgeFromTo(adj, destination, label, newEdge = null) {
+function replaceEdgeTo(adj, destination, newEdge = null) {
   let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
 
-  if (label !== null) {
-    // remove edge(s) with the same label
-    edgesToDest = edgesToDest.filter(e => !e.labelEquals(label));
-  } else {
-    // if no label is passed, removes all the edges to the destination
-    edgesToDest = [];
-  }
+  // removes all the edges to the destination
+  edgesToDest = [];
 
   // then add the new edge (if defined)
   if (isDefined(newEdge)) {
     edgesToDest.push(newEdge);
   }
 
-  adj.set(Vertex.serializeLabel(destination), edgesToDest);
+  adj.set(destination.serializedLabel, edgesToDest);
 }
 
 /** @class Graph
@@ -194,8 +199,8 @@ class Graph {
    */
   static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
-    vertices.forEach(v => g.addVertex(GVertex.fromJson(v)));
-    edges.forEach(e => g.addEdge(Edge.fromJson(e)));
+    vertices.forEach(v => g.addVertex(GVertex.fromJsonObject(v)));
+    edges.forEach(e => g.addEdge(Edge.fromJsonObject(e)));
     return g;
   }
 
@@ -237,7 +242,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
     }
 
-    vcs.set(Vertex.serializeLabel(v.label), new GVertex(v.label, {weight: v.weight}));
+    vcs.set(v.serializedLabel, new GVertex(v.label, { weight: v.weight }));
     _vertices.set(this, vcs);
   }
 
@@ -251,7 +256,7 @@ class Graph {
     return isDefined(v) ? v.clone() : undefined;
   }
 
-  getVertexWeight(vertex) { 
+  getVertexWeight(vertex) {
     let v = getGraphVertex(this, vertex);
     return isDefined(v) ? v.weight : undefined;
   }
@@ -324,22 +329,26 @@ class Graph {
     return isDefined(e) ? e.label : undefined;
   }
 
-  clone(shallow = false) {
+  clone() {
     let g = new Graph();
     for (let v of getVertices(this)) {
-      g.addVertex(v.clone(shallow));
+      g.addVertex(v.clone());
     }
     for (let e of getEdges(this)) {
-      g.addEdge(e.clone(shallow));
+      g.addEdge(e.clone());
     }
     return g;
   }
 
   toJson() {
-    return JSON.stringify({
-      vertices: [...getVertices(this)].map(v => v.toJson()),
-      edges: [...getEdges(this)].map(e => e.toJson())
-    });
+    return consistentStringify(this.toJsonObject());
+  }
+
+  toJsonObject() {
+    return {
+      vertices: [...getVertices(this)].map(v => v.toJsonObject()),
+      edges: [...getEdges(this)].map(e => e.toJsonObject())
+    };
   }
 
   equals(g) {
@@ -361,13 +370,13 @@ class Graph {
 function getGraphVertex(graph, vertex) {
   let label;
   if (vertex instanceof Vertex) {
-    label = vertex.label;
+    label = vertex.serializedLabel;
   } else {
-    label = vertex;
+    label = Vertex.serializeLabel(vertex);
   }
 
   let vcs = _vertices.get(graph);
-  return vcs.get(Vertex.serializeLabel(label));
+  return vcs.get(label);
 }
 
 /**
@@ -383,6 +392,7 @@ function getGraphEdge(graph, source, destination) {
   if (isUndefined(u)) {
     return undefined;
   }
+
   let v = getGraphVertex(graph, destination);
   if (isUndefined(v)) {
     return undefined;

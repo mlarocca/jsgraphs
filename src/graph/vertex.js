@@ -1,7 +1,7 @@
 import Edge from './edge.js';
 import { isDefined } from '../common/basic.js';
 import { isNumber, toNumber } from '../common/numbers.js';
-import { consistentStringify } from '../common/strings.js';
+import { consistentStringify, isJsonStringifiable } from '../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.js';
 
 import rfdc from 'rfdc';
@@ -30,7 +30,7 @@ class Vertex {
   #adjacencyMap;
 
   static isSerializable(label) {
-    return JSON.parse(consistentStringify(label)) !== null;
+    return isJsonStringifiable(label);
   }
 
   static serializeLabel(label) {
@@ -41,8 +41,8 @@ class Vertex {
     return Vertex.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({ label, weight = DEFAULT_VERTEX_WEIGHT, outgoingEdges = [] }) {
-    return new Vertex(label, { weight: weight, outgoingEdges: outgoingEdges.map(Edge.fromJsonObject) });
+  static fromJsonObject({ label, weight = DEFAULT_VERTEX_WEIGHT }) {
+    return new Vertex(label, { weight: weight });
   }
 
   /**
@@ -53,12 +53,11 @@ class Vertex {
    *
    * @param {*} label  The vertex's label.
    * @param {number?} weight  The weight associated to the vertex (by default, 1).
-   * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
    * @return {Vertex}  The Vertex created.
    * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, or weight is not
    *                     (parseable to) a number.
    */
-  constructor(label, { weight = DEFAULT_VERTEX_WEIGHT, outgoingEdges = [] } = {}) {
+  constructor(label, { weight = DEFAULT_VERTEX_WEIGHT } = {}) {
     if (!isDefined(label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
     }
@@ -87,10 +86,14 @@ class Vertex {
   }
 
   toJson() {
-    return consistentStringify({
+    return consistentStringify(this.toJsonObject());
+  }
+
+  toJsonObject() {
+    return {
       label: this.label,
       weight: this.weight
-    });
+    };
   }
 
   toString() {

@@ -1,10 +1,12 @@
 import 'mjs-mocha';
 
 import Edge from '../../src/graph/edge.js';
+
+import Vertex from '../../src/graph/vertex.js';
+
 import { choose } from '../../src/common/array.js';
-import { consistentStringify } from '../../src/common/strings.js';
 import { testAPI, testStaticAPI } from '../utils/test_common.js';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../../src/common/errors.js';
 
 import chai from "chai";
 import should from "should";
@@ -18,14 +20,14 @@ describe('Edge API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject'];
+    const staticMethods = ['fromJson', 'fromJsonObject'];
     testStaticAPI(Edge, staticMethods);
   });
 
   it('# Object\'s interface should be complete', () => {
-    let edge = new Edge(1, 2);
-    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'clone'];
-    let attributes = ['source', 'destination', 'weight', 'label'];
+    const edge = new Edge(new Vertex(1), new Vertex(2));
+    const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
+    const attributes = ['source', 'destination', 'weight', 'label'];
     testAPI(edge, attributes, methods);
   });
 });
@@ -38,100 +40,101 @@ describe('Edge Creation', () => {
         (() => new Edge(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', undefined));
       });
 
-      it('should throw when label is not convetible to JSON', () => {
-        (() => new Edge(new Map(), 1)).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'source', new Map()));
-        (() => new Edge(new Set(), 2)).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'source', new Set()));
-      });
-
-      it('should NOT throw with other types', () => {
-        (() => new Edge(3, 1)).should.not.throw();
-        (() => new Edge('2', 1)).should.not.throw();
-        (() => new Edge([], 1)).should.not.throw();
-        (() => new Edge({}, 1)).should.not.throw();
-        (() => new Edge(false, 1)).should.not.throw();
+      it('should throw when label is not a Vertex', () => {
+        (() => new Edge(1)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', 1));
+        (() => new Edge('0')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', '0'));
+        (() => new Edge(new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', new Set()));
+        (() => new Edge(new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', new Set()));
       });
     });
 
     describe('# 2nd argument (mandatory)', () => {
+      const v = new Vertex(1);
       it('should throw when destination is null or undefined', () => {
-        (() => new Edge(1, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', null));
-        (() => new Edge('1', undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', undefined));
+        (() => new Edge(v, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', null));
+        (() => new Edge(v, undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', undefined));
       });
 
-      it('should throw when label is not convetible to JSON', () => {
-        (() => new Edge(1, new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', new Map()));
-        (() => new Edge(3, new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Edge()', 'destination', new Set()));
+
+      it('should throw when label is not a Vertex', () => {
+        (() => new Edge(v, 11)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', 11));
+        (() => new Edge(v, '007')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', '007'));
+        (() => new Edge(v, new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', new Set()));
+        (() => new Edge(v, new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', new Set()));
       });
 
-      it('should NOT throw with other types', () => {
-        (() => new Edge(3, '2')).should.not.throw();
-        (() => new Edge('2', 3)).should.not.throw();
-        (() => new Edge([], true)).should.not.throw();
-        (() => new Edge({}, [])).should.not.throw();
-        (() => new Edge(false, {})).should.not.throw();
+
+      it('should NOT throw with vertices', () => {
+        (() => new Edge(new Vertex(3), new Vertex(1))).should.not.throw();
       });
     });
 
     describe('# 3rd argument (optional)', () => {
+      const u = new Vertex('u');
+      const v = new Vertex(['v']);
       it('should default to weight=1', () => {
-        new Edge(2, 1).weight.should.eql(1);
+        new Edge(u, v).weight.should.eql(1);
       });
 
       it('should throw if it\'s not a number', () => {
-        (() => new Edge(3, [], { weight: 'r' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', 'r'));
-        (() => new Edge(3, [], { weight: [] })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', []));
-        (() => new Edge(3, [], { weight: false })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', false));
-        (() => new Edge(3, [], { weight: {} })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', {}));
+        (() => new Edge(u, v, { weight: 'r' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', 'r'));
+        (() => new Edge(u, v, { weight: [] })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', []));
+        (() => new Edge(u, v, { weight: false })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', false));
+        (() => new Edge(u, v, { weight: {} })).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', {}));
       });
 
       it('should NOT throw with numbers', () => {
-        (() => new Edge(2, [], { weight: 1 })).should.not.throw();
-        (() => new Edge(2, [], { weight: 0.1 })).should.not.throw();
-        (() => new Edge(2, [], { weight: -145 })).should.not.throw();
+        (() => new Edge(u, v, { weight: 1 })).should.not.throw();
+        (() => new Edge(u, v, { weight: 0.1 })).should.not.throw();
+        (() => new Edge(u, v, { weight: -145 })).should.not.throw();
       });
 
       it('should NOT throw with numeric strings', () => {
-        (() => new Edge(2, [], { weight: '1' })).should.not.throw();
-        (() => new Edge(2, [], { weight: '3.1415' })).should.not.throw();
-        (() => new Edge(2, [], { weight: '-145' })).should.not.throw();
-        (() => new Edge(2, [], { weight: '1e12' })).should.not.throw();
+        (() => new Edge(u, v, { weight: '1' })).should.not.throw();
+        (() => new Edge(u, v, { weight: '3.1415' })).should.not.throw();
+        (() => new Edge(u, v, { weight: '-145' })).should.not.throw();
+        (() => new Edge(u, v, { weight: '1e12' })).should.not.throw();
       });
     });
 
     describe('# 4th argument (optional)', () => {
+      const u = new Vertex({ 1: 'u' });
+      const v = new Vertex([false]);
+
       it('should default to label=undefined', () => {
-        expect(new Edge(2, 1).label).to.be.undefined;
-        expect(new Edge(2, 1, { weight: -1 }).label).to.be.undefined;
+        expect(new Edge(u, v).label).to.be.undefined;
+        expect(new Edge(u, v, { weight: -1 }).label).to.be.undefined;
       });
 
       it('should not throw if label is null', () => {
-        expect(() => new Edge(3, [], { label: null })).not.to.throw();
-        expect(new Edge(3, [], { label: null }).label).to.be.undefined;
+        expect(() => new Edge(u, v, { label: null })).not.to.throw();
+        expect(new Edge(u, v, { label: null }).label).to.be.undefined;
       });
-      
+
       it('should not throw if label is a string', () => {
-        expect(() => new Edge(3, [], { label: '' })).not.to.throw();
-        expect(() => new Edge(3, [], { label: 'some string' })).not.to.throw();
-        expect(() => new Edge(3, [], { label: 'unicode! ☺☺☻' })).not.to.throw();
+        expect(() => new Edge(u, v, { label: '' })).not.to.throw();
+        expect(() => new Edge(u, v, { label: 'some string' })).not.to.throw();
+        expect(() => new Edge(u, v, { label: 'unicode! ☺☺☻' })).not.to.throw();
       });
 
       it('should throw with other types', () => {
-        (() => new Edge('2', 3, { label: 3 })).should.throw();
-        (() => new Edge([], true, { label: true })).should.throw();
-        (() => new Edge({}, [], { label: [12, 2] })).should.throw();
-        (() => new Edge(false, {}, { label: {} })).should.throw();
+        (() => new Edge(u, v, { label: 3 })).should.throw();
+        (() => new Edge(u, v, { label: true })).should.throw();
+        (() => new Edge(u, v, { label: [12, 2] })).should.throw();
+        (() => new Edge(u, v, { label: {} })).should.throw();
       });
     });
   });
 });
 
 describe('Attributes', () => {
-  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
+  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }].map(label => new Vertex(label));
 
   describe('source', () => {
     it('# should return the correct value for source', () => {
+      const v = new Vertex(1);
       sources.forEach(s => {
-        let e = new Edge(s, 1);
+        const e = new Edge(s, v);
         e.source.should.eql(s);
       });
     });
@@ -139,18 +142,19 @@ describe('Attributes', () => {
 
   describe('destination', () => {
     it('# should return the correct value for destination', () => {
+      const v = new Vertex('xc');
       destinations.forEach(d => {
-        let e = new Edge('xc', d);
+        const e = new Edge(v, d);
         e.destination.should.eql(d);
       });
     });
   });
 
   describe('weight', () => {
-    let weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+    const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return the correct weight', () => {
       weights.forEach(w => {
-        let e = new Edge(choose(sources), choose(destinations), { weight: w });
+        const e = new Edge(choose(sources), choose(destinations), { weight: w });
         e.weight.should.eql(Number.parseFloat(w));
       });
     });
@@ -158,9 +162,9 @@ describe('Attributes', () => {
 
   describe('label', () => {
     it('# should return the correct label', () => {
-      let labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻']
+      const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻']
       labels.forEach(label => {
-        let e = new Edge(choose(sources), choose(destinations), { label: label });
+        const e = new Edge(choose(sources), choose(destinations), { label: label });
         e.label.should.eql(label);
       });
     });
@@ -168,20 +172,22 @@ describe('Attributes', () => {
 });
 
 describe('Methods', () => {
-  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const u = new Vertex({ 1: 'u' });
+  const v = new Vertex([false]);
+  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'].map(label => new Vertex(label));
   const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
   const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
-  
+
   describe('hasNegativeWeight()', () => {
     it('# should return true iff the edge\'s weight is negative', () => {
       weights.forEach(w => {
-        let e = new Edge('a', 'b', { weight: w });
+        const e = new Edge(u, v, { weight: w });
         e.hasNegativeWeight().should.eql(Number.parseFloat(w) < 0);
       });
     });
 
     it('# should return false for weight === 0', () => {
-      let e = new Edge('a', 'b', { weight: 0 });
+      const e = new Edge(u, v, { weight: 0 });
       e.hasNegativeWeight().should.be.false();
     });
 
@@ -193,157 +199,139 @@ describe('Methods', () => {
   describe('hasNegativeWeight()', () => {
     it('# should return true iff the edge\'s weight is negative', () => {
       weights.forEach(w => {
-        let e = new Edge('a', 'b', { weight: w });
+        const e = new Edge(u, v, { weight: w });
         e.hasNegativeWeight().should.eql(Number.parseFloat(w) < 0);
       });
     });
 
     it('# should return false for weight === 0', () => {
-      let e = new Edge('a', 'b', { weight: 0 });
+      const e = new Edge(u, v, { weight: 0 });
       e.hasNegativeWeight().should.be.false();
     });
   });
 
   describe('isLoop()', () => {
-    let sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }];
+    const sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }].map(label => new Vertex(label));
     it('# should return true if source and destination are the same value (and reference)', () => {
       sources.forEach(s => {
-        let e = new Edge(s, s);
+        const e = new Edge(s, s);
         e.isLoop().should.be.true();
       });
     });
 
     it('# should return false if source and destination are NOT the same value', () => {
       sources.forEach(s => {
-        let e = new Edge(s, 'xyz');
+        const e = new Edge(s, new Vertex('xyz'));
         e.isLoop().should.be.false();
       });
     });
 
     it('# should NOT use reference equality', () => {
-      let e = new Edge([1, 4, 65], [1, 4, 65]);
+      let e = new Edge(new Vertex([1, 4, 65]), new Vertex([1, 4, 65]));
       e.isLoop().should.be.true();
-      e = new Edge([1, 4, 65], [65, 1, 4]);
+      e = new Edge(new Vertex([1, 4, 65]), new Vertex([65, 1, 4]));
       e.isLoop().should.be.false();
-      e = new Edge({ a: 1 }, { a: 1 });
+      e = new Edge(new Vertex({ a: 1 }), new Vertex({ a: 1 }));
       e.isLoop().should.be.true();
-      e = new Edge({ a: [1, 2, 3] }, { a: [1, 2, 3] });
+      e = new Edge(new Vertex({ a: [1, 2, 3] }), new Vertex({ a: [1, 2, 3] }));
       e.isLoop().should.be.true();
     });
 
     it('# should do deep comparison', () => {
-      let s = { a: 3, b: { c: [1, 2, 3], d: [1] } };
-      let d = { a: 3, b: { c: [1, 2, 3], d: [1] } };
+      const s = new Vertex({ a: 3, b: { c: [1, 2, 3], d: [1] } });
+      let d = new Vertex({ a: 3, b: { c: [1, 2, 3], d: [1] } });
       let e = new Edge(s, d);
       e.isLoop().should.be.true();
-      d = { a: 3, b: { c: [1, 2, 3, 4], d: [true, false] } };
+      d = new Vertex({ a: 3, b: { c: [1, 2, 3, 4], d: [true, false] } });
       e = new Edge(s, d);
       e.isLoop().should.be.false();
     });
   });
 
   describe('hasLabel()', () => {
+    const u = new Vertex('a');
+    const v = new Vertex('b');
+
     it('# should return true iff the edge has a defined label', () => {
-      let labels = ['1', '-1e14'];
+      const labels = ['1', '-1e14'];
       labels.forEach(label => {
-        let e = new Edge('a', 'b', { label: label });
+        const e = new Edge(u, v, { label: label });
         e.hasLabel().should.be.true();
       });
     });
 
     it('# should return false label === undefined', () => {
-      new Edge(1, 2).hasLabel().should.be.false();
+      new Edge(v, u).hasLabel().should.be.false();
     });
   });
 
-  describe('equals()', () => { 
+  describe('equals()', () => {
     it('# should return true if two edges are equals in all their fields', () => {
       labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let weight = Math.random()
-        let e1 = new Edge(source, dest, { label: label, weight: weight });
-        let e2 = new Edge(source, dest, { label: label, weight: weight });
+        const source = choose(sources);
+        const dest = choose(sources);
+        const weight = Math.random()
+        const e1 = new Edge(source, dest, { label: label, weight: weight });
+        const e2 = new Edge(source, dest, { label: label, weight: weight });
         e1.equals(e2).should.be.true();
       });
     });
 
     it('# should return false if the argument is not an edge', () => {
       labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let weight = Math.random()
-        let e1 = new Edge(source, dest, { label: label, weight: weight });
+        const source = choose(sources);
+        const dest = choose(sources);
+        const weight = Math.random()
+        const e1 = new Edge(source, dest, { label: label, weight: weight });
         e1.equals(choose(sources)).should.be.false();
       });
     });
 
     it('# should return false if source is different', () => {
       labels.forEach(label => {
-        let source1 = choose(sources);
-        let source2 = choose(sources);
-        let dest = choose(sources);
-        let weight = Math.random();
-        let e1 = new Edge(source1, dest, { label: label, weight: weight });
-        let e2 = new Edge(source2, dest, { label: label, weight: weight });
-        e1.equals(e2).should.be.eql(consistentStringify(source1) === consistentStringify(source2));
+        const source1 = choose(sources);
+        const source2 = choose(sources);
+        const dest = choose(sources);
+        const weight = Math.random();
+        const e1 = new Edge(source1, dest, { label: label, weight: weight });
+        const e2 = new Edge(source2, dest, { label: label, weight: weight });
+        e1.equals(e2).should.be.eql(source1.serializedLabel === source2.serializedLabel);
       });
     });
 
     it('# should return false if dest is different', () => {
       labels.forEach(label => {
-        let source = choose(sources);
-        let dest1 = choose(sources);
-        let dest2 = choose(sources);
-        let weight = Math.random();
-        let e1 = new Edge(source, dest1, { label: label, weight: weight });
-        let e2 = new Edge(source, dest2, { label: label, weight: weight });
-        e1.equals(e2).should.be.eql(consistentStringify(dest1) === consistentStringify(dest2));
+        const source = choose(sources);
+        const dest1 = choose(sources);
+        const dest2 = choose(sources);
+        const weight = Math.random();
+        const e1 = new Edge(source, dest1, { label: label, weight: weight });
+        const e2 = new Edge(source, dest2, { label: label, weight: weight });
+        e1.equals(e2).should.be.eql(dest1.serializedLabel === dest2.serializedLabel);
       });
     });
 
     it('# should return false if label is different', () => {
       sources.forEach(source => {
-        let dest = choose(sources);
-        let label1 = choose(labels);
-        let label2 = choose(labels);
-        let weight = Math.random();
-        let e1 = new Edge(source, dest, { label: label1, weight: weight });
-        let e2 = new Edge(source, dest, { label: label2, weight: weight });
-        e1.equals(e2).should.be.eql(consistentStringify(label1) === consistentStringify(label2));
+        const dest = choose(sources);
+        const label1 = choose(labels);
+        const label2 = choose(labels);
+        const weight = Math.random();
+        const e1 = new Edge(source, dest, { label: label1, weight: weight });
+        const e2 = new Edge(source, dest, { label: label2, weight: weight });
+        e1.equals(e2).should.be.eql(label1 === label2);
       });
     });
 
     it('# should return false if weight is different', () => {
       sources.forEach(source => {
-        let dest = choose(sources);
-        let label = choose(labels);
-        let weight1 = Math.random();
-        let weight2 = Math.random();
-        let e1 = new Edge(source, dest, { label: label, weight: weight1 });
-        let e2 = new Edge(source, dest, { label: label, weight: weight2 });
-        e1.equals(e2).should.be.eql(consistentStringify(weight1) === consistentStringify(weight2));
-      });
-    });
-  });
-
-  describe('labelEquals()', () => {
-    it('# should return true if the edge\'s label is (deeply)equal to the argument', () => {
-      labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let e = new Edge(source, dest, { label: label });
-        e.labelEquals(label).should.be.true();
-      });
-    });
-
-    it('# should return false iff label is different', () => {
-      labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let label2 = choose(labels);
-        let e = new Edge(source, dest, { label: label });
-        e.labelEquals(label2).should.be.eql(consistentStringify(label) === consistentStringify(label2));
+        const dest = choose(sources);
+        const label = choose(labels);
+        const weight1 = Math.random();
+        const weight2 = Math.random();
+        const e1 = new Edge(source, dest, { label: label, weight: weight1 });
+        const e2 = new Edge(source, dest, { label: label, weight: weight2 });
+        e1.equals(e2).should.be.eql(weight1 === weight2);
       });
     });
   });
@@ -351,16 +339,21 @@ describe('Methods', () => {
   describe('clone()', () => {
     it('# should clone all fields', () => {
       labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let e1 = new Edge(source, dest, { label: label, weight: Math.random() });
-        let e2 = e1.clone();
+        const source = choose(sources);
+        const dest = choose(sources);
+        const e1 = new Edge(source, dest, { label: label, weight: Math.random() });
+        const e2 = e1.clone();
         e1.equals(e2).should.be.true();
       });
     });
 
     it('# changing the cloned instance should not affect the original', () => {
-      let e1 = new Edge([1, 2, { 3: '3' }], { 'a': [true, { false: 3.0 }] }, { label: choose(labels), weight: Math.random() });
+      const e1 = new Edge(
+        new Vertex([1, 2, { 3: '3' }]),
+        new Vertex({ 'a': [true, { false: 3.0 }] }),
+        {
+          label: choose(labels), weight: Math.random()
+        });
       let e2 = e1.clone();
       let e3 = e2.clone();
 
@@ -368,57 +361,63 @@ describe('Methods', () => {
       e1.equals(e3).should.be.true();
       e3.equals(e2).should.be.true();
 
-      e2.source[2][1] = 'new';
+      e2.source.label[2][1] = 'new';
       e1.equals(e2).should.be.false();
-      e1.source.should.eql([1, 2, { 3: '3' }]);
-      e2.source.should.eql([1, 2, { 3: '3', 1: 'new' }]);
+      e1.source.label.should.eql([1, 2, { 3: '3' }]);
+      e2.source.label.should.eql([1, 2, { 3: '3', 1: 'new' }]);
       e1.equals(e3).should.be.true();
 
-      e3.destination['a'] = 'changed';
+      e3.destination.label['a'] = 'changed';
       e1.equals(e3).should.be.false();
-      e1.destination.should.eql({ 'a': [true, { false: 3.0 }] });
-      e3.destination.should.eql({ 'a': 'changed' });
+      e1.destination.label.should.eql({ 'a': [true, { false: 3.0 }] });
+      e3.destination.label.should.eql({ 'a': 'changed' });
     });
   });
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
       labels.forEach(label => {
-        let source = choose(sources);
-        let dest = choose(sources);
-        let weight = Math.random();
-        let e = new Edge(source, dest, { label: label, weight: weight });
+        const source = choose(sources);
+        const dest = choose(sources);
+        const weight = Math.random();
+        const e = new Edge(source, dest, { label: label, weight: weight });
         expect(() => JSON.parse(e.toJson())).not.to.throw();
       });
     });
 
     it('# should stringify the fields consistently', () => {
-      let e = new Edge(0, '1', { label: 'label', weight: -0.1e14 });
-      e.toJson().should.eql('{"destination":"1","label":"label","source":0,"weight":-10000000000000}');
+      const e = new Edge(new Vertex(0), new Vertex('1', { weight: 2 }), { label: 'label', weight: -0.1e14 });
+      JSON.parse(e.toJson()).should.eql(
+        {
+          source: { label: 0, weight: 1 },
+          destination: { label: "1", weight: 2 },
+          weight: -10000000000000,
+          label: "label"
+        });
     });
 
     it('# should deep-stringify all the fields', () => {
-      let source = { a: 1, b: [{ c: 'cLab' }, 4] };
-      let dest = [1, 2, 3, [4, 5, 6]];
-      let label = "undefined label"
-      let weight = 1.1e4;
-      let e = new Edge(source, dest, { label: label, weight: weight });
-      e.toJson().should.eql('{"destination":["1","2","3","[\\\"4\\\",\\\"5\\\",\\\"6\\\"]"],"label":"undefined label","source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
+      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] });
+      const dest = new Vertex([1, 2, 3, [4, 5, 6]]);
+      const label = "undefined label"
+      const weight = 1.1e4;
+      const e = new Edge(source, dest, { label: label, weight: weight });
+      e.toJson().should.eql('{"destination":{"label":[1,2,3,[4,5,6]],"weight":1},"label":"undefined label","source":{"label":{"a":1,"b":[{"c":"cLab"},4]},"weight":1},"weight":11000}');
     });
   });
 
   describe('fromJson()', () => {
     it('# should parse the fields consistently', () => {
-      let e = new Edge(0, '1', { label: 'label', weight: -0.1e14 });
+      const e = new Edge(new Vertex(0), new Vertex('1'), { label: 'label', weight: -0.1e14 });
       Edge.fromJsonObject(JSON.parse(e.toJson())).should.eql(e);
     });
 
     it('# should deep-parse all the fields', () => {
-      let source = { a: 1, b: [{ c: 'cLab' }, 4] };
-      let dest = [1, 2, 3, new Set([1, 2, 3])];
-      let label = "label";
-      let weight = 1.1e4;
-      let e = new Edge(source, dest, { label: label, weight: weight });
+      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] });
+      const dest = new Vertex([1, 2, 3, [4, 5, 6]]);
+      const label = "label";
+      const weight = 1.1e4;
+      const e = new Edge(source, dest, { label: label, weight: weight });
       Edge.fromJsonObject(JSON.parse(e.toJson())).should.eql(e);
     });
   });
