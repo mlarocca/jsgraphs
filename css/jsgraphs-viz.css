@@ -1,21 +1,36 @@
-.edge {
+.graph g.edge {
+  border: 3px solid black;
+}
+
+.graph g.edge line {
   stroke: black;
   stroke-width: 2;
   fill: none;
+  z-index: 1;
 }
 
-.vertex {
-  fill: yellow;
+.graph g.edge text {
+  fill: black;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: medium;
+  font-style: italic;
+}
+
+.graph g.vertex circle {
+  fill: orange;
   stroke: black;
   stroke-width: 2;
+  z-index: 2;
 }
 
-.vertex text {
-  color: red;
+.graph g.vertex text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: red;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
 }
 
-/*
-.embedding {
+.graph {
   border: 1px solid red;
 }
-*/
