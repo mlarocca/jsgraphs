@@ -12,7 +12,6 @@ import should from "should";
 const expect = chai.expect;
 
 describe('Vertex API', () => {
-
   it('# Class should have a constructor method', function () {
     Vertex.should.be.a.constructor();
   });

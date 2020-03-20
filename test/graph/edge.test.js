@@ -24,7 +24,7 @@ describe('Edge API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Edge(1, 2);
-    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'labelEquals', 'clone'];
+    let methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toString', 'equals', 'clone'];
     let attributes = ['source', 'destination', 'weight', 'label'];
     testAPI(edge, attributes, methods);
   });

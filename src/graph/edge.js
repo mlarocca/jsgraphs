@@ -104,7 +104,7 @@ class Edge {
   }
 
   isLoop() {
-    return consistentStringify(this.source) === consistentStringify(this.destination);
+    return Vertex.serializeLabel(this.source) === Vertex.serializeLabel(this.destination);
   }
 
   hasLabel() {
@@ -112,9 +112,9 @@ class Edge {
   }
 
   toJson() {
-    return consistentStringify({
-      source: this.source,
-      destination: this.destination,
+    return JSON.stringify({
+      source: Vertex.serializeLabel(this.source),
+      destination: Vertex.serializeLabel(this.destination),
       weight: this.weight,
       label: this.label
     });
@@ -126,10 +126,6 @@ class Edge {
 
   equals(e) {
     return (e instanceof Edge) && this.toJson() === e.toJson();
-  }
-
-  labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(this.label);
   }
 
   /**
