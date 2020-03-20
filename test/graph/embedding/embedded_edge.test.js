@@ -30,7 +30,7 @@ describe('EmbeddedEdge API', () => {
   it('# Object\'s interface should be complete', () => {
     let embeddedGraph = new EmbeddedEdge(new EmbeddedVertex("a", new Point(1,1)), new EmbeddedVertex("b", new Point(2,2)));
     let methods = ['constructor', 'toJson', 'toString', 'toSvg', 'clone'];
-    let attributes = ['source', 'destination'];
+    let attributes = [];
     testAPI(embeddedGraph, attributes, methods);
   });
 });

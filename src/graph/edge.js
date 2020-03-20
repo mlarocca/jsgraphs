@@ -140,7 +140,6 @@ class Edge {
       this.source.clone(),
       this.destination.clone(),
       { weight: this.weight, label: this.label });
-
   }
 }
 
