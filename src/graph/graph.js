@@ -7,6 +7,7 @@ import { isDefined, isUndefined } from '../common/basic.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.js';
 import { consistentStringify } from '../common/strings.js';
+import { isNumber, range } from '../common/numbers.js';
 
 const _vertices = new WeakMap();
 
@@ -219,6 +220,17 @@ class Graph {
     return [...getEdges(this)].map(e => e.clone());
   }
 
+  /**
+   * @name isDirected
+   * @for Graph
+   * @description
+   * States if the graph is a directed graph (true) or an undirected one.
+   * @return {boolean}
+   */
+  isDirected() {
+    return true;
+  }
+
   createVertex(label, { weight } = {}) {
     let vcs = _vertices.get(this);
 
@@ -356,6 +368,96 @@ class Graph {
   }
 }
 
+
+export class UndirectedGraph extends Graph {
+  static completeGraph(n) {
+    if (!isNumber(n) || n < 2) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeGraph', 'n', n));
+    }
+
+    let g = new UndirectedGraph();
+    const r = range(1, n + 1);
+    r.forEach(i => g.createVertex(i));
+    r.forEach(i => range(i + 1, n + 1).forEach(j => {
+      g.createEdge(i, j);
+    }));
+
+    return g;
+  }
+
+  static completeBipartiteGraph(n, m) {
+    if (!isNumber(n) || n < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'n', n));
+    }
+
+    if (!isNumber(m) || m < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'm', m));
+    }
+
+    let g = new UndirectedGraph();
+    const r1 = range(1, n + 1);
+    const r2 = range(n + 1, n + m + 1);
+    r1.forEach(i => g.createVertex(i));
+    r2.forEach(j => g.createVertex(j));
+
+    r1.forEach(i => r2.forEach(j => {
+      g.createEdge(i, j);
+    }));
+
+    return g;
+  }
+
+  /**
+   * @override
+   */
+  isDirected() {
+    return false;
+  }
+
+  /**
+   * @override
+   * @param {*} source 
+   * @param {*} destination 
+   * @param {*} param2 
+   */
+  createEdge(source, destination, { weight, label } = {}) {
+    return super.createEdge(destination, source, { weight: weight, label: label }) &&
+      super.createEdge(source, destination, { weight: weight, label: label });
+  }
+
+  /**
+   * @override
+   * @param {*} edge 
+   */
+  addEdge(edge) {
+    if (!(edge instanceof Edge)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addEdge', edge));
+    }
+
+    if (!this.hasVertex(edge.source)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.source));
+    }
+    if (!this.hasVertex(edge.destination)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
+    }
+
+    let u = getGraphVertex(this, edge.source);
+    let v = getGraphVertex(this, edge.destination);
+    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label }) && v.addEdgeTo(u, { edgeWeight: edge.weight, edgeLabel: edge.label });
+  }
+
+  clone() {
+    let g = new UndirectedGraph();
+    for (let v of getVertices(this)) {
+      g.addVertex(v.clone());
+    }
+    for (let e of getEdges(this)) {
+      g.addEdge(e.clone());
+    }
+    return g;
+  }
+}
+
 /**
  * @method getGraphVertex
  * @for Graph
@@ -421,8 +523,5 @@ function* getEdges(graph) {
   }
 }
 
-export class UndirectedGraph extends Graph {
-
-}
 
 export default Graph;

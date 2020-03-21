@@ -2,6 +2,7 @@ import Point from './point.js';
 import { isUndefined } from '../common/basic.js';
 import { range } from '../common/numbers.js';
 import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE } from '../common/errors.js';
+import Point2D from './point2d.js';
 
 const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
   `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
@@ -167,11 +168,19 @@ class Cube {
   }
 
   get bottom() {
-    return new Point(...this.#bottom.coordinates());
+    if (this.dimensionality === 2) {
+      return new Point2D(...this.#bottom.coordinates());
+    } else {
+      return new Point(...this.#bottom.coordinates());
+    }
   }
 
   get top() {
-    return new Point(...this.#top.coordinates());
+    if (this.dimensionality === 2) {
+      return new Point2D(...this.#top.coordinates());
+    } else {
+      return new Point(...this.#top.coordinates());
+    }
   }
 
   /**

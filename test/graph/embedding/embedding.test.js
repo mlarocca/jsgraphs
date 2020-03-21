@@ -11,6 +11,7 @@ import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../../sr
 
 import chai from "chai";
 import should from "should";
+import { range } from '../../../src/common/numbers.js';
 
 const expect = chai.expect;
 
@@ -106,5 +107,19 @@ describe('Methods', () => {
       // let e = new Embedding(source, dest, { label: label, weight: weight });
       // e.toJson().should.eql('{"destination":["1","2","3","[\\\"4\\\",\\\"5\\\",\\\"6\\\"]"],"label":"undefined label","source":{"a":1,"b":["{\\\"c\\\":\\\"cLab\\\"}","4"]},"weight":11000}');
     });
+  });
+  describe('toSVG()', () => {
+    it('# complete graphs should return a valid json', () => {
+      const emb = Embedding.completeGraph(10, 400);
+      console.log(emb.toSvg(400, 400, {'1': ['warning'], '2': ['error'], '3': ['warning', 'source']}));
+    });  
+
+    it('# complete bipartite graphs should return a valid json', () => {
+      const emb = Embedding.completeBipartiteGraph(6, 4, 400);
+      let classes = {};
+      range(1, 7).forEach(i => classes[`${i}`] = ['left']);
+      range(7, 11).forEach(i => classes[`${i}`] = ['right']);
+      console.log(emb.toSvg(400, 400, classes));
+    });  
   });
 });

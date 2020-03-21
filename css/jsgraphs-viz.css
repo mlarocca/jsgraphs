@@ -1,12 +1,60 @@
-.graph g.edge {
-  border: 3px solid black;
+svg {
+  border: 1px solid red;
 }
 
-.graph g.edge line {
+.graph marker {
+  fill: black;
+  stroke: none;
+}
+
+.graph marker path {
+  fill: context-stroke;
+  stroke: context-stroke;
+}
+.graph g.edge.left line {
+  stroke: goldenrod;
+  stroke-width: 1;
+}
+
+.graph g.vertex.left circle {
+  fill: greenyellow;
+  stroke: green;
+  stroke-width: 2;
+}
+
+.graph g.vertex.left text {
+  fill: white;
+  stroke: green;
+  stroke-width: 1;
+}
+
+.graph g.vertex.right circle {
+  fill: aqua;
+  stroke: blue;
+  stroke-width: 2;
+}
+
+.graph g.vertex.right text {
+  fill: white;
   stroke: black;
+  stroke-width: 1;
+}
+.graph g.edge line {
+  stroke: yellow;
   stroke-width: 2;
   fill: none;
-  z-index: 1;
+}
+
+.graph g.edge.warning line {
+  stroke: orange;
+  stroke-width: 2;
+  fill: orange;
+}
+
+.graph g.edge.error line {
+  stroke: red;
+  stroke-width: 3;
+  fill: none;
 }
 
 .graph g.edge text {
@@ -17,10 +65,27 @@
 }
 
 .graph g.vertex circle {
+  fill: yellow;
+  stroke: black;
+  stroke-width: 2;
+}
+
+.graph g.vertex.warning circle {
   fill: orange;
   stroke: black;
   stroke-width: 2;
-  z-index: 2;
+}
+
+.graph g.vertex.warning.source circle {
+  fill: orange;
+  stroke: red;
+  stroke-width: 3;
+}
+
+.graph g.vertex.error circle {
+  fill: red;
+  stroke: black;
+  stroke-width: 2;
 }
 
 .graph g.vertex text {
@@ -31,6 +96,24 @@
   text-anchor: "middle"
 }
 
+.graph g.vertex.warning text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: red;
+  font-size: medium;
+  font-weight: bolder;
+  text-anchor: "middle"
+}
+
+.graph g.vertex.error text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: white;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
+}
+
 .graph {
   border: 1px solid red;
+  width: auto;
+  height: auto;
 }
