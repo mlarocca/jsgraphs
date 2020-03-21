@@ -148,5 +148,16 @@ describe('Methods', () => {
       console.log(v.toSvg());
       console.log(u.toSvg());
     });
+
+    it('# should return a valid svg 2 ', () => {
+      let v = new EmbeddedVertex("v", new Point(20, 70), {weight: 0.8})
+      let u = new EmbeddedVertex("u", new Point(120, 20), {weight: 2})
+      let edge = new EmbeddedEdge(u, v, {weight: 2, label: "Edge!"});
+      let edge2 = new EmbeddedEdge(v, u, {weight: 5, label: "test"});
+      console.log(edge.toSvg());
+      console.log(edge2.toSvg());
+      console.log(v.toSvg());
+      console.log(u.toSvg());
+    });    
   });
 });

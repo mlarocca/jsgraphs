@@ -4,15 +4,15 @@ import Point from '../../geometric/point.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 import { isNumber } from '../../common/numbers.js';
 
-const DEFAULT_VERTEX_RADIUS = 15;
-
 class EmbeddedVertex extends Vertex {
+
+  static DEFAULT_VERTEX_RADIUS = 15;
 
   #center;
 
   #radius;
 
-  constructor(label, vertexPosition, { weight, vertexRadius = DEFAULT_VERTEX_RADIUS } = {}) {
+  constructor(label, vertexPosition, { weight, vertexRadius = EmbeddedVertex.DEFAULT_VERTEX_RADIUS } = {}) {
     super(label, { weight: weight });
     if (!(vertexPosition instanceof Point) || vertexPosition.dimensionality < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex', 'coordinates', vertexPosition));
@@ -49,10 +49,10 @@ class EmbeddedVertex extends Vertex {
     return `EmbeddedVertex: ${this.toJson()}`;
   }
 
-  toSvg() {
+  toSvg(cssClasses = []) {
     let [x, y] = this.position.coordinates();
     return `
-    <g class="vertex" transform="translate(${x},${y})">
+    <g class="vertex ${cssClasses.join(' ')}" transform="translate(${x},${y})">
       <circle cx="0" cy="0" r="${this.radius}" />
       <text x="0" y="0" text-anchor="middle">${this.label}</text>
     </g>`;
