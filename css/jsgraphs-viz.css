@@ -5,15 +5,74 @@ svg {
 .graph marker {
   fill: black;
   stroke: none;
+
 }
 
 .graph marker path {
   fill: context-stroke;
   stroke: context-stroke;
 }
+
+.graph g.vertex.start circle {
+  fill: url(#radial-shape-gradient) #fff;
+  stroke: black;
+  stroke-width: 4;
+}
+
+.graph g.vertex.init circle {
+  fill: lightcoral;
+  stroke: black;
+  stroke-width: 3;
+}
+
+.graph g.vertex.build circle, .graph g.vertex.paint circle, .graph g.vertex.mount circle {
+  fill: orange;
+  stroke: black;
+  stroke-width: 3;
+}
+
+.graph g.vertex.finish circle {
+  fill: url(#linear-shape-gradient) #fff;
+  stroke: crimson;
+  stroke-width: 4;
+}
+
+.graph g.vertex.init text, .graph g.vertex.start text, .graph g.vertex.finish text {
+  fill: black;
+  font-weight: bolder;
+}
+.graph g.edge.start line {
+  stroke: crimson;
+  stroke-width: 4px;
+}
+
+.graph g.edge.build line, .graph g.edge.paint line, .graph g.edge.mount line {
+  stroke: black;
+  stroke-width: 2px;
+}
+
+.graph g.edge.finish line {
+  stroke: crimson;
+  stroke-width: 4px;
+}
+
+.graph g.edge text {
+  font-weight: bolder;
+}
+
+#linear-shape-gradient {
+  --color-stop: #f12c06;
+  --color-bot: #faed34;
+}
+
+#radial-shape-gradient {
+  --color-inner: #6e0303;
+  --color-outer: #f14c46;
+}
+
 .graph g.edge.left line {
   stroke: goldenrod;
-  stroke-width: 1;
+  stroke-width: 1px;
 }
 
 .graph g.vertex.left circle {
