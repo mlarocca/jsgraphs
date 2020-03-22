@@ -3,6 +3,7 @@ import Point from '../../geometric/point.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 import { isNumber } from '../../common/numbers.js';
+import Point2D from '../../geometric/point2d.js';
 
 class EmbeddedVertex extends Vertex {
 
@@ -27,6 +28,13 @@ class EmbeddedVertex extends Vertex {
 
   get position() {
     return this.#center.clone();
+  }
+
+  set position(center) {
+    if (!(center instanceof Point2D)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.setPosition', 'center', center));
+    }
+    this.#center = center.clone();
   }
 
   get radius() {
