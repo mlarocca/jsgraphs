@@ -5,7 +5,7 @@ import { isNonEmptyString } from '../../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 
 const EDGE_BEZIER_CONTROL_DISTANCE = 40;
-const EDGE_LOOP_RADIUS = 20;
+const EDGE_LOOP_RADIUS = 15;
 
 class EmbeddedEdge extends Edge {
   #directed;
@@ -139,9 +139,10 @@ function arcEdgeSvg(edge, cssClasses) {
 function loopSvg(edge, cssClasses) {
 
   const [x, y] = edge.source.position.coordinates();
+  const arcRadius = Math.round(Math.sqrt(edge.source.weight) * EDGE_LOOP_RADIUS);
   const delta = edge.source.radius * Math.cos(Math.PI / 4);
   const [x2, y2] = [delta, -delta];
-  const [tx, ty] = [delta + EDGE_LOOP_RADIUS, -delta - EDGE_LOOP_RADIUS];
+  const [tx, ty] = [delta + arcRadius, -delta - arcRadius];
 
   let edgeLabel = isNonEmptyString(edge.label)
     ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
@@ -149,7 +150,7 @@ function loopSvg(edge, cssClasses) {
 
   return `
   <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
-    <path d="M ${0} ${Math.round(-edge.source.radius)} A ${EDGE_LOOP_RADIUS} ${EDGE_LOOP_RADIUS}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
+    <path d="M ${0} ${Math.round(-edge.source.radius)} A ${arcRadius} ${arcRadius}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
      marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
     ${edgeLabel}
   </g>`;

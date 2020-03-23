@@ -2,6 +2,17 @@ svg {
   border: 1px solid red;
 }
 
+#linear-shape-gradient {
+  --color-stop: #f12c06;
+  --color-bot: #faed34;
+}
+
+#radial-shape-gradient {
+  --color-inner: #6e0303;
+  --color-outer: #f14c46;
+  --color-radius: 50%;
+}
+
 .graph g.vertex.start circle {
   fill: url(#radial-shape-gradient) #fff;
   stroke: black;
@@ -53,16 +64,6 @@ svg {
 
 .graph g.edge text {
   font-weight: bolder;
-}
-
-#linear-shape-gradient {
-  --color-stop: #f12c06;
-  --color-bot: #faed34;
-}
-
-#radial-shape-gradient {
-  --color-inner: #6e0303;
-  --color-outer: #f14c46;
 }
 
 .graph g.edge.left path {
@@ -141,10 +142,6 @@ svg {
   stroke-width: 2;
 }
 
-
-
-
-
 .graph g.vertex.warning text {
   font-family: 'Courier New', Courier, monospace;
   fill: red;
@@ -185,8 +182,61 @@ svg {
   font-style: italic;
 }
 
-.graph {
-  border: 1px solid red;
-  width: auto;
-  height: auto;
+.graph.FSA g.vertex circle {
+  fill: #fff;
+  stroke: black;
+  stroke-width: 3;
+}
+
+.graph.FSA g.vertex.start circle {
+  fill: black;
+  stroke: black;
+  stroke-width: 1;
+}
+
+.graph.FSA g.vertex.end circle {
+  fill: url(#radial-shape-gradient) black;
+  stroke: black;
+  stroke-width: 4;
+}
+
+#radial-shape-gradient {
+  --color-inner: black;
+  --color-mid: white;
+  --color-outer: white;
+  --color-inner-radius: 80%;
+}
+
+.graph.FSA g.vertex text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: black;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
+}
+
+.graph.FSA g.vertex.start text, .graph.FSA g.vertex.end text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: white;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
+}
+
+.graph.FSA g.edge text {
+  fill: red;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: larger;
+  font-style: italic;
+  font-weight: bolder;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+
+.graph.FSA g.edge path {
+  stroke: black;
+  stroke-width: 3;
+  fill:none;
 }
