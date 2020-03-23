@@ -242,20 +242,25 @@ class Graph {
 
     vcs.set(v.serializedLabel, v);
     _vertices.set(this, vcs);
+
+    return v;
   }
 
-  addVertex(v) {
-    if (!(v instanceof Vertex)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addVertex', v));
+  addVertex(vertex) {
+    if (!(vertex instanceof Vertex)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.addVertex', vertex));
     }
     let vcs = _vertices.get(this);
 
-    if (this.hasVertex(v.label)) {
-      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', v));
+    if (this.hasVertex(vertex.label)) {
+      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', vertex));
     }
 
-    vcs.set(v.serializedLabel, new GVertex(v.label, { weight: v.weight }));
+    const v = new GVertex(vertex.label, { weight: vertex.weight });
+    vcs.set(vertex.serializedLabel, v);
     _vertices.set(this, vcs);
+
+    return v;
   }
 
   hasVertex(vertex) {
