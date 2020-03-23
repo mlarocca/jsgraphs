@@ -1,8 +1,11 @@
 import Edge from '../edge.js';
 import EmbeddedVertex from './embedded_vertex.js';
 
-import { isNonEmptyString, isString } from '../../common/strings.js';
+import { isNonEmptyString } from '../../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
+
+const EDGE_BEZIER_CONTROL_DISTANCE = 40;
+const EDGE_LOOP_RADIUS = 20;
 
 class EmbeddedEdge extends Edge {
   #directed;
@@ -40,7 +43,7 @@ class EmbeddedEdge extends Edge {
     return `EmbeddedEdge: ${this.toJson()}`;
   }
 
-  toSvg(cssClasses = [], useArcs = false) {
+  toSvg({ cssClasses = [], useArcs = false } = {}) {
     if (this.isLoop()) {
       return loopSvg(this, cssClasses);
     } else if (this.isDirected && useArcs) {
@@ -58,19 +61,28 @@ class EmbeddedEdge extends Edge {
  * @param {Array<string>} cssClasses
  */
 function rectilinearEdgeSvg(edge, cssClasses) {
-  let [x1, y1] = edge.source.position.coordinates();
-  let [x2, y2] = edge.destination.position.coordinates();
-  let destRadius = edge.destination.radius;
-  let alpha = Math.atan2(x2 - x1, y2 - y1);
-  let [dx, dy] = [destRadius * Math.sin(alpha), destRadius * Math.cos(alpha)];
+  const [x1, y1] = edge.source.position.coordinates();
+  const [x2, y2] = edge.destination.position.coordinates();
+
+  const srcVertexRadius = edge.source.radius;
+  const destVertexRadius = edge.destination.radius;
+
+  const alpha = Math.atan2(x2 - x1, y2 - y1);
+  const [dx2, dy2] = [destVertexRadius * Math.sin(alpha), destVertexRadius * Math.cos(alpha)];
+  const [dx1, dy1] = [srcVertexRadius * Math.sin(alpha), srcVertexRadius * Math.cos(alpha)];
+
+  // Coordinates for text
+  const [tx, ty] = [(x2 - x1) / 2, (y2 - y1) / 2];
+
 
   let edgeLabel = isNonEmptyString(edge.label)
-    ? `<text x="${(x2 - x1) / 2}" y="${(y2 - y1) / 2}" text-anchor="middle"> ${edge.label} </text>`
+    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
     : "";
 
   return `
-    <g class="edge ${cssClasses.join(' ')}" transform="translate(${x1},${y1})">
-      <line x1="${0}" y1="${0}" x2="${x2 - x1 - dx}" y2="${y2 - y1 - dy}" marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
+    <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
+      <path d="M${Math.round(dx1)},${Math.round(dy1)} L${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
+       marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
       ${edgeLabel}
     </g>`;
 }
@@ -82,7 +94,40 @@ function rectilinearEdgeSvg(edge, cssClasses) {
  * @param {Array<string>} cssClasses
  */
 function arcEdgeSvg(edge, cssClasses) {
+  const [x1, y1] = edge.source.position.coordinates();
+  const [x2, y2] = edge.destination.position.coordinates();
 
+  const srcVertexRadius = edge.source.radius;
+  const destVertexRadius = edge.destination.radius;
+
+  const alpha = Math.atan2(x2 - x1, y2 - y1);
+  const [dx1, dy1] = [srcVertexRadius * Math.sin(alpha), srcVertexRadius * Math.cos(alpha)];
+  const [dx2, dy2] = [destVertexRadius * Math.sin(alpha), destVertexRadius * Math.cos(alpha)];
+
+  // Relative coordinates of the control point for the quadratic bezier curve
+  // The point is meant to be 40px above the middle of the segment between the two vertices
+  // therefore the angle to be used is 90° + the segment's angle.
+  const [cx, cy] = [
+    (x2 - x1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE * Math.cos(Math.PI / 2 + alpha)
+  ];
+
+  // Coordinates for text
+  const [tx, ty] = [
+    (x2 - x1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE / 2 * Math.sin(Math.PI / 2 + alpha) ,
+    (y2 - y1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE / 2 * Math.cos(Math.PI / 2 + alpha)
+  ];
+
+  let edgeLabel = isNonEmptyString(edge.label)
+    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
+    : "";
+
+  return `
+    <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
+      <path d="M${Math.round(dx1)},${Math.round(dy1)} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
+       marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
+      ${edgeLabel}
+    </g>`;
 }
 
 /**
@@ -93,5 +138,20 @@ function arcEdgeSvg(edge, cssClasses) {
  */
 function loopSvg(edge, cssClasses) {
 
+  const [x, y] = edge.source.position.coordinates();
+  const delta = edge.source.radius * Math.cos(Math.PI / 4);
+  const [x2, y2] = [delta, -delta];
+  const [tx, ty] = [delta + EDGE_LOOP_RADIUS, -delta - EDGE_LOOP_RADIUS];
+
+  let edgeLabel = isNonEmptyString(edge.label)
+    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
+    : "";
+
+  return `
+  <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
+    <path d="M ${0} ${Math.round(-edge.source.radius)} A ${EDGE_LOOP_RADIUS} ${EDGE_LOOP_RADIUS}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
+     marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
+    ${edgeLabel}
+  </g>`;
 }
 export default EmbeddedEdge;

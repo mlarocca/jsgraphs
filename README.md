@@ -38,10 +38,10 @@ In complete graphs, every vertex is connected to every other vertex by an edge.
 import Embedding from '/src/graph/embedding/embedding.js';
 
 Embedding.completeGraph(10, 400)
-  .toSvg(400, 400, {'1': ['warning'], '2': ['error'], '3': ['warning', 'source']}));
+  .toSvg(400, 400, { verticesClasses: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] } }));
 ```
 
-![Complete Graph](readme/complete.jpg)
+![Complete Graph](readme/complete.jpg)![Same Complete Graph, with arc rather than segments](readme/complete_arcs.jpg)
 
 
 ## Complete Bipartite Graphs
@@ -57,7 +57,7 @@ range(1, 7).forEach(i => classes[`${i}`] = ['left']);
 range(7, 11).forEach(i => classes[`${i}`] = ['right']);
 
 Embedding.completeBipartiteGraph(6, 4, 400)
-  .toSvg(400, 400, classes));
+  .toSvg(400, 400, { verticesClasses: classes }));
 ```
 
 ![Bipartite Complete Graph](readme/bipartite_complete.jpg)
@@ -114,7 +114,7 @@ A DAG (Directed Acyclic Graph) is a kind of graph often used to model structured
         '"G"': ['mount', 'body', 'frame', 'engine']
       };
 
-      emb.toSvg(700, 400, classes);
+      emb.toSvg(700, 400, { verticesClasses: classes });
 ```
 
 ![DAG](readme/dag.jpg)

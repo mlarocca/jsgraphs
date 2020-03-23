@@ -159,7 +159,7 @@ function replaceEdgeTo(adj, destination, newEdge = null) {
 /** @class Graph
  *
  * This module exports two classes to create instances of graphs objects.
- * It is possible to create both directed graphs (default Graph) 
+ * It is possible to create both directed graphs (default Graph)
  * and undirected graphs (via the UndirectedGraph class).
  * Hypergraphs are not available yet, so for both directed and undirected graphs,
  * parallel edges are forbidden, although loops are not.
@@ -179,9 +179,9 @@ class Graph {
   /**
    * @method fromJson
    * @for Graph.class
-   * 
-   * Takes a string with the JSON encoding of a graph, and creates a new Graph object based on it. 
-   * 
+   *
+   * Takes a string with the JSON encoding of a graph, and creates a new Graph object based on it.
+   *
    * @param {*} json The string with the graph's JSON encoding, as outputed by Graph.toJson.
    */
   static fromJson(json) {
@@ -191,12 +191,12 @@ class Graph {
   /**
    * @method fromJsonObject
    * @for Graph.class
-   * 
+   *
    * Takes a plain object with fields for a graph's vertices and edges, each encoded as a JSON string, and
    * created a new Graph matching the JSON provided.
    * The argument for this method is, ideally, the output of JSON.parse(g.toJson()), where g is an instance of Graph.
-   * 
-   * @param {Array} vertices An array with the JSON for the vertices to be 
+   *
+   * @param {Array} vertices An array with the JSON for the vertices to be
    */
   static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
@@ -210,7 +210,7 @@ class Graph {
   }
 
   /**
-   * 
+   *
    */
   get vertices() {
     return [...getVertices(this)].map(v => v.clone());
@@ -416,18 +416,23 @@ export class UndirectedGraph extends Graph {
 
   /**
    * @override
-   * @param {*} source 
-   * @param {*} destination 
-   * @param {*} param2 
+   * @param {*} source
+   * @param {*} destination
+   * @param {*} param2
    */
   createEdge(source, destination, { weight, label } = {}) {
-    return super.createEdge(destination, source, { weight: weight, label: label }) &&
-      super.createEdge(source, destination, { weight: weight, label: label });
+    let e = super.createEdge(source, destination, { weight: weight, label: label });
+
+    // Add an each for each direction, unless it's a loop
+    if (!e.isLoop()) {
+      super.createEdge(destination, source, { weight: weight, label: label });
+    }
+    return e;
   }
 
   /**
    * @override
-   * @param {*} edge 
+   * @param {*} edge
    */
   addEdge(edge) {
     if (!(edge instanceof Edge)) {
@@ -443,7 +448,11 @@ export class UndirectedGraph extends Graph {
 
     let u = getGraphVertex(this, edge.source);
     let v = getGraphVertex(this, edge.destination);
-    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label }) && v.addEdgeTo(u, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    let e = u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    if (!e.isLoop()) {
+      v.addEdgeTo(u, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    }
+    return e;
   }
 
   clone() {
@@ -462,12 +471,12 @@ export class UndirectedGraph extends Graph {
  * @method getGraphVertex
  * @for Graph
  * @private
- * 
+ *
  * Utility method to extract a vertex from a graph.
  * This method should not be exposed because clients shouldn't be able to directly manipulate vertices.
- * 
- * @param {Graph} graph 
- * @param {GVertex|any} vertex 
+ *
+ * @param {Graph} graph
+ * @param {GVertex|any} vertex
  */
 function getGraphVertex(graph, vertex) {
   let label;
@@ -482,12 +491,12 @@ function getGraphVertex(graph, vertex) {
 }
 
 /**
- * 
+ *
  * @private
- * 
- * @param {*} graph 
- * @param {*} source 
- * @param {*} destination 
+ *
+ * @param {*} graph
+ * @param {*} source
+ * @param {*} destination
  */
 function getGraphEdge(graph, source, destination) {
   let u = getGraphVertex(graph, source);
@@ -504,9 +513,9 @@ function getGraphEdge(graph, source, destination) {
 
 /**
  * @private
- * 
- * @param {*} graph 
- * 
+ *
+ * @param {*} graph
+ *
  */
 function* getVertices(graph) {
   yield* _vertices.get(graph).values();
@@ -514,8 +523,8 @@ function* getVertices(graph) {
 
 /**
  * @private
- * 
- * @param {*} graph 
+ *
+ * @param {*} graph
  */
 function* getEdges(graph) {
   for (let v of getVertices(graph)) {

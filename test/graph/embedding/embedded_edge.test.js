@@ -89,7 +89,7 @@ describe('EmbeddedEdge Creation', () => {
       //   expect(() => new EmbeddedEdge(3, [], { label: null })).not.to.throw();
       //   expect(new EmbeddedEdge(3, [], { label: null }).label).to.be.undefined;
       // });
-      
+
       // it('should not throw if label is a string', () => {
       //   expect(() => new EmbeddedEdge(3, [], { label: '' })).not.to.throw();
       //   expect(() => new EmbeddedEdge(3, [], { label: 'some string' })).not.to.throw();
@@ -150,14 +150,19 @@ describe('Methods', () => {
     });
 
     it('# should return a valid svg 2 ', () => {
-      let v = new EmbeddedVertex("v", new Point(20, 70), {weight: 0.8})
-      let u = new EmbeddedVertex("u", new Point(120, 20), {weight: 2})
-      let edge = new EmbeddedEdge(u, v, {weight: 2, label: "Edge!"});
-      let edge2 = new EmbeddedEdge(v, u, {weight: 5, label: "test"});
-      console.log(edge.toSvg());
-      console.log(edge2.toSvg());
+      let v = new EmbeddedVertex("v", new Point(50, 170), {weight: 0.8})
+      let u = new EmbeddedVertex("u", new Point(320, 250), {weight: 2})
+      let edge = new EmbeddedEdge(u, v, {weight: 2, label: "Edge!", isDirected: true});
+      let edge2 = new EmbeddedEdge(v, u, {weight: 5, label: "test", isDirected: true});
+      let loop = new EmbeddedEdge(v, v, {weight: 5, label: "loop long", isDirected: false});
+      let loop2 = new EmbeddedEdge(u, u, {weight: 2, label: "loop", isDirected: true});
       console.log(v.toSvg());
       console.log(u.toSvg());
-    });    
+      console.log(edge.toSvg({useArcs: true}));
+      console.log(edge.toSvg());
+      console.log(edge2.toSvg({useArcs: true}));
+      console.log(loop.toSvg());
+      console.log(loop2.toSvg());
+    });
   });
 });
