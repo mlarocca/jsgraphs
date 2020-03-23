@@ -5,7 +5,7 @@ A lightweight library to model graphs, run graphs' algorithms, and display them 
 
 From the base folder:
 
-```
+```bash
 nvm install stable
 
 npm install
@@ -16,13 +16,13 @@ npm install
 
 From the base folder:
 
-```
+```bash
 npm t test/$FOLDER/$TEST
 ```
 
 For instance
 
-```
+```bash
 npm t test/geometric/test_point.js
 ```
 
@@ -34,7 +34,7 @@ Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and
 ## Complete Graphs
 In complete graphs, every vertex is connected to every other vertex by an edge.
 
-```
+```javascript
 import Embedding from '/src/graph/embedding/embedding.js';
 
 Embedding.completeGraph(10, 400)
@@ -48,7 +48,7 @@ Embedding.completeGraph(10, 400)
 
 In bipartite-complete graphs, there are two sets of vertices, set A and set B, and every vertex in A is connected to every in B by an edge.
 
-```
+```javascript
 import Embedding from '/src/graph/embedding/embedding.js';
 import { range } from '/src/common/numbers.js';
 
@@ -66,7 +66,7 @@ Embedding.completeBipartiteGraph(6, 4, 400)
 
 A DAG (Directed Acyclic Graph) is a kind of graph often used to model structured information, for instance for compilers, spreadsheets and electronic circuits design,  or inter-dependent events, like in Bayesian newtworks.
 
-```
+```javascript
   import Embedding from '/src/graph/embedding/embedding.js';
   import Graph from '/src/graph/graph.js';
 
@@ -128,7 +128,7 @@ Every **reg**ular **ex**pression can be translated to an _FSA_ (**F**inite **S**
 
 This example shows a regular expression for email validation: note that it intentionally uses a simpler regex than the most generic one, accepting only  a subset of all valid emails.
 
-```
+```javascript
   import Embedding from '/src/graph/embedding/embedding.js';
   import Graph from '/src/graph/graph.js';
 
