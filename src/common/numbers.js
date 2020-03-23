@@ -135,3 +135,29 @@ export function randomInt(a = Number.MIN_SAFE_INTEGER, b = Number.MAX_SAFE_INTEG
 
     return a + Math.floor(Math.random() * (b - a));
 }
+
+
+/**
+ *
+ * @param {?number} a The lower boundary for the range of possible values (by default, the min negative safe integer).
+ * @param {?number} b The upper boundary for the range of possible values (by default, the max positive safe integer).
+ * @returns {number} A random double precision between a (included) and b (excluded).
+ * @throws {TypeError(ERROR_MSG_RANGE_LOWER)} If a is not finite.
+ * @throws {TypeError(ERROR_MSG_RANGE_UPPER)} If b is not finite.
+ * @throws {TypeError(ERROR_MSG_RANGE_BOUNDARIES)} If a < b.
+ */
+export function randomDouble(a = Number.MIN_SAFE_INTEGER, b = Number.MAX_SAFE_INTEGER) {
+    if (!Number.isFinite(a)) {
+        throw new TypeError(ERROR_MSG_RANGE_LOWER('randomDouble', a));
+    }
+
+    if (!Number.isFinite(b)) {
+        throw new TypeError(ERROR_MSG_RANGE_UPPER('randomDouble', b));
+    }
+
+    if (a >= b) {
+        throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('randomDouble', a, b));
+    }
+
+    return a + Math.random() * (b - a);
+}

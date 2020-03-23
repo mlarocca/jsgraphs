@@ -3,9 +3,7 @@ import EmbeddedVertex from './embedded_vertex.js';
 import Graph, { UndirectedGraph } from '../graph.js';
 import Point2D from '../../geometric/point2d.js';
 
-import { isUndefined } from '../../common/basic.js';
-
-import { ERROR_MSG_COORDINATES_NOT_FOUND, ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND } from '../../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND } from '../../common/errors.js';
 import { toNumber, isNumber } from '../../common/numbers.js';
 import Vertex from '../vertex.js';
 
@@ -41,7 +39,7 @@ class Embedding {
       const delta = 2 * Math.PI / n;
       const center = canvasSize / 2;
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
-      coordinates.set(v.label, new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta)));
+      coordinates.set(v.serializedLabel, new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta)));
     }
     return new Embedding(g, coordinates);
   }
@@ -80,7 +78,7 @@ class Embedding {
     return new Embedding(g, coordinates);
   }
 
-  constructor(graph, coordinates = new Map()) {
+  constructor(graph, coordinates = new Map(), { width, height } = {}) {
     if (!(graph instanceof Graph)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding', 'graph', graph));
     }
@@ -93,9 +91,9 @@ class Embedding {
     let minX = 0, maxX = 0, minY = 0, maxY = 0;
 
     for (let v of graph.vertices) {
-      let cs = coordinates.get(vertexLabel);
+      let cs = coordinates.get(vertexLabel(v));
       if (!(cs instanceof Point2D)) {
-        cs = Point2D.random();
+        cs = Point2D.random({ width, height });
       }
       let eV = new EmbeddedVertex(v.label, cs, { weight: v.weight });
       this.#vertices.set(v.serializedLabel, eV);
@@ -139,7 +137,7 @@ class Embedding {
     });
   }
 
-  toSvg(width, height, cssClasses = {}) {
+  toSvg(width, height, { graphCssClasses = [], verticesCssClasses = {}, edgesCssClasses = {}, useArcs = false }) {
     return `
   <svg width="${width}" height="${height}">
     <defs>
@@ -156,12 +154,12 @@ class Embedding {
         <stop offset="100%" stop-color="var(--color-outer)" style="stop-opacity:1" />
       </radialGradient>
     </defs>
-    <g class="graph">
+    <g class="graph ${graphCssClasses.join(" ")}">
       <g class="edges">${[...this.edges].map(e => {
-      let css = [...(cssClasses[e.source.serializedLabel] || []), ...(cssClasses[e.destination.serializedLabel] || [])];
-      return this.getEdge(e.source, e.destination).toSvg(css);
-    }).join('')}</g>
-      <g class="vertices">${[...this.vertices].map(v => v.toSvg(cssClasses[v.serializedLabel])).join('')}</g>
+        let css = [...(verticesCssClasses[e.source.serializedLabel] || []), ...(verticesCssClasses[e.destination.serializedLabel] || [])];
+        return this.getEdge(e.source, e.destination).toSvg({ cssClasses: css, useArcs: useArcs });
+      }).join('')}</g>
+    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCssClasses[v.serializedLabel])).join('')}</g>
     </g>
   </svg>`;
   }

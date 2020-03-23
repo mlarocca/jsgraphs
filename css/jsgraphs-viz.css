@@ -2,17 +2,6 @@ svg {
   border: 1px solid red;
 }
 
-.graph marker {
-  fill: black;
-  stroke: none;
-
-}
-
-.graph marker path {
-  fill: context-stroke;
-  stroke: context-stroke;
-}
-
 .graph g.vertex.start circle {
   fill: url(#radial-shape-gradient) #fff;
   stroke: black;
@@ -41,17 +30,23 @@ svg {
   fill: black;
   font-weight: bolder;
 }
-.graph g.edge.start line {
+
+.graph g.edge path {
+  fill: none;
+  stroke: black;
+}
+
+.graph g.edge.start path {
   stroke: crimson;
   stroke-width: 4px;
 }
 
-.graph g.edge.build line, .graph g.edge.paint line, .graph g.edge.mount line {
+.graph g.edge.build path, .graph g.edge.paint path, .graph g.edge.mount path {
   stroke: black;
   stroke-width: 2px;
 }
 
-.graph g.edge.finish line {
+.graph g.edge.finish path {
   stroke: crimson;
   stroke-width: 4px;
 }
@@ -70,7 +65,7 @@ svg {
   --color-outer: #f14c46;
 }
 
-.graph g.edge.left line {
+.graph g.edge.left path {
   stroke: goldenrod;
   stroke-width: 1px;
 }
@@ -98,35 +93,34 @@ svg {
   stroke: black;
   stroke-width: 1;
 }
-.graph g.edge line {
-  stroke: yellow;
-  stroke-width: 2;
-  fill: none;
-}
 
-.graph g.edge.warning line {
-  stroke: orange;
-  stroke-width: 2;
-  fill: orange;
-}
-
-.graph g.edge.error line {
-  stroke: red;
-  stroke-width: 3;
-  fill: none;
-}
-
-.graph g.edge text {
-  fill: black;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: medium;
-  font-style: italic;
-}
 
 .graph g.vertex circle {
   fill: yellow;
   stroke: black;
   stroke-width: 2;
+}
+
+.graph g.vertex text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: red;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
+}
+
+.graph.complete g.vertex circle {
+  fill: url(#linear-shape-gradient) #fff;
+  stroke: crimson;
+  stroke-width: 2;
+}
+
+.graph.complete g.vertex text {
+  font-family: 'Courier New', Courier, monospace;
+  fill: black;
+  font-size: medium;
+  font-weight: bold;
+  text-anchor: "middle"
 }
 
 .graph g.vertex.warning circle {
@@ -147,13 +141,9 @@ svg {
   stroke-width: 2;
 }
 
-.graph g.vertex text {
-  font-family: 'Courier New', Courier, monospace;
-  fill: red;
-  font-size: medium;
-  font-weight: bold;
-  text-anchor: "middle"
-}
+
+
+
 
 .graph g.vertex.warning text {
   font-family: 'Courier New', Courier, monospace;
@@ -165,10 +155,34 @@ svg {
 
 .graph g.vertex.error text {
   font-family: 'Courier New', Courier, monospace;
-  fill: white;
+  fill: black;
   font-size: medium;
   font-weight: bold;
   text-anchor: "middle"
+}
+
+.graph.complete g.edge path {
+  stroke: yellow;
+  stroke-width: 2;
+  fill:none;
+}
+.graph g.edge.warning path {
+  stroke: orange;
+  stroke-width: 2;
+  fill:none;
+}
+
+.graph g.edge.error path {
+  stroke: red;
+  stroke-width: 3;
+  fill: none;
+}
+
+.graph g.edge text {
+  fill: black;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: medium;
+  font-style: italic;
 }
 
 .graph {

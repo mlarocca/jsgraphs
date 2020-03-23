@@ -1,4 +1,5 @@
 import Point from './point.js';
+import { randomDouble } from '../common/numbers.js';
 
 /**
  * @class Point2D
@@ -42,13 +43,15 @@ class Point2D extends Point {
    * @for Point2D
    * @description
    * Create a random Point2D.
-   * The values for the coordinates are independent random real numbers between Number.MIN_SAFE_INTEGER
-   * and Number.MAX_SAFE_INTEGER;
+   * The values for the coordinates are independent random numbers between 0 and Number.MAX_SAFE_INTEGER,
+   * unless a width and height are passed (therefore limiting the max values accordingly).
    *
-   * @return {Point} A new random point.
+   * @param {Number} width The width of the canvas where the point should lie.
+   * @param {Number} height The point to validate.
+   * @return {Point} A new random 2D point.
    */
-  static random() {
-    return new Point2D(...Point.random(2).coordinates());
+  static random({width, height} = {}) {
+    return new Point2D(randomDouble(0, width), randomDouble(0, height));
   }
 
   /**
@@ -75,7 +78,7 @@ class Point2D extends Point {
     return this.coordinates()[1];
   }
 
-    
+
   /**
    * @name clone
    * @for Point
