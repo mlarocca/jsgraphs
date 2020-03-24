@@ -145,22 +145,31 @@ class Embedding {
    */
   toSvg(width, height,
     {
-      useArcs = false,
+      drawEdgesAsArcs = false,
+      displayEdgesLabel = true,
+      displayEdgesWeight = true,
+      edgesArcControlPoint = {},
       graphCss = [],
       verticesCss = {},
       edgesCss = {}
     } = {}) {
     return `
-  <svg width="${width}" height="${height}">
-    ${svgDefs()}
-    <g class="graph ${graphCss.join(' ')}">
-      <g class="edges">${[...this.edges].map(e => {
-        return this.getEdge(e.source, e.destination).toSvg({ cssClasses: edgesCss[e.id], useArcs: useArcs });
-      }).join('')}
-      </g>
-    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCss[v.id])).join('')}</g>
+<svg width="${width}" height="${height}">
+  ${svgDefs()}
+  <g class="graph ${graphCss.join(' ')}">
+    <g class="edges">${[...this.edges].map(e => {
+      return this.getEdge(e.source, e.destination).toSvg({
+        cssClasses: edgesCss[e.id],
+        drawAsArc: drawEdgesAsArcs,
+        displayLabel: displayEdgesLabel,
+        displayWeight: displayEdgesWeight,
+        controlDistance: edgesArcControlPoint[e.id]
+      });
+    }).join('')}
     </g>
-  </svg>`;
+  <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCss[v.id])).join('')}</g>
+  </g>
+</svg>`;
   }
 }
 
@@ -182,8 +191,8 @@ function vertexLabel(vertex) {
 function svgDefs() {
   return `
   <defs>
-    <marker id="arrowhead" markerWidth="12" markerHeight="9" markerUnits="userSpaceOnUse" refX="9" refY="4.5" orient="auto">
-      <polygon points="0 0, 12 4.5, 0 9" style="fill:var(--color-arrow)"/>
+    <marker id="arrowhead" markerWidth="14" markerHeight="12" markerUnits="userSpaceOnUse" refX="13" refY="6" orient="auto">
+      <polygon points="0 0, 14 6, 0 12" style="fill:var(--color-arrow)"/>
     </marker>
     <linearGradient id="linear-shape-gradient" x2="0.35" y2="1">
       <stop offset="0%" stop-color="var(--color-stop)" />
@@ -192,7 +201,7 @@ function svgDefs() {
     </linearGradient>
     <radialGradient id="radial-shape-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
       <stop offset="0%" stop-color="var(--color-inner)" style="stop-opacity:1" />
-      <stop offset="60%" stop-color="var(--color-mid)" style="stop-opacity:1" />
+      <stop offset="50%" stop-color="var(--color-mid)" style="stop-opacity:1" />
       <stop offset="100%" stop-color="var(--color-outer)" style="stop-opacity:1" />
     </radialGradient>
   </defs>`;

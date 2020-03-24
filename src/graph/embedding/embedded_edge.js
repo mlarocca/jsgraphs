@@ -6,6 +6,7 @@ import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 
 const EDGE_BEZIER_CONTROL_DISTANCE = 40;
 const EDGE_LOOP_RADIUS = 15;
+const DEFAULT_LABEL_WEIGHT_SEPARATOR = '/';
 
 class EmbeddedEdge extends Edge {
   #directed;
@@ -43,13 +44,19 @@ class EmbeddedEdge extends Edge {
     return `EmbeddedEdge: ${this.toJson()}`;
   }
 
-  toSvg({ cssClasses = [], useArcs = false } = {}) {
+  toSvg({
+    controlDistance = EDGE_BEZIER_CONTROL_DISTANCE,
+    cssClasses = [],
+    drawAsArc = false,
+    displayLabel = true,
+    displayWeight = true
+  } = {}) {
     if (this.isLoop()) {
-      return loopSvg(this, cssClasses);
-    } else if (this.isDirected && useArcs) {
-      return arcEdgeSvg(this, cssClasses);
+      return loopSvg(this, cssClasses, displayLabel, displayWeight);
+    } else if (this.isDirected && drawAsArc) {
+      return arcEdgeSvg(this, cssClasses, displayLabel, displayWeight, controlDistance);
     } else {
-      return rectilinearEdgeSvg(this, cssClasses);
+      return rectilinearEdgeSvg(this, cssClasses, displayLabel, displayWeight);
     }
   }
 }
@@ -59,8 +66,10 @@ class EmbeddedEdge extends Edge {
  * @private
  * @param {EmbeddedEdge} edge
  * @param {Array<string>} cssClasses
+ * @param {boolean} displayLabel
+ * @param {boolean} displayWeight
  */
-function rectilinearEdgeSvg(edge, cssClasses) {
+function rectilinearEdgeSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x1, y1] = edge.source.position.coordinates();
   const [x2, y2] = edge.destination.position.coordinates();
 
@@ -74,16 +83,11 @@ function rectilinearEdgeSvg(edge, cssClasses) {
   // Coordinates for text
   const [tx, ty] = [(x2 - x1) / 2, (y2 - y1) / 2];
 
-
-  let edgeLabel = isNonEmptyString(edge.label)
-    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
-    : "";
-
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
       <path d="M${Math.round(dx1)},${Math.round(dy1)} L${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
        marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
-      ${edgeLabel}
+      ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
     </g>`;
 }
 
@@ -92,8 +96,11 @@ function rectilinearEdgeSvg(edge, cssClasses) {
  * @private
  * @param {EmbeddedEdge} edge
  * @param {Array<string>} cssClasses
+ * @param {boolean} displayLabel
+ * @param {boolean} displayWeight
+ * @param {Number} controlDistance
  */
-function arcEdgeSvg(edge, cssClasses) {
+function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, controlDistance) {
   const [x1, y1] = edge.source.position.coordinates();
   const [x2, y2] = edge.destination.position.coordinates();
 
@@ -108,25 +115,21 @@ function arcEdgeSvg(edge, cssClasses) {
   // The point is meant to be 40px above the middle of the segment between the two vertices
   // therefore the angle to be used is 90° + the segment's angle.
   const [cx, cy] = [
-    (x2 - x1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE * Math.sin(Math.PI / 2 + alpha),
-    (y2 - y1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE * Math.cos(Math.PI / 2 + alpha)
+    (x2 - x1) / 2 + controlDistance * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1) / 2 + controlDistance * Math.cos(Math.PI / 2 + alpha)
   ];
 
   // Coordinates for text
   const [tx, ty] = [
-    (x2 - x1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE / 2 * Math.sin(Math.PI / 2 + alpha) ,
-    (y2 - y1) / 2 + EDGE_BEZIER_CONTROL_DISTANCE / 2 * Math.cos(Math.PI / 2 + alpha)
+    (x2 - x1) / 2 + controlDistance / 2 * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1) / 2 + controlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
   ];
-
-  let edgeLabel = isNonEmptyString(edge.label)
-    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
-    : "";
 
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
       <path d="M${Math.round(dx1)},${Math.round(dy1)} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
        marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
-      ${edgeLabel}
+      ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
     </g>`;
 }
 
@@ -135,24 +138,42 @@ function arcEdgeSvg(edge, cssClasses) {
  * @private
  * @param {EmbeddedEdge} edge
  * @param {Array<string>} cssClasses
+ * @param {boolean} displayLabel
+ * @param {boolean} displayWeight
  */
-function loopSvg(edge, cssClasses) {
-
+function loopSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x, y] = edge.source.position.coordinates();
   const arcRadius = Math.round(Math.sqrt(edge.source.weight) * EDGE_LOOP_RADIUS);
   const delta = edge.source.radius * Math.cos(Math.PI / 4);
   const [x2, y2] = [delta, -delta];
   const [tx, ty] = [delta + arcRadius, -delta - arcRadius];
 
-  let edgeLabel = isNonEmptyString(edge.label)
-    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${edge.label} </text>`
-    : "";
-
   return `
   <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
     <path d="M ${0} ${Math.round(-edge.source.radius)} A ${arcRadius} ${arcRadius}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
      marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
-    ${edgeLabel}
-  </g>`;
+     ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
+    </g>`;
+}
+
+/**
+ *
+ * @param {*} edge
+ * @param {*} tx
+ * @param {*} ty
+ * @param {*} displayLabel
+ * @param {*} displayWeight
+ */
+function edgeLabel(edge, tx, ty, displayLabel, displayWeight) {
+  let labelText = [
+    (displayLabel && isNonEmptyString(edge.label)) ? edge.label : '',
+    displayWeight ? edge.weight.toString() : ''
+  ].filter(isNonEmptyString).join(DEFAULT_LABEL_WEIGHT_SEPARATOR);
+
+  let edgeLabel = isNonEmptyString(labelText)
+    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${labelText} </text>`
+    : "";
+
+  return edgeLabel;
 }
 export default EmbeddedEdge;

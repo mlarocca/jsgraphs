@@ -239,3 +239,9 @@ svg {
   stroke-width: 3;
   fill:none;
 }
+
+.graph.FSA g.edge.start path, .graph.FSA g.edge.end path {
+  stroke: black;
+  stroke-width: 4;
+  fill:none;
+}
