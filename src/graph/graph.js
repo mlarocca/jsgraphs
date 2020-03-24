@@ -81,7 +81,7 @@ class GVertex extends Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
-    let edges = this.#adjacencyMap.has(v.serializedLabel) ? this.#adjacencyMap.get(v.serializedLabel) : [];
+    let edges = this.#adjacencyMap.has(v.id) ? this.#adjacencyMap.get(v.id) : [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
@@ -153,7 +153,7 @@ function replaceEdgeTo(adj, destination, newEdge = null) {
     edgesToDest.push(newEdge);
   }
 
-  adj.set(destination.serializedLabel, edgesToDest);
+  adj.set(destination.id, edgesToDest);
 }
 
 /** @class Graph
@@ -240,7 +240,7 @@ class Graph {
 
     let v = new GVertex(label, { weight: weight });
 
-    vcs.set(v.serializedLabel, v);
+    vcs.set(v.id, v);
     _vertices.set(this, vcs);
 
     return v;
@@ -257,7 +257,7 @@ class Graph {
     }
 
     const v = new GVertex(vertex.label, { weight: vertex.weight });
-    vcs.set(vertex.serializedLabel, v);
+    vcs.set(vertex.id, v);
     _vertices.set(this, vcs);
 
     return v;
@@ -486,7 +486,7 @@ export class UndirectedGraph extends Graph {
 function getGraphVertex(graph, vertex) {
   let label;
   if (vertex instanceof Vertex) {
-    label = vertex.serializedLabel;
+    label = vertex.id;
   } else {
     label = Vertex.serializeLabel(vertex);
   }

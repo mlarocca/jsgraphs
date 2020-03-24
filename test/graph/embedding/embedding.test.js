@@ -213,8 +213,8 @@ describe('Methods', () => {
       emb.setVertexPosition(end, new Point2D(650, 200));
 
       let classes = {
-        [start.serializedLabel]: ['start'],
-        [end.serializedLabel]: ['end'],
+        [start.id]: ['start'],
+        [end.id]: ['end'],
       };
       console.log(emb.toSvg(700, 400, { graphCssClasses: ['FSA'],  verticesCssClasses: classes }));
 

@@ -27,7 +27,7 @@ describe('Edge API', () => {
   it('# Object\'s interface should be complete', () => {
     const edge = new Edge(new Vertex(1), new Vertex(2));
     const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
-    const attributes = ['source', 'destination', 'weight', 'label'];
+    const attributes = ['source', 'destination', 'weight', 'label', 'id'];
     testAPI(edge, attributes, methods);
   });
 });
@@ -169,6 +169,36 @@ describe('Attributes', () => {
       });
     });
   });
+
+  describe('id', () => {
+    it('# should return the correct id', () => {
+      const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻']
+      sources.forEach(source => {
+        let dest = choose(destinations);
+        const e = new Edge(source, dest, { weight: Math.random(), label: choose(labels) });
+        e.id.should.eql(`[${source.id}][${dest.id}]`);
+      });
+    });
+
+    it('# should not be affected by options', () => {
+      let u = choose(sources);
+      let v;
+      do {
+        v = choose(destinations);
+      } while (v.equals(u))
+      let label = "random label";
+
+      const e1 = new Edge(u, v, { weight: Math.random(), label: label });
+      const e2 = new Edge(u, v, { weight: Math.random(), label: label });
+      const e3 = new Edge(v, u, { weight: Math.random(), label: label });
+      const e4 = new Edge(u, v, { weight: Math.random(), label: "another different label" });
+
+      e1.id.should.eql(e2.id);
+      e1.id.should.not.eql(e3.id);
+      e2.id.should.not.eql(e3.id);
+      e1.id.should.eql(e4.id);
+    });
+  });
 });
 
 describe('Methods', () => {
@@ -295,7 +325,7 @@ describe('Methods', () => {
         const weight = Math.random();
         const e1 = new Edge(source1, dest, { label: label, weight: weight });
         const e2 = new Edge(source2, dest, { label: label, weight: weight });
-        e1.equals(e2).should.be.eql(source1.serializedLabel === source2.serializedLabel);
+        e1.equals(e2).should.be.eql(source1.id === source2.id);
       });
     });
 
@@ -307,7 +337,7 @@ describe('Methods', () => {
         const weight = Math.random();
         const e1 = new Edge(source, dest1, { label: label, weight: weight });
         const e2 = new Edge(source, dest2, { label: label, weight: weight });
-        e1.equals(e2).should.be.eql(dest1.serializedLabel === dest2.serializedLabel);
+        e1.equals(e2).should.be.eql(dest1.id === dest2.id);
       });
     });
 
