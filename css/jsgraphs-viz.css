@@ -202,9 +202,8 @@ svg {
 
 #radial-shape-gradient {
   --color-inner: black;
-  --color-mid: white;
+  --color-mid: black;
   --color-outer: white;
-  --color-inner-radius: 80%;
 }
 
 .graph.FSA g.vertex text {
@@ -236,7 +235,7 @@ svg {
 }
 
 .graph.FSA g.edge path {
-  stroke: black;
+  stroke: crimson;
   stroke-width: 3;
   fill:none;
 }
