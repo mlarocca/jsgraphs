@@ -23,7 +23,7 @@ describe('Vertex API', () => {
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
     let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toJsonObject', 'toString', 'clone'];
-    let attributes = ['label', 'serializedLabel', 'weight'];
+    let attributes = ['label', 'id', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });

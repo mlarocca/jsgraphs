@@ -39,7 +39,7 @@ class Embedding {
       const delta = 2 * Math.PI / n;
       const center = canvasSize / 2;
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
-      coordinates.set(v.serializedLabel, new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta)));
+      coordinates.set(v.id, new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta)));
     }
     return new Embedding(g, coordinates);
   }
@@ -96,7 +96,7 @@ class Embedding {
         cs = Point2D.random({ width, height });
       }
       let eV = new EmbeddedVertex(v.label, cs, { weight: v.weight });
-      this.#vertices.set(v.serializedLabel, eV);
+      this.#vertices.set(v.id, eV);
     }
     this.#graph = graph.clone();
   }
@@ -156,10 +156,10 @@ class Embedding {
     </defs>
     <g class="graph ${graphCssClasses.join(" ")}">
       <g class="edges">${[...this.edges].map(e => {
-        let css = [...(verticesCssClasses[e.source.serializedLabel] || []), ...(verticesCssClasses[e.destination.serializedLabel] || [])];
+        let css = [...(verticesCssClasses[e.source.id] || []), ...(verticesCssClasses[e.destination.id] || [])];
         return this.getEdge(e.source, e.destination).toSvg({ cssClasses: css, useArcs: useArcs });
       }).join('')}</g>
-    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCssClasses[v.serializedLabel])).join('')}</g>
+    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCssClasses[v.id])).join('')}</g>
     </g>
   </svg>`;
   }
@@ -167,7 +167,7 @@ class Embedding {
 
 function vertexLabel(vertex) {
   if (vertex instanceof Vertex) {
-    return vertex.serializedLabel;
+    return vertex.id;
   } else {
     return Vertex.serializeLabel(vertex);
   }

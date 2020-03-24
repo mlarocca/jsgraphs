@@ -47,7 +47,7 @@ class EmbeddedVertex extends Vertex {
 
   toJson() {
     return JSON.stringify({
-      label: this.serializedLabel,
+      label: this.id,
       weight: this.weight,
       coordinates: this.position.toJson()
     });

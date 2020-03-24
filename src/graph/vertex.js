@@ -77,7 +77,7 @@ class Vertex {
     return this.#label;
   }
 
-  get serializedLabel() {
+  get id() {
     return Vertex.serializeLabel(this.label);
   }
 
@@ -116,7 +116,7 @@ class Vertex {
   /**
   /**
    * Clones a vertex, copying over the label and weight, NOT the adjacency map.
-   * 
+   *
    */
   clone() {
     return new Vertex(this.label, { weight: this.weight });

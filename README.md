@@ -166,8 +166,8 @@ This example shows a regular expression for email validation: note that it inten
   emb.setVertexPosition(end, new Point2D(650, 200));
 
   let classes = {
-    [start.serializedLabel]: ['start'],
-    [end.serializedLabel]: ['end'],
+    [start.id]: ['start'],
+    [end.id]: ['end'],
   };
   emb.toSvg(700, 400, { graphCssClasses: ['FSA'],  verticesCssClasses: classes });
 ```

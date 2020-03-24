@@ -96,12 +96,16 @@ class Edge {
     return this.#label;
   }
 
+  get id() {
+    return `[${this.source.id}][${this.destination.id}]`;
+  }
+
   hasNegativeWeight() {
     return this.weight < 0;
   }
 
   isLoop() {
-    return this.source.serializedLabel === this.destination.serializedLabel;
+    return this.source.id === this.destination.id;
   }
 
   hasLabel() {
@@ -130,10 +134,10 @@ class Edge {
   }
 
   /**
-   * 
+   *
    * Clones an edge.
-   * 
-   * @param {*} shallow When true, source's and destination's labels are copied by reference, not cloned. 
+   *
+   * @param {*} shallow When true, source's and destination's labels are copied by reference, not cloned.
    */
   clone() {
     return new Edge(
