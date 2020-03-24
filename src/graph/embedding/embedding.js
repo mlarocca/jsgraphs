@@ -137,34 +137,37 @@ class Embedding {
     });
   }
 
-  toSvg(width, height, { graphCssClasses = [], verticesCssClasses = {}, edgesCssClasses = {}, useArcs = false }) {
+  /**
+   *
+   * @param {*} width
+   * @param {*} height
+   * @param {*} options
+   */
+  toSvg(width, height,
+    {
+      useArcs = false,
+      graphCss = [],
+      verticesCss = {},
+      edgesCss = {}
+    } = {}) {
     return `
   <svg width="${width}" height="${height}">
-    <defs>
-      <marker id="arrowhead" markerWidth="10" markerHeight="7" markerUnits="userSpaceOnUse" refX="7" refY="3.5" orient="auto">
-        <polygon points="0 0, 10 3.5, 0 7" style="fill:var(--color-arrow)"/>
-      </marker>
-      <linearGradient id="linear-shape-gradient" x2="0.35" y2="1">
-        <stop offset="0%" stop-color="var(--color-stop)" />
-        <stop offset="30%" stop-color="var(--color-stop)" />
-        <stop offset="100%" stop-color="var(--color-bot)" />
-      </linearGradient>
-      <radialGradient id="radial-shape-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-        <stop offset="0%" stop-color="var(--color-inner)" style="stop-opacity:1" />
-        <stop offset="100%" stop-color="var(--color-outer)" style="stop-opacity:1" />
-      </radialGradient>
-    </defs>
-    <g class="graph ${graphCssClasses.join(" ")}">
+    ${svgDefs()}
+    <g class="graph ${graphCss.join(' ')}">
       <g class="edges">${[...this.edges].map(e => {
-        let css = [...(verticesCssClasses[e.source.id] || []), ...(verticesCssClasses[e.destination.id] || [])];
-        return this.getEdge(e.source, e.destination).toSvg({ cssClasses: css, useArcs: useArcs });
-      }).join('')}</g>
-    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCssClasses[v.id])).join('')}</g>
+        return this.getEdge(e.source, e.destination).toSvg({ cssClasses: edgesCss[e.id], useArcs: useArcs });
+      }).join('')}
+      </g>
+    <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCss[v.id])).join('')}</g>
     </g>
   </svg>`;
   }
 }
 
+/**
+ * @private
+ * @param {Vertex?} vertex
+ */
 function vertexLabel(vertex) {
   if (vertex instanceof Vertex) {
     return vertex.id;
@@ -172,4 +175,28 @@ function vertexLabel(vertex) {
     return Vertex.serializeLabel(vertex);
   }
 }
+
+/**
+ *
+ */
+function svgDefs() {
+  return `
+  <defs>
+    <marker id="arrowhead" markerWidth="12" markerHeight="9" markerUnits="userSpaceOnUse" refX="9" refY="4.5" orient="auto">
+      <polygon points="0 0, 12 4.5, 0 9" style="fill:var(--color-arrow)"/>
+    </marker>
+    <linearGradient id="linear-shape-gradient" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="var(--color-stop)" />
+      <stop offset="30%" stop-color="var(--color-stop)" />
+      <stop offset="100%" stop-color="var(--color-bot)" />
+    </linearGradient>
+    <radialGradient id="radial-shape-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="var(--color-inner)" style="stop-opacity:1" />
+      <stop offset="60%" stop-color="var(--color-mid)" style="stop-opacity:1" />
+      <stop offset="100%" stop-color="var(--color-outer)" style="stop-opacity:1" />
+    </radialGradient>
+  </defs>`;
+}
+
+
 export default Embedding;
