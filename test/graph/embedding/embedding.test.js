@@ -115,7 +115,7 @@ describe('Methods', () => {
       console.log(emb.toSvg(400, 400, {
         graphCss: ['complete'],
         verticesCss: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] },
-        useArcs: true
+        drawEdgesAsArcs: true
       }));
     });
 
@@ -192,17 +192,17 @@ describe('Methods', () => {
       const s4 = graph.createVertex('S4', { weight: 1.5 });
       const s5 = graph.createVertex('S5', { weight: 1.5 });
 
-      graph.createEdge(start, s0, { weight: 3 });
+      let edgeStart = graph.createEdge(start, s0, { weight: 3 });
       graph.createEdge(s0, s1, { label: "[a-z0-9]" });
-      graph.createEdge(s1, s1, { label: "[a-z0-9_\\-]" });
-      graph.createEdge(s1, s2, { label: "@" });
+      graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
+      graph.createEdge(s1, s2, { label: '"@"' });
       graph.createEdge(s2, s3, { label: "[a-z0-9]" });
-      graph.createEdge(s3, s3, { label: "[a-z0-9_\\-]" });
+      graph.createEdge(s3, s3, { label: "[a-z0-9_]" });
       graph.createEdge(s3, s4, { label: '"."' });
-      graph.createEdge(s4, s5, { label: "[a-z0-9]" });
-      graph.createEdge(s5, s5, { label: "[a-z0-9_\\-]" });
+      let edgeS4S5 = graph.createEdge(s4, s5, { label: "[a-z0-9]" });
+      let edgeS5S4 = graph.createEdge(s5, s5, { label: "[a-z0-9_]" });
       graph.createEdge(s5, s4, { label: '"."' });
-      graph.createEdge(s5, end, { label: '""' });
+      let edgeEnd = graph.createEdge(s5, end, { label: '""' });
 
       let emb = new Embedding(graph, new Map(), { width: 700, height: 400 });
 
@@ -215,14 +215,25 @@ describe('Methods', () => {
       emb.setVertexPosition(s5, new Point2D(550, 100));
       emb.setVertexPosition(end, new Point2D(650, 250));
 
-      let classes = {
+      let vCss = {
         [start.id]: ['start'],
         [end.id]: ['end'],
       };
+      let eCss = {
+        [edgeStart.id]: ['start'],
+        [edgeEnd.id]: ['end'],
+      };
       console.log(emb.toSvg(700, 400, {
         graphCss: ['FSA'],
-        verticesCss: classes,
-        useArcs: true
+        verticesCss: vCss,
+        edgesCss: eCss,
+        drawEdgesAsArcs: true,
+        displayEdgesWeight: false,
+        edgesArcControlPoint: {
+          [edgeStart.id]: -20,
+          [edgeS4S5.id]: 70,
+          [edgeS5S4.id]: 70
+        }
       }));
 
     });
