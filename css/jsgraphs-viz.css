@@ -200,6 +200,12 @@ svg {
   stroke-width: 4;
 }
 
+.graph.FSA g.vertex.end.error circle {
+  fill: url(#radial-shape-gradient) black;
+  stroke: black;
+  stroke-width: 4;
+}
+
 #radial-shape-gradient {
   --color-inner: black;
   --color-mid: black;
@@ -214,13 +220,24 @@ svg {
   text-anchor: "middle"
 }
 
-.graph.FSA g.vertex.start text, .graph.FSA g.vertex.end text {
-  font-family: 'Courier New', Courier, monospace;
+.graph.FSA g.vertex.start text {
   fill: white;
-  font-size: medium;
-  font-weight: bold;
-  text-anchor: "middle"
 }
+
+.graph.FSA g.vertex.end text {
+  fill: white;
+  stroke: forestgreen;
+  stroke-width: 1;
+  font-size: large;
+}
+
+.graph.FSA g.vertex.end.error text {
+  fill: white;
+  stroke: red;
+  stroke-width: 1;
+  font-size: large;
+}
+
 
 .graph.FSA g.edge text {
   fill: red;

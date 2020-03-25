@@ -3,23 +3,60 @@ import EmbeddedVertex from './embedded_vertex.js';
 
 import { isNonEmptyString } from '../../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
+import { isNumber } from '../../common/numbers.js';
 
-const EDGE_BEZIER_CONTROL_DISTANCE = 40;
-const EDGE_LOOP_RADIUS = 15;
+const DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE = 40;
+const DEFAULT_EDGE_LOOP_RADIUS = 15;
 const DEFAULT_LABEL_WEIGHT_SEPARATOR = '/';
 
 class EmbeddedEdge extends Edge {
+  /**
+   * @private
+   */
   #directed;
 
-  constructor(source, destination, { weight, label, isDirected = false } = {}) {
+  /**
+   * @private
+   */
+  #arcControlDistance
+
+  /**
+   *
+   * @param {*} source
+   * @param {*} destination
+   * @param {Number} arcControlDistance The distance of the control point of the Bezier quadratic curve used to display the edge.
+   */
+  constructor(
+    source,
+    destination,
+    { weight,
+      label,
+      isDirected = false,
+      arcControlDistance = null } = {}) {
     if (!(source instanceof EmbeddedVertex)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'source', source));
     }
     if (!(destination instanceof EmbeddedVertex)) {
       throw new new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'destination', destination));
     }
+
     super(source, destination, { weight, label });
+
     this.#directed = isDirected;
+
+    if (!isNumber(arcControlDistance)) {
+      this.#arcControlDistance = super.isLoop ? DEFAULT_EDGE_LOOP_RADIUS : DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
+    } else {
+      this.#arcControlDistance = arcControlDistance;
+    }
+  }
+
+  get arcControlDistance() {
+    return this.#arcControlDistance;
+  }
+
+  set arcControlDistance(arcControlDistance) {
+    this.#arcControlDistance = arcControlDistance;
   }
 
   isDirected() {
@@ -44,8 +81,18 @@ class EmbeddedEdge extends Edge {
     return `EmbeddedEdge: ${this.toJson()}`;
   }
 
+  /**
+   * @method toSvg
+   * @for EmbeddedEdge
+   *
+   * @param {EmbeddedEdge} edge The edge to draw with an arc.
+   * @param {Array<string>} cssClasses One or more css classes to optionally be applied to this edge.
+   * @param {boolean} displayLabel Whether or not the edge's label should be displayed.
+   * @param {boolean} displayWeight Whether or not the edge's weight should be displayed.
+   *
+   * @return {string} The SVG code to display current arc.
+   */
   toSvg({
-    controlDistance = EDGE_BEZIER_CONTROL_DISTANCE,
     cssClasses = [],
     drawAsArc = false,
     displayLabel = true,
@@ -54,7 +101,7 @@ class EmbeddedEdge extends Edge {
     if (this.isLoop()) {
       return loopSvg(this, cssClasses, displayLabel, displayWeight);
     } else if (this.isDirected && drawAsArc) {
-      return arcEdgeSvg(this, cssClasses, displayLabel, displayWeight, controlDistance);
+      return arcEdgeSvg(this, cssClasses, displayLabel, displayWeight, this.#arcControlDistance);
     } else {
       return rectilinearEdgeSvg(this, cssClasses, displayLabel, displayWeight);
     }
@@ -64,10 +111,10 @@ class EmbeddedEdge extends Edge {
 /**
  * @for EmbeddedEdge
  * @private
- * @param {EmbeddedEdge} edge
- * @param {Array<string>} cssClasses
- * @param {boolean} displayLabel
- * @param {boolean} displayWeight
+ * @param {EmbeddedEdge} edge The edge to draw with a segment.
+ * @param {Array<string>} cssClasses One or more css classes to optionally be applied to this edge.
+ * @param {boolean} displayLabel Whether or not the edge's label should be displayed.
+ * @param {boolean} displayWeight Whether or not the edge's weight should be displayed.
  */
 function rectilinearEdgeSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x1, y1] = edge.source.position.coordinates();
@@ -94,13 +141,14 @@ function rectilinearEdgeSvg(edge, cssClasses, displayLabel, displayWeight) {
 /**
  * @for EmbeddedEdge
  * @private
- * @param {EmbeddedEdge} edge
- * @param {Array<string>} cssClasses
- * @param {boolean} displayLabel
- * @param {boolean} displayWeight
- * @param {Number} controlDistance
+ *
+ * @param {EmbeddedEdge} edge The edge to draw with an arc.
+ * @param {Array<string>} cssClasses One or more css classes to optionally be applied to this edge.
+ * @param {boolean} displayLabel Whether or not the edge's label should be displayed.
+ * @param {boolean} displayWeight Whether or not the edge's weight should be displayed.
+ * @param {Number} arcControlDistance The distance of the control point of the Bezier quadratic curve used to display the edge.
  */
-function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, controlDistance) {
+function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDistance) {
   const [x1, y1] = edge.source.position.coordinates();
   const [x2, y2] = edge.destination.position.coordinates();
 
@@ -115,14 +163,14 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, controlDistan
   // The point is meant to be 40px above the middle of the segment between the two vertices
   // therefore the angle to be used is 90° + the segment's angle.
   const [cx, cy] = [
-    (x2 - x1) / 2 + controlDistance * Math.sin(Math.PI / 2 + alpha),
-    (y2 - y1) / 2 + controlDistance * Math.cos(Math.PI / 2 + alpha)
+    (x2 - x1) / 2 + arcControlDistance * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1) / 2 + arcControlDistance * Math.cos(Math.PI / 2 + alpha)
   ];
 
   // Coordinates for text
   const [tx, ty] = [
-    (x2 - x1) / 2 + controlDistance / 2 * Math.sin(Math.PI / 2 + alpha),
-    (y2 - y1) / 2 + controlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
+    (x2 - x1) / 2 + arcControlDistance / 2 * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1) / 2 + arcControlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
   ];
 
   return `
@@ -143,7 +191,7 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, controlDistan
  */
 function loopSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x, y] = edge.source.position.coordinates();
-  const arcRadius = Math.round(Math.sqrt(edge.source.weight) * EDGE_LOOP_RADIUS);
+  const arcRadius = Math.round(Math.sqrt(edge.source.weight) * edge.arcControlDistance);
   const delta = edge.source.radius * Math.cos(Math.PI / 4);
   const [x2, y2] = [delta, -delta];
   const [tx, ty] = [delta + arcRadius, -delta - arcRadius];
