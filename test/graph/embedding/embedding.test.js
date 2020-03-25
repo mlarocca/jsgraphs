@@ -184,7 +184,8 @@ describe('Methods', () => {
     it('# Regex FSA should return a valid svg', () => {
       let graph = new Graph();
       const start = graph.createVertex('Start', { weight: 2 });
-      const end = graph.createVertex('End', { weight: 2 });
+      const endValidated = graph.createVertex('OK', { weight: 2 });
+      const endError = graph.createVertex('Error', { weight: 2 });
       const s0 = graph.createVertex('S0', { weight: 1.5 });
       const s1 = graph.createVertex('S1', { weight: 1.5 });
       const s2 = graph.createVertex('S2', { weight: 1.5 });
@@ -192,50 +193,76 @@ describe('Methods', () => {
       const s4 = graph.createVertex('S4', { weight: 1.5 });
       const s5 = graph.createVertex('S5', { weight: 1.5 });
 
-      let edgeStart = graph.createEdge(start, s0, { weight: 3 });
+      let edgeStart = graph.createEdge(start, s0, { weight: 3, label: '^' });
       graph.createEdge(s0, s1, { label: "[a-z0-9]" });
-      graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
+      let edgeS1Loop = graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
       graph.createEdge(s1, s2, { label: '"@"' });
       graph.createEdge(s2, s3, { label: "[a-z0-9]" });
       graph.createEdge(s3, s3, { label: "[a-z0-9_]" });
       graph.createEdge(s3, s4, { label: '"."' });
       let edgeS4S5 = graph.createEdge(s4, s5, { label: "[a-z0-9]" });
-      let edgeS5S4 = graph.createEdge(s5, s5, { label: "[a-z0-9_]" });
-      graph.createEdge(s5, s4, { label: '"."' });
-      let edgeEnd = graph.createEdge(s5, end, { label: '""' });
+      let edgeS5Loop = graph.createEdge(s5, s5, { label: "[a-z0-9_]" });
+      let edgeS5S4 = graph.createEdge(s5, s4, { label: '"."' });
+      let edgeEnd = graph.createEdge(s5, endValidated, { label: '$' });
+
+      let edgeS0Error = graph.createEdge(s0, endError, { label: '[^a-z0-9]' });
+      let edgeS1Error = graph.createEdge(s1, endError, { label: '[^a-z0-9_@]'});
+      let edgeS2Error = graph.createEdge(s2, endError, { label: "[^a-z0-9]" });
+      let edgeS3Error = graph.createEdge(s3, endError, { label: "[^a-z0-9_\\.]" });
+      let edgeS4Error = graph.createEdge(s4, endError, { label: '[^a-z0-9]' });
+      let edgeS5Error = graph.createEdge(s5, endError, { label: '[^a-z0-9_\\.]' });
 
       let emb = new Embedding(graph, new Map(), { width: 700, height: 400 });
 
+      // Set the position of each vertex
       emb.setVertexPosition(start, new Point2D(50, 150));
       emb.setVertexPosition(s0, new Point2D(100, 300));
       emb.setVertexPosition(s1, new Point2D(175, 100));
-      emb.setVertexPosition(s2, new Point2D(275, 300));
-      emb.setVertexPosition(s3, new Point2D(350, 150));
-      emb.setVertexPosition(s4, new Point2D(425, 300));
+      emb.setVertexPosition(s2, new Point2D(275, 250));
+      emb.setVertexPosition(s3, new Point2D(350, 100));
+      emb.setVertexPosition(s4, new Point2D(425, 250));
       emb.setVertexPosition(s5, new Point2D(550, 100));
-      emb.setVertexPosition(end, new Point2D(650, 250));
+      emb.setVertexPosition(endValidated, new Point2D(650, 250));
+      emb.setVertexPosition(endError, new Point2D(350, 500));
 
+      // Adjust the curvature of some edges
+      emb.setEdgeControlPoint(edgeStart, -10);
+      emb.setEdgeControlPoint(edgeS4S5, 70);
+      emb.setEdgeControlPoint(edgeS5S4, 70);
+      emb.setEdgeControlPoint(edgeS1Loop, 20);
+      emb.setEdgeControlPoint(edgeS5Loop, 20);
+
+      emb.setEdgeControlPoint(edgeS0Error, -80);
+      emb.setEdgeControlPoint(edgeS1Error, -150);
+      emb.setEdgeControlPoint(edgeS2Error, -40);
+      emb.setEdgeControlPoint(edgeS3Error, 0);
+      emb.setEdgeControlPoint(edgeS4Error, 40);
+      emb.setEdgeControlPoint(edgeS5Error, 175);
+
+      // Vertices/edges can be styled individually by applying them css classes
       let vCss = {
         [start.id]: ['start'],
-        [end.id]: ['end'],
+        [endValidated.id]: ['end'],
+        [endError.id]: ['end', 'error']
       };
       let eCss = {
         [edgeStart.id]: ['start'],
         [edgeEnd.id]: ['end'],
+        [edgeS0Error.id]: ['end', 'error'],
+        [edgeS1Error.id]: ['end', 'error'],
+        [edgeS2Error.id]: ['end', 'error'],
+        [edgeS3Error.id]: ['end', 'error'],
+        [edgeS4Error.id]: ['end', 'error'],
+        [edgeS5Error.id]: ['end', 'error']
       };
-      console.log(emb.toSvg(700, 400, {
+
+      console.log(emb.toSvg(700, 550, {
         graphCss: ['FSA'],
         verticesCss: vCss,
         edgesCss: eCss,
         drawEdgesAsArcs: true,
-        displayEdgesWeight: false,
-        edgesArcControlPoint: {
-          [edgeStart.id]: -20,
-          [edgeS4S5.id]: 70,
-          [edgeS5S4.id]: 70
-        }
+        displayEdgesWeight: false
       }));
-
     });
 
   });

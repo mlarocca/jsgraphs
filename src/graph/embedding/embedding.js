@@ -1,22 +1,28 @@
 import EmbeddedEdge from './embedded_edge.js';
 import EmbeddedVertex from './embedded_vertex.js';
+
 import Graph, { UndirectedGraph } from '../graph.js';
+import Vertex from '../vertex.js';
+import Edge from '../edge.js';
+
 import Point2D from '../../geometric/point2d.js';
 
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND } from '../../common/errors.js';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../common/errors.js';
 import { toNumber, isNumber } from '../../common/numbers.js';
-import Vertex from '../vertex.js';
+import { isUndefined } from '../../common/basic.js';
 
 class Embedding {
   /**
    * @private
    */
-  #graph;
+  #vertices;
 
   /**
-   * @private
+   *
+   * @param {*} json
+   *
    */
-  #vertices;
+  #edges;
 
   static fromJson(json) {
 
@@ -88,9 +94,9 @@ class Embedding {
     }
 
     this.#vertices = new Map();
-    let minX = 0, maxX = 0, minY = 0, maxY = 0;
+    this.#edges = new Map();
 
-    for (let v of graph.vertices) {
+    for (const v of graph.vertices) {
       let cs = coordinates.get(vertexLabel(v));
       if (!(cs instanceof Point2D)) {
         cs = Point2D.random({ width, height });
@@ -98,7 +104,14 @@ class Embedding {
       let eV = new EmbeddedVertex(v.label, cs, { weight: v.weight });
       this.#vertices.set(v.id, eV);
     }
-    this.#graph = graph.clone();
+
+    for (const e of graph.edges) {
+      const ee = new EmbeddedEdge(
+        this.getVertex(e.source),
+        this.getVertex(e.destination),
+        { weight: e.weight, label: e.label, isDirected: graph.isDirected() });
+      this.#edges.set(ee.id, ee);
+    }
   }
 
   get vertices() {
@@ -106,34 +119,53 @@ class Embedding {
   }
 
   get edges() {
-    return this.#graph.edges;
+    return this.#edges.values();
   }
 
   getVertex(vertex) {
     return this.#vertices.get(vertexLabel(vertex));
   }
 
-  getEdge(source, destination) {
-    let e = this.#graph.getEdge(source, destination);
-
-    let u = this.getVertex(source);
-    let v = this.getVertex(destination);
-
-    return new EmbeddedEdge(u, v, { weight: e.weight, label: e.label, isDirected: this.#graph.isDirected() });
+  getEdge(edge) {
+    return this.#edges.get(edgeLabel(edge));
   }
 
+  /**
+   *
+   * @param {*} vertex
+   * @param {*} position
+   */
   setVertexPosition(vertex, position) {
     const v = this.#vertices.get(vertexLabel(vertex));
-    if (v === undefined) {
+    if (isUndefined(v)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', vertex));
+    }
+    if (!(position instanceof Point2D)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', position));
     }
     v.position = position;
   }
 
+  /**
+   *
+   * @param {*} edge
+   * @param {Number} arcControlDistance The distance of the control point of the Bezier quadratic curve used to display the edge.
+   */
+  setEdgeControlPoint(edge, arcControlDistance) {
+    const e = this.#edges.get(edgeLabel(edge));
+    if (isUndefined(e)) {
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', edge));
+    }
+    if (!isNumber(arcControlDistance)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setEdgeControlPoint', 'arcControlDistance', arcControlDistance));
+    }
+    e.arcControlDistance = arcControlDistance;
+  }
+
   toJson() {
     return JSON.stringify({
-      vertices: this.#vertices.values().map(v => v.toJson()),
-      edges: [...this.#graph.edges].map(e => e.toJson())
+      vertices: [...this.vertices].map(v => v.toJson()),
+      edges: [...this.edges].map(e => e.toJson())
     });
   }
 
@@ -148,7 +180,6 @@ class Embedding {
       drawEdgesAsArcs = false,
       displayEdgesLabel = true,
       displayEdgesWeight = true,
-      edgesArcControlPoint = {},
       graphCss = [],
       verticesCss = {},
       edgesCss = {}
@@ -158,12 +189,11 @@ class Embedding {
   ${svgDefs()}
   <g class="graph ${graphCss.join(' ')}">
     <g class="edges">${[...this.edges].map(e => {
-      return this.getEdge(e.source, e.destination).toSvg({
+      return e.toSvg({
         cssClasses: edgesCss[e.id],
         drawAsArc: drawEdgesAsArcs,
         displayLabel: displayEdgesLabel,
-        displayWeight: displayEdgesWeight,
-        controlDistance: edgesArcControlPoint[e.id]
+        displayWeight: displayEdgesWeight
       });
     }).join('')}
     </g>
@@ -185,6 +215,17 @@ function vertexLabel(vertex) {
   }
 }
 
+/**
+ * @private
+ * @param {Edge?} edge
+ */
+function edgeLabel(edge) {
+  if (edge instanceof Edge) {
+    return edge.id;
+  } else {
+    return edge;
+  }
+}
 /**
  *
  */
