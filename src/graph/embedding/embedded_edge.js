@@ -6,7 +6,7 @@ import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 import { isNumber } from '../../common/numbers.js';
 
 const DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE = 40;
-const DEFAULT_EDGE_LOOP_RADIUS = 15;
+const DEFAULT_EDGE_LOOP_RADIUS = 25;
 const DEFAULT_LABEL_WEIGHT_SEPARATOR = '/';
 
 class EmbeddedEdge extends Edge {
@@ -128,7 +128,7 @@ function rectilinearEdgeSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [dx1, dy1] = [srcVertexRadius * Math.sin(alpha), srcVertexRadius * Math.cos(alpha)];
 
   // Coordinates for text
-  const [tx, ty] = [(x2 - x1) / 2, (y2 - y1) / 2];
+  const [tx, ty] = [(x2 - x1 - dx2 + dx1) / 2, (y2 - y1 - dy2 + dy1) / 2];
 
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
@@ -169,13 +169,13 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDis
 
   // Coordinates for text
   const [tx, ty] = [
-    (x2 - x1) / 2 + arcControlDistance / 2 * Math.sin(Math.PI / 2 + alpha),
-    (y2 - y1) / 2 + arcControlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
+    (x2 - x1 - dx2 + dx1) / 2 + arcControlDistance / 2 * Math.sin(Math.PI / 2 + alpha),
+    (y2 - y1 - dy2 + dy1) / 2 + arcControlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
   ];
 
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
-      <path d="M${Math.round(dx1)},${Math.round(dy1)} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
+      <path d="M${0},${0} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
        marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
       ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
     </g>`;
@@ -219,7 +219,7 @@ function edgeLabel(edge, tx, ty, displayLabel, displayWeight) {
   ].filter(isNonEmptyString).join(DEFAULT_LABEL_WEIGHT_SEPARATOR);
 
   let edgeLabel = isNonEmptyString(labelText)
-    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle"> ${labelText} </text>`
+    ? `<text x="${Math.round(tx)}" y="${Math.round(ty)}" text-anchor="middle" dominant-baseline="central"> ${labelText} </text>`
     : "";
 
   return edgeLabel;

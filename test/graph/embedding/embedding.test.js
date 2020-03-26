@@ -111,22 +111,26 @@ describe('Methods', () => {
   });
   describe('toSVG()', () => {
     it('# complete graphs should return a valid svg', () => {
-      const emb = Embedding.completeGraph(10, 400);
-      console.log(emb.toSvg(400, 400, {
+      console.log(Embedding.completeGraph(10, 400).toSvg(400, 400, {
         graphCss: ['complete'],
         verticesCss: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] },
-        drawEdgesAsArcs: true
+        drawEdgesAsArcs: true,
+        displayEdgesWeight: false,
+        displayEdgesLabel: false
       }));
     });
 
     it('# complete bipartite graphs should return a valid svg', () => {
-      const emb = Embedding.completeBipartiteGraph(6, 4, 400);
       let vClasses = {};
+
       range(1, 7).forEach(i => vClasses[`${i}`] = ['left']);
       range(7, 11).forEach(i => vClasses[`${i}`] = ['right']);
-      console.log(emb.toSvg(400, 400, {
+
+      console.log(Embedding.completeBipartiteGraph(6, 4, 400).toSvg(400, 400, {
         graphCss: ['complete bipartite'],
-        verticesCss: vClasses
+        verticesCss: vClasses,
+        displayEdgesWeight: false,
+        displayEdgesLabel: false
       }));
     });
 
@@ -178,7 +182,7 @@ describe('Methods', () => {
         '"G"': ['mount', 'body', 'frame', 'engine']
       };
 
-      console.log(emb.toSvg(700, 400, { verticesCss: vClasses }));
+      console.log(emb.toSvg(700, 400, { verticesCss: vClasses, drawEdgesAsArcs: true }));
     });
 
     it('# Regex FSA should return a valid svg', () => {
@@ -194,7 +198,7 @@ describe('Methods', () => {
       const s5 = graph.createVertex('S5', { weight: 1.5 });
 
       let edgeStart = graph.createEdge(start, s0, { weight: 3, label: '^' });
-      graph.createEdge(s0, s1, { label: "[a-z0-9]" });
+      let edgeS0S1 = graph.createEdge(s0, s1, { label: "[a-z0-9]" });
       let edgeS1Loop = graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
       graph.createEdge(s1, s2, { label: '"@"' });
       graph.createEdge(s2, s3, { label: "[a-z0-9]" });
@@ -227,13 +231,14 @@ describe('Methods', () => {
 
       // Adjust the curvature of some edges
       emb.setEdgeControlPoint(edgeStart, -10);
+      emb.setEdgeControlPoint(edgeS0S1, 60);
       emb.setEdgeControlPoint(edgeS4S5, 70);
       emb.setEdgeControlPoint(edgeS5S4, 70);
       emb.setEdgeControlPoint(edgeS1Loop, 20);
       emb.setEdgeControlPoint(edgeS5Loop, 20);
 
       emb.setEdgeControlPoint(edgeS0Error, -80);
-      emb.setEdgeControlPoint(edgeS1Error, -150);
+      emb.setEdgeControlPoint(edgeS1Error, -120);
       emb.setEdgeControlPoint(edgeS2Error, -40);
       emb.setEdgeControlPoint(edgeS3Error, 0);
       emb.setEdgeControlPoint(edgeS4Error, 40);
