@@ -205,7 +205,7 @@ describe('Methods', () => {
   });
 
   describe('fromJson()', () => {
-    it('# applyed to the result of toJson, it should match source vertex ', () => {
+    it('# applyed to the result of toJson, it should match source vertex', () => {
       vertexLabels.forEach(source => {
         let v = new Vertex(source, { weight: Math.random() });
         Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);

@@ -7,6 +7,15 @@ import { randomDouble } from '../common/numbers.js';
  * Models a 2D Point in the Cartesian plane.
  */
 class Point2D extends Point {
+
+  /**
+   * @static
+   * @param {string} json
+   */
+  static fromJson(json) {
+    return new Point2D(...JSON.parse(json));
+  }
+
   /**
    * @constructor
    * @for Point2D
