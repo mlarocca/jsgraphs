@@ -9,7 +9,7 @@ import Point2D from '../../geometric/point2d.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../common/errors.js';
 import { toNumber, isNumber } from '../../common/numbers.js';
-import { isUndefined } from '../../common/basic.js';
+import { isUndefined, isPlainObject } from '../../common/basic.js';
 
 class Embedding {
   /**
@@ -23,6 +23,8 @@ class Embedding {
    *
    */
   #edges;
+
+  // -----  CLASS METHODS  -----
 
   static fromJson(json) {
 
@@ -39,15 +41,15 @@ class Embedding {
 
     const g = UndirectedGraph.completeGraph(n);
 
-    let coordinates = new Map();
+    let coordinates = {};
     for (const v of g.vertices) {
       const i = toNumber(v.label) - 1;
       const delta = 2 * Math.PI / n;
       const center = canvasSize / 2;
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
-      coordinates.set(v.id, new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta)));
+      coordinates[v.id] = new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta));
     }
-    return new Embedding(g, coordinates);
+    return new Embedding(g, {coordinates: coordinates});
   }
 
   static completeBipartiteGraph(n, m, canvasSize) {
@@ -67,7 +69,7 @@ class Embedding {
 
     const deltaN = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (n - 1);
     const deltaM = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (m - 1);
-    let coordinates = new Map();
+    let coordinates = {};
     let x, y;
 
     for (const v of g.vertices) {
@@ -79,17 +81,19 @@ class Embedding {
         x = canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
         y = EmbeddedVertex.DEFAULT_VERTEX_RADIUS + (i - n - 1) * deltaM;
       }
-      coordinates.set(v.label, new Point2D(x, y));
+      coordinates[v.id] = new Point2D(x, y);
     }
-    return new Embedding(g, coordinates);
+    return new Embedding(g, {coordinates: coordinates});
   }
 
-  constructor(graph, coordinates = new Map(), { width, height } = {}) {
+  // -----  INSTANCE METHODS  -----
+
+  constructor(graph, { width, height, coordinates = {} } = {}) {
     if (!(graph instanceof Graph)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding', 'graph', graph));
     }
 
-    if (!(coordinates instanceof Map)) {
+    if (!isPlainObject(coordinates)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding', 'coordinates', coordinates));
     }
 
@@ -97,7 +101,7 @@ class Embedding {
     this.#edges = new Map();
 
     for (const v of graph.vertices) {
-      let cs = coordinates.get(vertexLabel(v));
+      let cs = coordinates[vertexLabel(v)];
       if (!(cs instanceof Point2D)) {
         cs = Point2D.random({ width, height });
       }

@@ -41,6 +41,8 @@ Embedding.completeGraph(10, 400)
   .toSvg(400, 400, {
     graphCss: ['complete'],
     verticesCss: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] },
+    displayEdgesWeight: false,
+    displayEdgesLabel: false
     /*drawEdgesAsArcs: true // optionally*/
   }));
 ```
@@ -63,7 +65,9 @@ range(7, 11).forEach(i => vClasses[`${i}`] = ['right']);
 Embedding.completeBipartiteGraph(6, 4, 400)
   .toSvg(400, 400, {
     graphCss: ['complete bipartite'],
-    verticesCss: vClasses
+    verticesCss: vClasses,
+    displayEdgesWeight: false,
+    displayEdgesLabel: false
   }));
 ```
 
@@ -78,25 +82,25 @@ import Embedding from '/src/graph/embedding/embedding.js';
 import Graph from '/src/graph/graph.js';
 
 let graph = new Graph();
-graph.createVertex('Start', {weight: 2});
+graph.createVertex('Start', { weight: 2 });
 graph.createVertex('A');
-graph.createVertex('B', {weight: 1.5});
-graph.createVertex('C', {weight: 1.5});
-graph.createVertex('D', {weight: 1.5});
-graph.createVertex('E', {weight: 1.5});
-graph.createVertex('F', {weight: 2});
-graph.createVertex('G', {weight: 2});
-graph.createVertex('Finish', {weight: 2.5});
-graph.createEdge('Start', 'A', {label: 'design', weight: 2});
-graph.createEdge('A', 'B', {label: 'build body'});
-graph.createEdge('A', 'C', {label: 'build wheels'});
-graph.createEdge('A', 'D', {label: 'build frame'});
-graph.createEdge('A', 'E', {label: 'build engine'});
-graph.createEdge('B', 'F', {label: 'paint body'});
-graph.createEdge('D', 'G', {label: 'paint frame'});
-graph.createEdge('C', 'Finish', {label: 'mount wheels'});
-graph.createEdge('E', 'G', {label: 'mount engine on frame'});
-graph.createEdge('F', 'Finish', {label: 'mount body on frame'});
+graph.createVertex('B', { weight: 1.5 });
+graph.createVertex('C', { weight: 1.5 });
+graph.createVertex('D', { weight: 1.5 });
+graph.createVertex('E', { weight: 1.5 });
+graph.createVertex('F', { weight: 2 });
+graph.createVertex('G', { weight: 2 });
+graph.createVertex('Finish', { weight: 2.5 });
+graph.createEdge('Start', 'A', { label: 'design', weight: 2 });
+graph.createEdge('A', 'B', { label: 'build body' });
+graph.createEdge('A', 'C', { label: 'build wheels' });
+graph.createEdge('A', 'D', { label: 'build frame' });
+graph.createEdge('A', 'E', { label: 'build engine' });
+graph.createEdge('B', 'F', { label: 'paint body' });
+graph.createEdge('D', 'G', { label: 'paint frame' });
+graph.createEdge('C', 'Finish', { label: 'mount wheels' });
+graph.createEdge('E', 'G', { label: 'mount engine on frame' });
+graph.createEdge('F', 'Finish', { label: 'mount body on frame' });
 graph.createEdge('G', 'Finish');
 
 let emb = new Embedding(graph);
@@ -124,7 +128,7 @@ let vClasses = {
   '"G"': ['mount', 'body', 'frame', 'engine']
 };
 
-emb.toSvg(700, 400, { verticesCss: vClasses });
+emb.toSvg(700, 400, { verticesCss: vClasses, drawEdgesAsArcs: true });
 ```
 
 ![DAG](readme/dag.jpg)
@@ -151,7 +155,7 @@ const s4 = graph.createVertex('S4', { weight: 1.5 });
 const s5 = graph.createVertex('S5', { weight: 1.5 });
 
 let edgeStart = graph.createEdge(start, s0, { weight: 3, label: '^' });
-graph.createEdge(s0, s1, { label: "[a-z0-9]" });
+let edgeS0S1 = graph.createEdge(s0, s1, { label: "[a-z0-9]" });
 let edgeS1Loop = graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
 graph.createEdge(s1, s2, { label: '"@"' });
 graph.createEdge(s2, s3, { label: "[a-z0-9]" });
@@ -184,13 +188,14 @@ emb.setVertexPosition(endError, new Point2D(350, 500));
 
 // Adjust the curvature of some edges
 emb.setEdgeControlPoint(edgeStart, -10);
+emb.setEdgeControlPoint(edgeS0S1, 60);
 emb.setEdgeControlPoint(edgeS4S5, 70);
 emb.setEdgeControlPoint(edgeS5S4, 70);
 emb.setEdgeControlPoint(edgeS1Loop, 20);
 emb.setEdgeControlPoint(edgeS5Loop, 20);
 
 emb.setEdgeControlPoint(edgeS0Error, -80);
-emb.setEdgeControlPoint(edgeS1Error, -150);
+emb.setEdgeControlPoint(edgeS1Error, -120);
 emb.setEdgeControlPoint(edgeS2Error, -40);
 emb.setEdgeControlPoint(edgeS3Error, 0);
 emb.setEdgeControlPoint(edgeS4Error, 40);
@@ -213,13 +218,13 @@ let eCss = {
   [edgeS5Error.id]: ['end', 'error']
 };
 
-console.log(emb.toSvg(700, 550, {
+emb.toSvg(700, 550, {
   graphCss: ['FSA'],
   verticesCss: vCss,
   edgesCss: eCss,
   drawEdgesAsArcs: true,
   displayEdgesWeight: false
-}));
+});
 ```
 
 ![DAG](readme/regex_fsa.jpg)
