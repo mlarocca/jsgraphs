@@ -53,7 +53,7 @@ class Point {
   }
 
   static fromJson(json) {
-    new Point(JSON.parse());
+    return new Point(...JSON.parse(json));
   }
 
   /**
@@ -229,7 +229,7 @@ class Point {
   get dimensionality() {
     return this.#K;
   }
-  
+
   /**
    * @name clone
    * @for Point
