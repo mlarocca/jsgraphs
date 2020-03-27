@@ -3,13 +3,38 @@ import EmbeddedVertex from './embedded_vertex.js';
 
 import { isNonEmptyString } from '../../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
-import { isNumber } from '../../common/numbers.js';
+import { isNumber, toNumber } from '../../common/numbers.js';
+import { isDefined, isBoolean, isUndefined } from '../../common/basic.js';
 
-const DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE = 40;
-const DEFAULT_EDGE_LOOP_RADIUS = 25;
+
 const DEFAULT_LABEL_WEIGHT_SEPARATOR = '/';
 
 class EmbeddedEdge extends Edge {
+  static DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE = 40;
+  static DEFAULT_EDGE_LOOP_RADIUS = 25;
+
+  /**
+   * @static
+   */
+  static fromJson(json) {
+    return EmbeddedEdge.fromJsonObject(JSON.parse(json));
+  }
+
+  /**
+   * @static
+   */
+  static fromJsonObject({source, destination, weight, label, directed, arcControlDistance}) {
+    return new EmbeddedEdge(
+      EmbeddedVertex.fromJsonObject(source),
+      EmbeddedVertex.fromJsonObject(destination),
+      {
+        weight: weight,
+        label: label,
+        isDirected: directed,
+        arcControlDistance: arcControlDistance
+      });
+  }
+
   /**
    * @private
    */
@@ -32,22 +57,29 @@ class EmbeddedEdge extends Edge {
     { weight,
       label,
       isDirected = false,
-      arcControlDistance = null } = {}) {
+      arcControlDistance = undefined } = {}) {
     if (!(source instanceof EmbeddedVertex)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'source', source));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'source', source));
     }
     if (!(destination instanceof EmbeddedVertex)) {
-      throw new new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge', 'destination', destination));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'destination', destination));
     }
 
     super(source, destination, { weight, label });
 
+    if (!isBoolean(isDirected)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'isDirected', isDirected));
+    }
     this.#directed = isDirected;
 
-    if (!isNumber(arcControlDistance)) {
-      this.#arcControlDistance = super.isLoop ? DEFAULT_EDGE_LOOP_RADIUS : DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
+    if (isUndefined(arcControlDistance)) {
+      this.#arcControlDistance = super.isLoop()
+        ? EmbeddedEdge.DEFAULT_EDGE_LOOP_RADIUS
+        : EmbeddedEdge. DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
+    } else if (!isNumber(toNumber(arcControlDistance))) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'arcControlDistance', arcControlDistance));
     } else {
-      this.#arcControlDistance = arcControlDistance;
+      this.#arcControlDistance = toNumber(arcControlDistance);
     }
   }
 
@@ -73,8 +105,15 @@ class EmbeddedEdge extends Edge {
       { weight: this.weight, label: this.label });
   }
 
-  toJson() {
-    return super.toJson();
+  toJsonObject() {
+    return {
+      source: this.source.toJsonObject(),
+      destination: this.destination.toJsonObject(),
+      weight: this.weight,
+      label: this.label,
+      directed: this.isDirected(),
+      arcControlDistance: this.arcControlDistance
+    };
   }
 
   toString() {

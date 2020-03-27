@@ -64,11 +64,31 @@ export function isDefined(maybeDefined) {
   return maybeDefined !== null && !isUndefined(maybeDefined);
 }
 
+/**
+ * @name isDefined
+ * @description
+ * Check if the argument is an iterable.
+ *
+ * @param {*} maybeIterable The value to check.
+ * @returns {boolean} true iff `maybeIterable` is an iterable.
+ */
 export function isIterable(maybeIterable) {
   return (isObject(maybeIterable) || isFunction(maybeIterable)) && (typeof maybeIterable[Symbol.iterator] === 'function');
 
 }
 
+/**
+ * @name isBoolean
+ * @description
+ * Check if the input is a valid boolean.
+
+ * @param maybeBoolean The value to check.
+ * @returns {boolean} true iff `maybeBoolean` is either `true` or `false`.
+ *
+ */
+export function isBoolean(maybeBoolean) {
+  return maybeBoolean === true || maybeBoolean === false;
+}
 
 /**
  * Identity function.
