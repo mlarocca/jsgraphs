@@ -103,17 +103,17 @@ graph.createEdge('E', 'G', { label: 'mount engine on frame' });
 graph.createEdge('F', 'Finish', { label: 'mount body on frame' });
 graph.createEdge('G', 'Finish');
 
-let emb = new Embedding(graph);
+let emb = Embedding.forGraph(graph);
 
-emb.setVertexPosition('Start', new Point2D(50, 200));
-emb.setVertexPosition('A', new Point2D(200, 200));
-emb.setVertexPosition('B', new Point2D(350, 50));
-emb.setVertexPosition('C', new Point2D(350, 150));
-emb.setVertexPosition('D', new Point2D(350, 250));
-emb.setVertexPosition('E', new Point2D(350, 350));
-emb.setVertexPosition('F', new Point2D(500, 100));
-emb.setVertexPosition('G', new Point2D(600, 300));
-emb.setVertexPosition('Finish', new Point2D(650, 200));
+emb.setVertexPosition(Vertex.serializeLabel('Start'), new Point2D(50, 200));
+emb.setVertexPosition(Vertex.serializeLabel('A'), new Point2D(200, 200));
+emb.setVertexPosition(Vertex.serializeLabel('B'), new Point2D(350, 50));
+emb.setVertexPosition(Vertex.serializeLabel('C'), new Point2D(350, 150));
+emb.setVertexPosition(Vertex.serializeLabel('D'), new Point2D(350, 250));
+emb.setVertexPosition(Vertex.serializeLabel('E'), new Point2D(350, 350));
+emb.setVertexPosition(Vertex.serializeLabel('F'), new Point2D(500, 100));
+emb.setVertexPosition(Vertex.serializeLabel('G'), new Point2D(600, 300));
+emb.setVertexPosition(Vertex.serializeLabel('Finish'), new Point2D(650, 200));
 
 let vClasses = {
   '"Start"': ['start'],
@@ -167,13 +167,13 @@ let edgeS5S4 = graph.createEdge(s5, s4, { label: '"."' });
 let edgeEnd = graph.createEdge(s5, endValidated, { label: '$' });
 
 let edgeS0Error = graph.createEdge(s0, endError, { label: '[^a-z0-9]' });
-let edgeS1Error = graph.createEdge(s1, endError, { label: '[^a-z0-9_@]'});
+let edgeS1Error = graph.createEdge(s1, endError, { label: '[^a-z0-9_@]' });
 let edgeS2Error = graph.createEdge(s2, endError, { label: "[^a-z0-9]" });
 let edgeS3Error = graph.createEdge(s3, endError, { label: "[^a-z0-9_\\.]" });
 let edgeS4Error = graph.createEdge(s4, endError, { label: '[^a-z0-9]' });
 let edgeS5Error = graph.createEdge(s5, endError, { label: '[^a-z0-9_\\.]' });
 
-let emb = new Embedding(graph, new Map(), { width: 700, height: 400 });
+let emb = Embedding.forGraph(graph, { width: 700, height: 400 });
 
 // Set the position of each vertex
 emb.setVertexPosition(start, new Point2D(50, 150));
