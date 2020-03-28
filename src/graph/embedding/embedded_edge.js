@@ -4,7 +4,7 @@ import EmbeddedVertex from './embedded_vertex.js';
 import { isNonEmptyString } from '../../common/strings.js';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
 import { isNumber, toNumber } from '../../common/numbers.js';
-import { isDefined, isBoolean, isUndefined } from '../../common/basic.js';
+import { isBoolean, isUndefined } from '../../common/basic.js';
 
 
 const DEFAULT_LABEL_WEIGHT_SEPARATOR = '/';
@@ -23,14 +23,14 @@ class EmbeddedEdge extends Edge {
   /**
    * @static
    */
-  static fromJsonObject({source, destination, weight, label, directed, arcControlDistance}) {
+  static fromJsonObject({source, destination, weight, label, isDirected, arcControlDistance}) {
     return new EmbeddedEdge(
       EmbeddedVertex.fromJsonObject(source),
       EmbeddedVertex.fromJsonObject(destination),
       {
         weight: weight,
         label: label,
-        isDirected: directed,
+        isDirected: isDirected,
         arcControlDistance: arcControlDistance
       });
   }
@@ -76,7 +76,7 @@ class EmbeddedEdge extends Edge {
       this.#arcControlDistance = super.isLoop()
         ? EmbeddedEdge.DEFAULT_EDGE_LOOP_RADIUS
         : EmbeddedEdge. DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
-    } else if (!isNumber(toNumber(arcControlDistance))) {
+    } else if (!isNumber(arcControlDistance)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'arcControlDistance', arcControlDistance));
     } else {
       this.#arcControlDistance = toNumber(arcControlDistance);
@@ -102,7 +102,7 @@ class EmbeddedEdge extends Edge {
     return new EmbeddedEdge(
       this.source.clone(),
       this.destination.clone(),
-      { weight: this.weight, label: this.label });
+      { weight: this.weight, label: this.label, arcControlDistance: this.arcControlDistance, isDirected: this.isDirected() });
   }
 
   toJsonObject() {
@@ -111,7 +111,7 @@ class EmbeddedEdge extends Edge {
       destination: this.destination.toJsonObject(),
       weight: this.weight,
       label: this.label,
-      directed: this.isDirected(),
+      isDirected: this.isDirected(),
       arcControlDistance: this.arcControlDistance
     };
   }

@@ -1,4 +1,4 @@
-import { isNumber, range } from '../common/numbers.js';
+import { isNumber, range, toNumber } from '../common/numbers.js';
 import { mean } from '../common/array.js';
 import { isUndefined } from '../common/basic.js';
 import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_MSG_PARAM_TYPE } from '../common/errors.js';
@@ -49,7 +49,7 @@ class Point {
   constructor(...coordinates) {
     validateCoordinates('constructor', ...coordinates);
     this.#K = coordinates.length;
-    this.#coordinates = coordinates.slice();
+    this.#coordinates = coordinates.map(toNumber);
   }
 
   static fromJson(json) {

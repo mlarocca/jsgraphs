@@ -1,6 +1,6 @@
 {
   "name": "js-graphs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "JsGraphs library",
   "main": "index.js",
   "scripts": {

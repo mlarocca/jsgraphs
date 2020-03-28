@@ -118,6 +118,26 @@ describe('EmbeddedEdge Creation', () => {
         new EmbeddedEdge(u, v, { arcControlDistance: '3.14' }).arcControlDistance.should.eql(3.14);
       });
     });
+
+    describe('# weight (optional)', () => {
+      it('should set it correctly when numeric values are passed', () => {
+        new EmbeddedEdge(u, v, { weight: 11 }).weight.should.eql(11);
+        new EmbeddedEdge(u, v, { weight: -11 }).weight.should.be.eql(-11);
+        new EmbeddedEdge(u, v, { weight: '3.14' }).weight.should.eql(3.14);
+      });
+    });
+
+    describe('# label (optional)', () => {
+      it('should default to undefined', () => {
+        (() => new EmbeddedEdge(u, v).label).should.be.undefined;
+        new EmbeddedEdge(u, v, { label: "abd" }).label.should.be.eql("abd");
+      });
+
+      it('should set it correctly when strings are passed', () => {
+        new EmbeddedEdge(u, v, { label: "11" }).label.should.eql("11");
+        new EmbeddedEdge(u, v, { label: "abd" }).label.should.be.eql("abd");
+      });
+    });
   });
 });
 
@@ -129,6 +149,27 @@ describe('Methods', () => {
   const point = new Point2D(1, 2);
   const u = new EmbeddedVertex(['u'], point);
   const v = new EmbeddedVertex({ name: ['v'] }, point);
+  const w = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
+
+  describe('clone()', () => {
+    const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
+
+    it('# should make an exact copy', () => {
+      let clone = e.clone();
+      clone.equals(e).should.be.true();
+      clone.source.equals(e.source).should.be.true();
+      clone.destination.equals(e.destination).should.be.true();
+      clone.label.should.eql(e.label);
+      clone.weight.should.eql(e.weight);
+      clone.arcControlDistance.should.eql(e.arcControlDistance);
+      clone.isDirected().should.eql(e.isDirected());
+
+      const e2 = new EmbeddedEdge(v, w);
+      clone = e2.clone();
+      clone.equals(e2).should.be.true();
+      clone.equals(e).should.be.false();
+    });
+  });
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
@@ -138,21 +179,32 @@ describe('Methods', () => {
         destination: { "label": { "name": ["v"] }, "weight": 1, "position": "[1,2]" },
         weight: 12,
         arcControlDistance: -32,
-        directed: true,
+        isDirected: true,
         label: "edge"
       });
     });
   });
 
   describe('fromJson()', () => {
-    const w = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
     it('# applyed to the result of toJson, it should match source vertex', () => {
-      const e = new EmbeddedEdge(u, w, { weight: 12, label: 'long edge', arcControlDistance: -3.14, isDirected: true });
-      const e1 = EmbeddedEdge.fromJson(e.toJson());
+      // All optional fields passed
+      let e = new EmbeddedEdge(u, w, { weight: 12, label: 'long edge', arcControlDistance: -3.14, isDirected: true });
+      let e1 = EmbeddedEdge.fromJson(e.toJson());
       e1.should.eql(e);
       e1.source.equals(e.source).should.be.true();
       e1.destination.equals(e.destination).should.be.true();
       e1.label.should.eql(e.label);
+      e1.weight.should.eql(e.weight);
+      e1.arcControlDistance.should.eql(e.arcControlDistance);
+      e1.isDirected().should.eql(e.isDirected());
+
+      // No optional field passed
+      e = new EmbeddedEdge(u, w);
+      e1 = EmbeddedEdge.fromJson(e.toJson());
+      e1.should.eql(e);
+      e1.source.equals(e.source).should.be.true();
+      e1.destination.equals(e.destination).should.be.true();
+      (() => e1.label).should.be.undefined;
       e1.weight.should.eql(e.weight);
       e1.arcControlDistance.should.eql(e.arcControlDistance);
       e1.isDirected().should.eql(e.isDirected());
@@ -162,10 +214,10 @@ describe('Methods', () => {
 
   describe('toSvg()', () => {
     it('# should return a valid svg', () => {
-      let v = new EmbeddedVertex("v", new Point2D(20, 20), { weight: 0.8 })
-      let u = new EmbeddedVertex("u", new Point2D(120, 70), { weight: 2 })
-      let edge = new EmbeddedEdge(u, v, { weight: 2, label: "Edge!" });
-      let edge2 = new EmbeddedEdge(v, u, { weight: 5, label: "test" });
+      const v = new EmbeddedVertex("v", new Point2D(20, 20), { weight: 0.8 })
+      const u = new EmbeddedVertex("u", new Point2D(120, 70), { weight: 2 })
+      const edge = new EmbeddedEdge(u, v, { weight: 2, label: "Edge!" });
+      const edge2 = new EmbeddedEdge(v, u, { weight: 5, label: "test" });
       console.log(edge.toSvg());
       console.log(edge2.toSvg());
       console.log(v.toSvg());
@@ -173,12 +225,12 @@ describe('Methods', () => {
     });
 
     it('# should return a valid svg 2 ', () => {
-      let v = new EmbeddedVertex("v", new Point2D(50, 170), { weight: 0.8 })
-      let u = new EmbeddedVertex("u", new Point2D(320, 250), { weight: 2 })
-      let edge = new EmbeddedEdge(u, v, { weight: 2, label: "Edge!", isDirected: true });
-      let edge2 = new EmbeddedEdge(v, u, { weight: 5, label: "test", isDirected: true });
-      let loop = new EmbeddedEdge(v, v, { weight: 5, label: "loop long", isDirected: false });
-      let loop2 = new EmbeddedEdge(u, u, { weight: 2, label: "loop", isDirected: true });
+      const v = new EmbeddedVertex("v", new Point2D(50, 170), { weight: 0.8 })
+      const u = new EmbeddedVertex("u", new Point2D(320, 250), { weight: 2 })
+      const edge = new EmbeddedEdge(u, v, { weight: 2, label: "Edge!", isDirected: true });
+      const edge2 = new EmbeddedEdge(v, u, { weight: 5, label: "test", isDirected: true });
+      const loop = new EmbeddedEdge(v, v, { weight: 5, label: "loop long", isDirected: false });
+      const loop2 = new EmbeddedEdge(u, u, { weight: 2, label: "loop", isDirected: true });
       console.log(v.toSvg());
       console.log(u.toSvg());
       console.log(edge.toSvg({ useArcs: true }));
