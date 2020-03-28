@@ -18,14 +18,14 @@ describe('Point2D API', () => {
   it('# Object\'s interface should be complete', () => {
     let point = new Point2D(1, 2);
 
-    let methods = ['constructor'];
-    let superMethods = ['coordinates', 'coordinate', 'clone', 'equals', 'distanceTo', 'maxDistance', 'minDistance', 'toString', 'toJson', 'dimensionality'];
+    let methods = ['constructor', 'clone'];
+    let superMethods = ['coordinates', 'coordinate', 'equals', 'distanceTo', 'maxDistance', 'minDistance', 'toString', 'toJson', 'dimensionality'];
     let attributes = ['x', 'y'];
     testAPI(point, attributes, methods, superMethods);
   });
 
   it('# Static methods', () => {
-    let staticMethods = ['validatePoint', 'random'];
+    let staticMethods = ['fromJson', 'validatePoint', 'random'];
     testStaticAPI(Point2D, staticMethods);
   });
 });

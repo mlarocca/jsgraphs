@@ -45,7 +45,7 @@ class EmbeddedVertex extends Vertex {
     }
 
     this.#center = vertexPosition.clone();
-    this.#radius = radius;
+    this.#radius = toNumber(radius);
   }
 
   get position() {
