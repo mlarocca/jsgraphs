@@ -35,13 +35,17 @@ class Embedding {
     return new Embedding(vertices.map(v => EmbeddedVertex.fromJson(v)), edges.map(e => EmbeddedEdge.fromJson(e)));
   }
 
-  static forGraph(graph, { width, height, coordinates = {} } = {}) {
+  static forGraph(graph, { width, height, coordinates = {}, edgesArcControlDistance = {} } = {}) {
     if (!(graph instanceof Graph)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'graph', graph));
     }
 
     if (!isPlainObject(coordinates)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'coordinates', coordinates));
+    }
+
+    if (!isPlainObject(edgesArcControlDistance)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'edgesArcControlDistance', edgesArcControlDistance));
     }
 
     let vertices = new Map();
@@ -60,7 +64,7 @@ class Embedding {
       const ee = new EmbeddedEdge(
         vertices.get(e.source.id),
         vertices.get(e.destination.id),
-        { weight: e.weight, label: e.label, isDirected: graph.isDirected() });
+        { weight: e.weight, label: e.label, isDirected: graph.isDirected(), arcControlDistance: edgesArcControlDistance[e.id] });
       edges.set(ee.id, ee);
     }
 

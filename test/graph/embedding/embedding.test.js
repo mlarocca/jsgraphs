@@ -15,6 +15,7 @@ import EmbeddedVertex from '../../../src/graph/embedding/embedded_vertex.js';
 import EmbeddedEdge from '../../../src/graph/embedding/embedded_edge.js';
 import Vertex from '../../../src/graph/vertex.js';
 import Point from '../../../src/geometric/point.js';
+import Edge from '../../../src/graph/edge.js';
 
 const expect = chai.expect;
 
@@ -203,15 +204,102 @@ describe('Methods', () => {
     });
   });
 
+  describe('forGraph()', () => {
+    const u = new Vertex(['u']);
+    const v = new Vertex({ name: ['v'] });
+    const w = new Vertex('w');
+    const e1 = new Edge(u, v, { weight: 12, label: 'edge' });
+    const e2 = new Edge(w, v);
+    const e3 = new Edge(u, w);
+    const e4 = new Edge(w, w);
+
+    let g;
+
+    before(() => {
+      g = new Graph();
+      [u, v, w].forEach(vertex => g.addVertex(vertex));
+      [e1, e2, e3, e4].forEach(e => g.addEdge(e));
+    });
+
+    it('# should create edges and vertices', () => {
+      let emb = Embedding.forGraph(g);
+      [u, v, w].forEach(vertex => {
+        const eV = emb.getVertex(vertex.id);
+        eV.label.should.eql(vertex.label);
+        eV.weight.should.eql(vertex.weight);
+        eV.position.constructor.should.eql(Point2D);
+      });
+
+      [e1, e2, e3, e4].forEach(e => {
+        const eE = emb.getEdge(e.id);
+        eE.source.label.should.eql(e.source.label);
+        eE.destination.label.should.eql(e.destination.label);
+        (eE.label === e.label).should.be.true();
+        eE.weight.should.eql(e.weight);
+      });
+    });
+
+    it('# should allow passing coordinates for some or all vertices', () => {
+      const p = new Point2D(1,2);
+      const q = new Point2D(2,1);
+      let emb = Embedding.forGraph(g, {coordinates: {[u.id]: p, [w.id]: q}});
+      [u, v, w].forEach(vertex => {
+        const eV = emb.getVertex(vertex.id);
+        eV.label.should.eql(vertex.label);
+        eV.weight.should.eql(vertex.weight);
+        eV.position.constructor.should.eql(Point2D);
+      });
+
+      [e1, e2, e3, e4].forEach(e => {
+        const eE = emb.getEdge(e.id);
+        eE.source.label.should.eql(e.source.label);
+        eE.destination.label.should.eql(e.destination.label);
+        (eE.label === e.label).should.be.true();
+        eE.weight.should.eql(e.weight);
+      });
+
+      emb.getVertex(u.id).position.equals(p).should.be.true();
+      emb.getVertex(u.id).position.equals(q).should.be.false();
+
+      emb.getVertex(w.id).position.equals(q).should.be.true();
+      emb.getVertex(w.id).position.equals(p).should.be.false();
+    });
+
+    it('# should allow passing arc\'s control point for some or all edges', () => {
+      const p = new Point2D(1,2);
+      const q = new Point2D(2,1);
+      let emb = Embedding.forGraph(g, {edgesArcControlDistance: {[e2.id]: -91, [e3.id]: 0.101}});
+      [u, v, w].forEach(vertex => {
+        const eV = emb.getVertex(vertex.id);
+        eV.label.should.eql(vertex.label);
+        eV.weight.should.eql(vertex.weight);
+        eV.position.constructor.should.eql(Point2D);
+      });
+
+      [e1, e2, e3, e4].forEach(e => {
+        const eE = emb.getEdge(e.id);
+        eE.source.label.should.eql(e.source.label);
+        eE.destination.label.should.eql(e.destination.label);
+        (eE.label === e.label).should.be.true();
+        eE.weight.should.eql(e.weight);
+      });
+
+      emb.getEdge(e1.id).arcControlDistance.should.eql(EmbeddedEdge.DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE);
+      emb.getEdge(e2.id).arcControlDistance.should.eql(-91);
+      emb.getEdge(e3.id).arcControlDistance.should.eql(0.101);
+      emb.getEdge(e4.id).arcControlDistance.should.eql(EmbeddedEdge.DEFAULT_EDGE_LOOP_RADIUS);
+    });
+  });
+
   describe('toSVG()', () => {
     it('# complete graphs should return a valid svg', () => {
-      // console.log(Embedding.completeGraph(10, 400).toSvg(400, 400, {
-      //   graphCss: ['complete'],
-      //   verticesCss: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] },
-      //   drawEdgesAsArcs: true,
-      //   displayEdgesWeight: false,
-      //   displayEdgesLabel: false
-      // }));
+      console.log(Embedding.completeGraph(10, 400).toSvg(400, 400, {
+        graphCss: ['complete'],
+        verticesCss: { '1': ['warning'], '2': ['error'], '3': ['warning', 'source'] },
+        drawEdgesAsArcs: true,
+        displayEdgesWeight: false,
+        displayEdgesLabel: false
+      }));
     });
 
     it('# complete bipartite graphs should return a valid svg', () => {
@@ -220,12 +308,12 @@ describe('Methods', () => {
       range(1, 7).forEach(i => vClasses[`${i}`] = ['left']);
       range(7, 11).forEach(i => vClasses[`${i}`] = ['right']);
 
-      // console.log(Embedding.completeBipartiteGraph(6, 4, 400).toSvg(400, 400, {
-      //   graphCss: ['complete bipartite'],
-      //   verticesCss: vClasses,
-      //   displayEdgesWeight: false,
-      //   displayEdgesLabel: false
-      // }));
+      console.log(Embedding.completeBipartiteGraph(6, 4, 400).toSvg(400, 400, {
+        graphCss: ['complete bipartite'],
+        verticesCss: vClasses,
+        displayEdgesWeight: false,
+        displayEdgesLabel: false
+      }));
     });
 
     it('# DAG should return a valid svg', () => {
@@ -276,7 +364,7 @@ describe('Methods', () => {
         '"G"': ['mount', 'body', 'frame', 'engine']
       };
 
-      // console.log(emb.toSvg(700, 400, { verticesCss: vClasses, drawEdgesAsArcs: true }));
+      console.log(emb.toSvg(700, 400, { verticesCss: vClasses, drawEdgesAsArcs: true }));
     });
 
     it('# Regex FSA should return a valid svg', () => {
@@ -355,13 +443,13 @@ describe('Methods', () => {
         [edgeS5Error.id]: ['end', 'error']
       };
 
-      // console.log(emb.toSvg(700, 550, {
-      //   graphCss: ['FSA'],
-      //   verticesCss: vCss,
-      //   edgesCss: eCss,
-      //   drawEdgesAsArcs: true,
-      //   displayEdgesWeight: false
-      // }));
+      console.log(emb.toSvg(700, 550, {
+        graphCss: ['FSA'],
+        verticesCss: vCss,
+        edgesCss: eCss,
+        drawEdgesAsArcs: true,
+        displayEdgesWeight: false
+      }));
     });
 
   });
