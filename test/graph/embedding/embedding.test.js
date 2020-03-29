@@ -319,49 +319,49 @@ describe('Methods', () => {
     it('# DAG should return a valid svg', () => {
       let graph = new Graph();
       graph.createVertex('Start', { weight: 2 });
-      graph.createVertex('A');
-      graph.createVertex('B', { weight: 1.5 });
-      graph.createVertex('C', { weight: 1.5 });
-      graph.createVertex('D', { weight: 1.5 });
-      graph.createVertex('E', { weight: 1.5 });
-      graph.createVertex('F', { weight: 2 });
-      graph.createVertex('G', { weight: 2 });
       graph.createVertex('Finish', { weight: 2.5 });
-      graph.createEdge('Start', 'A', { label: 'design', weight: 2 });
-      graph.createEdge('A', 'B', { label: 'build body' });
-      graph.createEdge('A', 'C', { label: 'build wheels' });
-      graph.createEdge('A', 'D', { label: 'build frame' });
-      graph.createEdge('A', 'E', { label: 'build engine' });
-      graph.createEdge('B', 'F', { label: 'paint body' });
-      graph.createEdge('D', 'G', { label: 'paint frame' });
-      graph.createEdge('C', 'Finish', { label: 'mount wheels' });
-      graph.createEdge('E', 'G', { label: 'mount engine on frame' });
-      graph.createEdge('F', 'Finish', { label: 'mount body on frame' });
-      graph.createEdge('G', 'Finish');
+      const vA = graph.createVertex('A');
+      const vB = graph.createVertex('B', { weight: 1.5 });
+      const vC = graph.createVertex('C', { weight: 1.5 });
+      const vD = graph.createVertex('D', { weight: 1.5 });
+      const vE = graph.createVertex('E', { weight: 1.5 });
+      const vF = graph.createVertex('F', { weight: 2 });
+      const vG = graph.createVertex('G', { weight: 2 });
+
+      graph.createEdge(Vertex.idFromLabel('Start'), vA, { label: 'design', weight: 2 });
+      graph.createEdge(vA, vB, { label: 'build body' });
+      graph.createEdge(vA, vC, { label: 'build wheels' });
+      graph.createEdge(vA, vD, { label: 'build frame' });
+      graph.createEdge(vA, vE, { label: 'build engine' });
+      graph.createEdge(vB, vF, { label: 'paint body' });
+      graph.createEdge(vD, vG, { label: 'paint frame' });
+      graph.createEdge(vC, Vertex.idFromLabel('Finish'), { label: 'mount wheels' });
+      graph.createEdge(vE, vG, { label: 'mount engine on frame' });
+      graph.createEdge(vF, Vertex.idFromLabel('Finish'), { label: 'mount body on frame' });
+      graph.createEdge(vG, Vertex.idFromLabel('Finish'));
 
       let emb = Embedding.forGraph(graph);
 
-      emb.setVertexPosition(Vertex.serializeLabel('Start'), new Point2D(50, 200));
-      emb.setVertexPosition(Vertex.serializeLabel('A'), new Point2D(200, 200));
-      emb.setVertexPosition(Vertex.serializeLabel('B'), new Point2D(350, 50));
-      emb.setVertexPosition(Vertex.serializeLabel('C'), new Point2D(350, 150));
-      emb.setVertexPosition(Vertex.serializeLabel('D'), new Point2D(350, 250));
-      emb.setVertexPosition(Vertex.serializeLabel('E'), new Point2D(350, 350));
-      emb.setVertexPosition(Vertex.serializeLabel('F'), new Point2D(500, 100));
-      emb.setVertexPosition(Vertex.serializeLabel('G'), new Point2D(600, 300));
-      emb.setVertexPosition(Vertex.serializeLabel('Finish'), new Point2D(650, 200));
+      emb.setVertexPosition(Vertex.idFromLabel('Start'), new Point2D(50, 200));
+      emb.setVertexPosition(vA, new Point2D(200, 200));
+      emb.setVertexPosition(vB, new Point2D(350, 50));
+      emb.setVertexPosition(vC, new Point2D(350, 150));
+      emb.setVertexPosition(vD, new Point2D(350, 250));
+      emb.setVertexPosition(vE, new Point2D(350, 350));
+      emb.setVertexPosition(vF, new Point2D(500, 100));
+      emb.setVertexPosition(vG, new Point2D(600, 300));
+      emb.setVertexPosition(Vertex.idFromLabel('Finish'), new Point2D(650, 200));
 
       let vClasses = {
         '"Start"': ['start'],
         '"Finish"': ['finish', 'body', 'wheels', 'frame', 'engine'],
-        '"A"': ['init'],
-        '"B"': ['build', 'body'],
-        '"C"': ['build', 'wheels'],
-        '"D"': ['build', 'frame'],
-        '"E"': ['build', 'engine'],
-        '"F"': ['paint', 'body'],
-        '"F"': ['paint', 'frame'],
-        '"G"': ['mount', 'body', 'frame', 'engine']
+        [vA]: ['init'],
+        [vB]: ['build', 'body'],
+        [vC]: ['build', 'wheels'],
+        [vD]: ['build', 'frame'],
+        [vE]: ['build', 'engine'],
+        [vF]: ['paint', 'body'],
+        [vG]: ['mount', 'body', 'frame', 'engine']
       };
 
       console.log(emb.toSvg(700, 400, { verticesCss: vClasses, drawEdgesAsArcs: true }));
@@ -369,34 +369,34 @@ describe('Methods', () => {
 
     it('# Regex FSA should return a valid svg', () => {
       let graph = new Graph();
-      const start = graph.createVertex('Start', { weight: 2 });
-      const endValidated = graph.createVertex('OK', { weight: 2 });
-      const endError = graph.createVertex('Error', { weight: 2 });
-      const s0 = graph.createVertex('S0', { weight: 1.5 });
-      const s1 = graph.createVertex('S1', { weight: 1.5 });
-      const s2 = graph.createVertex('S2', { weight: 1.5 });
-      const s3 = graph.createVertex('S3', { weight: 1.5 });
-      const s4 = graph.createVertex('S4', { weight: 1.5 });
-      const s5 = graph.createVertex('S5', { weight: 1.5 });
+      const start = graph.getVertex(graph.createVertex('Start', { weight: 2 }));
+      const endValidated = graph.getVertex(graph.createVertex('OK', { weight: 2 }));
+      const endError = graph.getVertex(graph.createVertex('Error', { weight: 2 }));
+      const s0 = graph.getVertex(graph.createVertex('S0', { weight: 1.5 }));
+      const s1 = graph.getVertex(graph.createVertex('S1', { weight: 1.5 }));
+      const s2 = graph.getVertex(graph.createVertex('S2', { weight: 1.5 }));
+      const s3 = graph.getVertex(graph.createVertex('S3', { weight: 1.5 }));
+      const s4 = graph.getVertex(graph.createVertex('S4', { weight: 1.5 }));
+      const s5 = graph.getVertex(graph.createVertex('S5', { weight: 1.5 }));
 
-      let edgeStart = graph.createEdge(start, s0, { weight: 3, label: '^' });
-      let edgeS0S1 = graph.createEdge(s0, s1, { label: "[a-z0-9]" });
-      let edgeS1Loop = graph.createEdge(s1, s1, { label: "[a-z0-9_]" });
+      let edgeStart = graph.getEdge(graph.createEdge(start, s0, { weight: 3, label: '^' }));
+      let edgeS0S1 = graph.getEdge(graph.createEdge(s0, s1, { label: "[a-z0-9]" }));
+      let edgeS1Loop = graph.getEdge(graph.createEdge(s1, s1, { label: "[a-z0-9_]" }));
       graph.createEdge(s1, s2, { label: '"@"' });
       graph.createEdge(s2, s3, { label: "[a-z0-9]" });
       graph.createEdge(s3, s3, { label: "[a-z0-9_]" });
       graph.createEdge(s3, s4, { label: '"."' });
-      let edgeS4S5 = graph.createEdge(s4, s5, { label: "[a-z0-9]" });
-      let edgeS5Loop = graph.createEdge(s5, s5, { label: "[a-z0-9_]" });
-      let edgeS5S4 = graph.createEdge(s5, s4, { label: '"."' });
-      let edgeEnd = graph.createEdge(s5, endValidated, { label: '$' });
+      let edgeS4S5 = graph.getEdge(graph.createEdge(s4, s5, { label: "[a-z0-9]" }));
+      let edgeS5Loop = graph.getEdge(graph.createEdge(s5, s5, { label: "[a-z0-9_]" }));
+      let edgeS5S4 = graph.getEdge(graph.createEdge(s5, s4, { label: '"."' }));
+      let edgeEnd = graph.getEdge(graph.createEdge(s5, endValidated, { label: '$' }));
 
-      let edgeS0Error = graph.createEdge(s0, endError, { label: '[^a-z0-9]' });
-      let edgeS1Error = graph.createEdge(s1, endError, { label: '[^a-z0-9_@]' });
-      let edgeS2Error = graph.createEdge(s2, endError, { label: "[^a-z0-9]" });
-      let edgeS3Error = graph.createEdge(s3, endError, { label: "[^a-z0-9_\\.]" });
-      let edgeS4Error = graph.createEdge(s4, endError, { label: '[^a-z0-9]' });
-      let edgeS5Error = graph.createEdge(s5, endError, { label: '[^a-z0-9_\\.]' });
+      let edgeS0Error = graph.getEdge(graph.createEdge(s0, endError, { label: '[^a-z0-9]' }));
+      let edgeS1Error = graph.getEdge(graph.createEdge(s1, endError, { label: '[^a-z0-9_@]' }));
+      let edgeS2Error = graph.getEdge(graph.createEdge(s2, endError, { label: "[^a-z0-9]" }));
+      let edgeS3Error = graph.getEdge(graph.createEdge(s3, endError, { label: "[^a-z0-9_\\.]" }));
+      let edgeS4Error = graph.getEdge(graph.createEdge(s4, endError, { label: '[^a-z0-9]' }));
+      let edgeS5Error = graph.getEdge(graph.createEdge(s5, endError, { label: '[^a-z0-9_\\.]' }));
 
       let emb = Embedding.forGraph(graph, { width: 700, height: 400 });
 

@@ -31,7 +31,7 @@ class Embedding {
     return Embedding.fromJsonObject(JSON.parse(json))
   }
 
-  static fromJsonObject({vertices, edges}) {
+  static fromJsonObject({ vertices, edges }) {
     return new Embedding(vertices.map(v => EmbeddedVertex.fromJson(v)), edges.map(e => EmbeddedEdge.fromJson(e)));
   }
 
@@ -52,7 +52,7 @@ class Embedding {
     let edges = new Map();
 
     for (const v of graph.vertices) {
-      let cs = coordinates[vertexLabel(v)];
+      let cs = coordinates[vertexId(v)];
       if (!(cs instanceof Point2D)) {
         cs = Point2D.random({ width, height });
       }
@@ -64,7 +64,12 @@ class Embedding {
       const ee = new EmbeddedEdge(
         vertices.get(e.source.id),
         vertices.get(e.destination.id),
-        { weight: e.weight, label: e.label, isDirected: graph.isDirected(), arcControlDistance: edgesArcControlDistance[e.id] });
+        {
+          weight: e.weight,
+          label: e.label,
+          isDirected: graph.isDirected(),
+          arcControlDistance: edgesArcControlDistance[e.id]
+        });
       edges.set(ee.id, ee);
     }
 
@@ -93,7 +98,7 @@ class Embedding {
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
       coordinates[v.id] = new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta));
     }
-    return Embedding.forGraph(g, {coordinates: coordinates});
+    return Embedding.forGraph(g, { coordinates: coordinates });
   }
 
   static completeBipartiteGraph(n, m, canvasSize) {
@@ -130,7 +135,7 @@ class Embedding {
       }
       coordinates[v.id] = new Point2D(x, y);
     }
-    return Embedding.forGraph(g, {coordinates: coordinates});
+    return Embedding.forGraph(g, { coordinates: coordinates });
   }
 
   // -----  INSTANCE METHODS  -----
@@ -158,7 +163,16 @@ class Embedding {
       if (!(e instanceof EmbeddedEdge)) {
         throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'edges', edges));
       }
-      this.#edges.set(e.id, e.clone());
+      this.#edges.set(e.id,
+        new EmbeddedEdge(
+          this.getVertex(e.source),
+          this.getVertex(e.destination),
+          {
+            weight: e.weight,
+            label: e.label,
+            isDirected: e.isDirected(),
+            arcControlDistance: e.arcControlDistance
+          }));
     }
   }
 
@@ -175,7 +189,7 @@ class Embedding {
    * @param {string|Vertex} vertex Either an instance of Vertex, or a vertex' id.
    */
   getVertex(vertex) {
-    return this.#vertices.get(vertexLabel(vertex));
+    return this.#vertices.get(vertexId(vertex));
   }
 
   /**
@@ -183,7 +197,7 @@ class Embedding {
    * @param {string|Edge} edge Either an instance of Edge, or an edge's id.
    */
   getEdge(edge) {
-    return this.#edges.get(edgeLabel(edge));
+    return this.#edges.get(edgeId(edge));
   }
 
   /**
@@ -192,7 +206,7 @@ class Embedding {
    * @param {*} position
    */
   setVertexPosition(vertex, position) {
-    const v = this.#vertices.get(vertexLabel(vertex));
+    const v = this.#vertices.get(vertexId(vertex));
     if (isUndefined(v)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', vertex));
     }
@@ -208,7 +222,7 @@ class Embedding {
    * @param {Number} arcControlDistance The distance of the control point of the Bezier quadratic curve used to display the edge.
    */
   setEdgeControlPoint(edge, arcControlDistance) {
-    const e = this.#edges.get(edgeLabel(edge));
+    const e = this.#edges.get(edgeId(edge));
     if (isUndefined(e)) {
       throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', edge));
     }
@@ -275,7 +289,7 @@ class Embedding {
  * @private
  * @param {string|Vertex} vertex Either an instance of Vertex, or a vertex' id.
  */
-function vertexLabel(vertex) {
+function vertexId(vertex) {
   if (vertex instanceof Vertex) {
     return vertex.id;
   } else {
@@ -287,13 +301,14 @@ function vertexLabel(vertex) {
  * @private
  * @param {Edge?} edge
  */
-function edgeLabel(edge) {
+function edgeId(edge) {
   if (edge instanceof Edge) {
     return edge.id;
   } else {
     return edge;
   }
 }
+
 /**
  *
  */
