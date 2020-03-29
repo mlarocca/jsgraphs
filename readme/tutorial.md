@@ -18,6 +18,10 @@ let graph = new Graph();
 
 The instance variable graph now has been created, without any vertex or edge. Of course, these entities are also modeled in the library:
 
+## Vertices
+
+Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of any graph, in turn modeling the entities (data) part of a graph.
+
 ```javascript
 import Vertex from '/src/graph/vertex.js';
 
@@ -61,14 +65,14 @@ There is also a shortcut to create those vertices directly on the graph, without
 ```javascript
 let graph = new Graph();
 
-const v = graph.createVertex(['I', 'am', 'a', 'valid', 'label'], {weight: 3});
-const u = graph.createVertex('u');
+const vId = graph.createVertex(['I', 'am', 'a', 'valid', 'label'], {weight: 3});
+const uId = graph.createVertex('u');
 // graph.createVertex('u) // ERROR, duplicated vertex 'u'
 ```
 
 As you can see in the snippet above, `createVertex` (as well as `addVertex`) returns the ID of the vertex created (NOT a reference to the actual instance held by the graph).
 
-Each vertex, in fact, has an `id` property that uniquely identifies it in a graph: as mentioned, this means that their label must be the same. This means that the IDs of two instances of `Vertex` can clash even if they are different objects, or if they have different properties.
+Each vertex, in fact, has an `id` property that uniquely identifies it in a graph: as mentioned, there can't be two vertices with the same label, so there is a 1:1 correspondence between labels and IDs. This means that the IDs of two instances of `Vertex` can clash even if they are different objects, or if they have different properties.
 
 ```javascript
 const u1 = new Vertex('u', {weight: 3});
@@ -78,4 +82,25 @@ console.log(u1.equals(u2));     // false
 console.log(u1.id === u2.id);   // true
 ```
 
-Though a
+You might want to hold to the id of a vertex, because you will need it to retrieve (a copy of) the actual vertex from the graph, and even to create a new edge (as we'll see in the next section).
+
+```javascript
+const u = graph.getVertex(uId);
+const v = graph.getVertex(vId);
+```
+
+Most of the methods on graphs can take either an id, or a copy of the object to retrieve (namely a vertex or an edge).
+For instance:
+
+```javascript
+graph.getVertex(uId);
+graph.getVertex(graph.getVertex(uId));
+```
+
+both work and return vertex `u` (although only one does it efficiently!).
+
+## Edges
+
+The other fundamental entity on which graphs are based are _edges_, implemented in class [`Edge`](../src/graph/edge.js).
+
+[...]
