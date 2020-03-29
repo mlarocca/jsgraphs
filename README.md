@@ -27,7 +27,7 @@ For instance
 npm t test/geometric/test_point.js
 ```
 
-# Tuturial
+# Tutorial
 
 To learn by example what you can do with _JsGraphs_ and how to do it, check out this [tutorial](./readme/tutorial.md)
 
@@ -39,6 +39,6 @@ Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and
 (click on the images to browse to the example)
 
 [![Complete Graph](readme/img/complete.jpg)![Same Complete Graph, with arc rather than segments](readme/img/complete_arcs.jpg)](readme/examples.md#complete-graphs)
-[![Bipartite Complete Graph](readme/img/bipartite_complete.jpg)](readme/examples.md#bipartite-complete-graphs)
+[![Bipartite Complete Graph](readme/img/bipartite_complete.jpg)](readme/examples.md#complete-bipartite-graphs)
 [![DAG](readme/img/dag.jpg)](readme/examples.md#dag)
 [![FSA](readme/img/regex_fsa.jpg)](readme/examples.md#regex-finite-state-automaton)
