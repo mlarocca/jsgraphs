@@ -16,7 +16,7 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject', 'isSerializable', 'serializeLabel'];
+    let staticMethods = ['fromJson', 'fromJsonObject', 'isSerializable', 'idFromLabel'];
     testStaticAPI(Vertex, staticMethods);
   });
 
@@ -129,7 +129,7 @@ describe('Methods', () => {
         const weight = Math.random();
         let v1 = new Vertex(label, { weight: weight });
         let v2 = new Vertex(label2, { weight: weight });
-        v1.equals(v2).should.be.eql(Vertex.serializeLabel(label) === Vertex.serializeLabel(label2));
+        v1.equals(v2).should.be.eql(Vertex.idFromLabel(label) === Vertex.idFromLabel(label2));
       });
     });
 
@@ -158,7 +158,7 @@ describe('Methods', () => {
         let v = new Vertex(label);
         v.labelEquals(label).should.be.true();
         const label2 = choose(labels);
-        v.labelEquals(label2).should.be.eql(Vertex.serializeLabel(label) === Vertex.serializeLabel(label2));
+        v.labelEquals(label2).should.be.eql(Vertex.idFromLabel(label) === Vertex.idFromLabel(label2));
       });
     });
   });
@@ -188,6 +188,7 @@ describe('Methods', () => {
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
+      Vertex.isSerializable(new Vertex('test')).should.be.true();
       vertexLabels.forEach(label => {
         const source = new Vertex(label);
         const dest = new Vertex(choose(vertexLabels));

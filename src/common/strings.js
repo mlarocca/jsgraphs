@@ -1,4 +1,4 @@
-import { isObject, isPlainObject, isUndefined } from './basic';
+import { isObject, isPlainObject, isUndefined, isFunction } from './basic';
 import { ERROR_MSG_RANDOM_STRING_LENGTH, ERROR_MSG_RANDOM_STRING_TOO_LARGE } from './errors.js';
 
 const ASCII_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\ \t\n';
@@ -7,7 +7,6 @@ const ASCII_ALPHABET_LENGTH = ASCII_ALPHABET.length;
 
 const respondsToToJson = (obj) => {
   return isObject(obj)
-    && obj.hasOwnProperty('toJson')
     && isFunction(obj.toJson)
     && obj.toJson.length === 0;
 };

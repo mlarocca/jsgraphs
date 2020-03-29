@@ -33,7 +33,7 @@ class Vertex {
     return isJsonStringifiable(label);
   }
 
-  static serializeLabel(label) {
+  static idFromLabel(label) {
     return consistentStringify(label);
   }
 
@@ -78,7 +78,7 @@ class Vertex {
   }
 
   get id() {
-    return Vertex.serializeLabel(this.label);
+    return Vertex.idFromLabel(this.label);
   }
 
   get weight() {

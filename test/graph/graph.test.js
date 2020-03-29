@@ -10,33 +10,27 @@ import { ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../../s
 
 import chai from "chai";
 import should from "should";
-import { consistentStringify } from '../../src/common/strings.js';
 
 const expect = chai.expect;
 
 function createExampleGraph() {
   let g = new Graph();
-  let v1 = 'a random unicòde string ☺';
-  let v2 = 1;
-  let v3 = -3.1415;
-  let v4 = { 'what': -3 };
-  let v5 = [1, true, -3];
+  const v1 = g.createVertex('a random unicòde string ☺');
+  const v2 = g.createVertex(1, { weight: -21 });
+  const v3 = g.createVertex(-3.1415);
+  const v4 = g.createVertex({ 'what': -3 });
+  const v5 = g.createVertex([1, true, -3]);
 
-  g.createVertex(v1);
-  g.createVertex(v2, { weight: -21 });
-  g.createVertex(v3);
-  g.createVertex(v4);
-  g.createVertex(v5);
-  g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
-  g.createEdge(v3, v4, { weight: 33 });
-  g.createEdge(v3, v5);
+  g.createEdge(g.getVertex(v1), g.getVertex(v2), { label: 'label', weight: -0.1e14 });
+  g.createEdge(g.getVertex(v3), g.getVertex(v4), { weight: 33 });
+  g.createEdge(g.getVertex(v3), g.getVertex(v5));
   return g;
 }
 
 function createRandomGraph(minV, maxV, minE, maxE) {
   let g = new Graph();
-  let numVertices = randomInt(minV, maxV);
-  let numEdges = randomInt(minE, maxE);
+  const numVertices = randomInt(minV, maxV);
+  const numEdges = randomInt(minE, maxE);
 
   for (let i = 0; i < numVertices; i++) {
     g.createVertex(i);
@@ -45,7 +39,7 @@ function createRandomGraph(minV, maxV, minE, maxE) {
   for (let j = 0; j < numEdges; j++) {
     let v = randomInt(0, numVertices);
     let u = randomInt(0, numVertices);
-    g.createEdge(u, v, { weight: Math.random() });
+    g.createEdge(Vertex.idFromLabel(u), Vertex.idFromLabel(v), { weight: Math.random() });
   }
   return g;
 }
@@ -65,7 +59,7 @@ describe('Graph API', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
-      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeWeight', 'getEdgeLabel'];
+      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgeWeight', 'getEdgeLabel'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
@@ -80,7 +74,7 @@ describe('createVertex()', () => {
     });
 
     labels.forEach(label => {
-      g.hasVertex(label).should.be.true();
+      g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
     });
   });
 
@@ -125,10 +119,10 @@ describe('getVertexWeight', () => {
   const g = createExampleGraph();
 
   it('# Should retrieve the right weight', function () {
-    g.getVertexWeight(1).should.eql(-21);
+    g.getVertexWeight(Vertex.idFromLabel(1)).should.eql(-21);
     // defaults to 1 when not explicitly set
-    g.getVertexWeight('a random unicòde string ☺').should.eql(1);
-    g.getVertexWeight({ 'what': -3 }).should.eql(1);
+    g.getVertexWeight(Vertex.idFromLabel('a random unicòde string ☺')).should.eql(1);
+    g.getVertexWeight(Vertex.idFromLabel({ 'what': -3 })).should.eql(1);
   });
 
   it('# Should return undefined when the graph does not have a vertex', function () {
@@ -139,18 +133,21 @@ describe('getVertexWeight', () => {
 
 describe('createEdge()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
+  const ids = labels.map(Vertex.idFromLabel);
+
   it('# should add all valid label types', function () {
     let g = new Graph();
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
     });
 
-    let e = g.createEdge(labels[1], labels[5]);
+    g.createEdge(ids[1], ids[5]);
+    let e = g.getEdgeBetween(ids[1], ids[5]);
     e.source.label.should.eql(labels[1]);
     e.destination.label.should.eql(labels[5]);
     g.hasEdge(e).should.be.true();
 
-    e = g.createEdge(labels[0], labels[6], { weight: 5, label: 'edge label' });
+    e = g.getEdge(g.createEdge(ids[0], ids[6], { weight: 5, label: 'edge label' }));
 
     e.source.label.should.eql(labels[0]);
     e.destination.label.should.eql(labels[6]);
@@ -161,12 +158,12 @@ describe('createEdge()', () => {
     e = new Edge(new Vertex(labels[0]), new Vertex(labels[2]));
     g.hasEdge(e).should.be.false();
 
-    g.hasEdgeBetween(labels[0], labels[6]).should.be.true();
-    g.hasEdgeBetween(labels[6], labels[0]).should.be.false();
-    g.hasEdgeBetween(labels[1], labels[5]).should.be.true();
-    g.hasEdgeBetween(labels[5], labels[1]).should.be.false();
-    g.hasEdgeBetween(labels[0], labels[2]).should.be.false();
-    g.hasEdgeBetween(labels[2], labels[0]).should.be.false();
+    g.hasEdgeBetween(ids[0], ids[6]).should.be.true();
+    g.hasEdgeBetween(ids[6], ids[0]).should.be.false();
+    g.hasEdgeBetween(ids[1], ids[5]).should.be.true();
+    g.hasEdgeBetween(ids[5], ids[1]).should.be.false();
+    g.hasEdgeBetween(ids[0], ids[2]).should.be.false();
+    g.hasEdgeBetween(ids[2], ids[0]).should.be.false();
   });
 
   it('# should throw when vertices are not in the graph', function () {
@@ -174,8 +171,8 @@ describe('createEdge()', () => {
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
     });
-    expect(() => g.createEdge('v', labels[0])).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'v'));
-    expect(() => g.createEdge(labels[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));
+    expect(() => g.createEdge('v', ids[0])).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'v'));
+    expect(() => g.createEdge(ids[0], 'u')).to.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', 'u'));
   });
 });
 
@@ -188,7 +185,7 @@ describe('addEdge()', () => {
     });
 
     let expected = new Edge(sources[0], sources[2]);
-    let e = g.addEdge(expected);
+    let e = g.getEdge(g.addEdge(expected));
     expected.equals(e).should.be.true();
 
     g.hasEdge(expected).should.be.true();
@@ -210,12 +207,12 @@ describe('getEdgeLabel', () => {
   const g = createExampleGraph();
 
   it('# Should retrieve the right label', function () {
-    g.getEdgeLabel('a random unicòde string ☺', 1).should.eql('label');
+    g.getEdgeLabel(Vertex.idFromLabel('a random unicòde string ☺'), Vertex.idFromLabel(1)).should.eql('label');
   });
 
   it('# Should return undefined when edge does not have a label', function () {
-    g.hasEdgeBetween(-3.1415, { 'what': -3 }).should.be.true();
-    expect(g.getEdgeLabel(-3.1415, { 'what': -3 })).to.be.undefined;
+    g.hasEdgeBetween(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 })).should.be.true();
+    expect(g.getEdgeLabel(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 }))).to.be.undefined;
   });
 
   it('# Should return undefined when edge does not exist', function () {
@@ -229,14 +226,14 @@ describe('getEdgeWeight', () => {
   const g = createExampleGraph();
 
   it('# Should retrieve the right weight', function () {
-    g.getEdgeWeight('a random unicòde string ☺', 1).should.eql(-0.1e14);
-    g.getEdgeWeight(-3.1415, { 'what': -3 }).should.eql(33);
+    g.getEdgeWeight(Vertex.idFromLabel('a random unicòde string ☺'), Vertex.idFromLabel(1)).should.eql(-0.1e14);
+    g.getEdgeWeight(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 })).should.eql(33);
 
   });
 
   it('# Should default to 1 (when edge weight is not set explicitly)', function () {
-    g.hasEdgeBetween(-3.1415, [1, true, -3]).should.be.true();
-    g.getEdgeWeight(-3.1415, [1, true, -3]).should.eql(1);
+    g.hasEdgeBetween(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel([1, true, -3])).should.be.true();
+    g.getEdgeWeight(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel([1, true, -3])).should.eql(1);
   });
 
   it('# Should return undefined when edge does not exist', function () {
@@ -300,15 +297,11 @@ describe('toJson()', () => {
 
   it('# should stringify the fields consistently and deep-stringify all the fields', () => {
     let g = new Graph();
-    let v1 = 'abc';
-    let v2 = 1;
-    let v3 = 3.1415;
-    let v4 = { 'what': -3 };
+    let v1 = g.createVertex('abc');
+    let v2 = g.createVertex(1);
+    let v3 = g.createVertex(3.1415);
+    let v4 = g.createVertex({ 'what': -3 });
 
-    g.createVertex(v1);
-    g.createVertex(v2);
-    g.createVertex(v3);
-    g.createVertex(v4);
     g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
     g.createEdge(v3, v4, { weight: 33 });
 
@@ -332,34 +325,30 @@ describe('clone()', () => {
   it('# modifying deep clones should not affect originals', () => {
     let g = new Graph();
 
-    let v1 = { 'what': -3 };
-    let v2 = [1, true, -3];
+    let label1 = { 'what': -3 };
+    let label2 = [1, true, -3];
+    let v1 = g.createVertex(label1);
+    let v2 = g.createVertex(label2);
 
-    g.createVertex(v1);
-    g.createVertex(v2);
     g.createEdge(v1, v2);
     let g1 = g.clone();
 
-    v1['new'] = true;
+    label1['new'] = true;
 
-    g.hasVertex(v1).should.be.false();
-    g1.hasVertex(v1).should.be.false();
-    g.hasVertex({ 'what': -3 }).should.be.true();
-    g1.hasVertex({ 'what': -3 }).should.be.true();
+    g.hasVertex(Vertex.idFromLabel(label1)).should.be.false();
+    g1.hasVertex(Vertex.idFromLabel(label1)).should.be.false();
+    g.hasVertex(Vertex.idFromLabel({ 'what': -3 })).should.be.true();
+    g1.hasVertex(Vertex.idFromLabel({ 'what': -3 })).should.be.true();
   });
 });
 
 describe('fromJsonObject()', () => {
   const g = new Graph();
-  let v1 = 'abc';
-  let v2 = 1;
-  let v3 = 3.1415;
-  let v4 = { 'what': -3 };
+  const v1 = g.createVertex('abc');
+  const v2 = g.createVertex(1);
+  const v3 = g.createVertex(3.1415);
+  const v4 = g.createVertex({ 'what': -3 });
 
-  g.createVertex(v1);
-  g.createVertex(v2);
-  g.createVertex(v3);
-  g.createVertex(v4);
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
   g.createEdge(v3, v1, { weight: 33, label: 'edge' });
@@ -371,15 +360,11 @@ describe('fromJsonObject()', () => {
 
 describe('fromJson()', () => {
   const g = new Graph();
-  let v1 = 'abc';
-  let v2 = { 'a': [true, { false: 3.0 }] };
-  let v3 = 3.1415;
-  let v4 = { 'what': -3 };
+  const v1 = g.createVertex('abc');
+  const v2 = g.createVertex({ 'a': [true, { false: 3.0 }] });
+  const v3 = g.createVertex(3.1415);
+  const v4 = g.createVertex({ 'what': -3 });
 
-  g.createVertex(v1);
-  g.createVertex(v2);
-  g.createVertex(v3);
-  g.createVertex(v4);
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
   g.createEdge(v3, v1, { weight: 33, label: 'edge' });

@@ -87,7 +87,7 @@ class GVertex extends Vertex {
   }
 
   addEdge(edge) {
-    if ((!(edge instanceof Edge)) || !this.labelEquals(edge.source.label)) {
+    if ((!(edge instanceof Edge)) || this.id !== edge.source.id) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
     }
     return replaceEdgeTo(this.#adjacencyMap, edge.destination, edge);
@@ -103,7 +103,7 @@ class GVertex extends Vertex {
   }
 
   removeEdge(edge) {
-    if (!(edge instanceof Edge) || !this.labelEquals(edge.source.label)) {
+    if (!(edge instanceof Edge) || this.id !== edge.source.id) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
     }
     return replaceEdgeTo(this.#adjacencyMap, edge.destination);
@@ -232,18 +232,17 @@ class Graph {
   }
 
   createVertex(label, { weight } = {}) {
-    let vcs = _vertices.get(this);
-
-    if (this.hasVertex(label)) {
+    if (this.hasVertex(Vertex.idFromLabel(label))) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     }
 
     let v = new GVertex(label, { weight: weight });
 
+    let vcs = _vertices.get(this);
     vcs.set(v.id, v);
     _vertices.set(this, vcs);
 
-    return v;
+    return v.id;
   }
 
   addVertex(vertex) {
@@ -252,7 +251,7 @@ class Graph {
     }
     let vcs = _vertices.get(this);
 
-    if (this.hasVertex(vertex.label)) {
+    if (this.hasVertex(vertex.id)) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', vertex));
     }
 
@@ -260,7 +259,7 @@ class Graph {
     vcs.set(vertex.id, v);
     _vertices.set(this, vcs);
 
-    return v;
+    return v.id;
   }
 
   hasVertex(vertex) {
@@ -298,7 +297,7 @@ class Graph {
 
     let u = getGraphVertex(this, source);
     let v = getGraphVertex(this, destination);
-    return u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label });
+    return u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label }).id;
   }
 
   addEdge(edge) {
@@ -315,15 +314,17 @@ class Graph {
 
     let u = getGraphVertex(this, edge.source);
     let v = getGraphVertex(this, edge.destination);
-    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label }).id;
   }
 
+  /**
+   *
+   * @param {Edge|string} edge Either a string with the edge's id, or an instance of Edge
+   */
   hasEdge(edge) {
-    if (!edge instanceof Edge) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.hasEdge', edge));
-    }
-    let es = this.edges;
-    return es.some(e => e.equals(edge));
+    edge = edgeId(edge);
+
+    return this.edges.some(e => e.id === edge);
   }
 
   hasEdgeBetween(source, destination) {
@@ -331,16 +332,37 @@ class Graph {
     return isDefined(e) && (e instanceof Edge);
   }
 
-  getEdge(source, destination) {
+  getEdgeBetween(source, destination) {
     let e = getGraphEdge(this, source, destination);
     return isDefined(e) ? e.clone() : undefined;
   }
 
+  getEdge(edge) {
+    edge = edgeId(edge);
+
+    for (const e of this.edges) {
+      if (e.id === edge) {
+        return e.clone();
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Shortcut to avoid edge cloning
+   * @param {*} sourceLabel
+   * @param {*} destinationLabel
+   */
   getEdgeWeight(sourceLabel, destinationLabel) {
     let e = getGraphEdge(this, sourceLabel, destinationLabel);
     return isDefined(e) ? e.weight : undefined;
   }
 
+  /**
+   * Shortcut to avoid edge cloning
+   * @param {*} sourceLabel
+   * @param {*} destinationLabel
+   */
   getEdgeLabel(sourceLabel, destinationLabel) {
     let e = getGraphEdge(this, sourceLabel, destinationLabel);
     return isDefined(e) ? e.label : undefined;
@@ -381,10 +403,12 @@ export class UndirectedGraph extends Graph {
     }
 
     let g = new UndirectedGraph();
+    let vertexIDs = [];
     const r = range(1, n + 1);
-    r.forEach(i => g.createVertex(i));
-    r.forEach(i => range(i + 1, n + 1).forEach(j => {
-      g.createEdge(i, j);
+    r.forEach(i => vertexIDs[i] = g.createVertex(i));
+    r.forEach(i =>
+      range(i + 1, n + 1).forEach(j => {
+        g.createEdge(vertexIDs[i], vertexIDs[j]);
     }));
 
     return g;
@@ -400,13 +424,14 @@ export class UndirectedGraph extends Graph {
     }
 
     let g = new UndirectedGraph();
+    let vertexIDs = [];
     const r1 = range(1, n + 1);
     const r2 = range(n + 1, n + m + 1);
-    r1.forEach(i => g.createVertex(i));
-    r2.forEach(j => g.createVertex(j));
+    r1.forEach(i => vertexIDs[i] = g.createVertex(i));
+    r2.forEach(j => vertexIDs[j] = g.createVertex(j));
 
     r1.forEach(i => r2.forEach(j => {
-      g.createEdge(i, j);
+      g.createEdge(vertexIDs[i], vertexIDs[j]);
     }));
 
     return g;
@@ -426,7 +451,8 @@ export class UndirectedGraph extends Graph {
    * @param {*} param2
    */
   createEdge(source, destination, { weight, label } = {}) {
-    let e = super.createEdge(source, destination, { weight: weight, label: label });
+    const eId = super.createEdge(source, destination, { weight: weight, label: label });
+    const e = super.getEdge(eId);
 
     // Add an each for each direction, unless it's a loop
     if (!e.isLoop()) {
@@ -484,15 +510,10 @@ export class UndirectedGraph extends Graph {
  * @param {GVertex|any} vertex
  */
 function getGraphVertex(graph, vertex) {
-  let label;
-  if (vertex instanceof Vertex) {
-    label = vertex.id;
-  } else {
-    label = Vertex.serializeLabel(vertex);
-  }
+  let id = vertexId(vertex);
 
   let vcs = _vertices.get(graph);
-  return vcs.get(label);
+  return vcs.get(id);
 }
 
 /**
@@ -537,5 +558,28 @@ function* getEdges(graph) {
   }
 }
 
+/**
+ * @private
+ * @param {string|Vertex} vertex Either an instance of Vertex, or a vertex' id.
+ */
+function vertexId(vertex) {
+  if (vertex instanceof Vertex) {
+    return vertex.id;
+  } else {
+    return vertex;
+  }
+}
+
+/**
+ * @private
+ * @param {Edge?} edge
+ */
+function edgeId(edge) {
+  if (edge instanceof Edge) {
+    return edge.id;
+  } else {
+    return edge;
+  }
+}
 
 export default Graph;
