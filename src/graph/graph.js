@@ -11,7 +11,7 @@ import { isNumber, range } from '../common/numbers.js';
 
 const _vertices = new WeakMap();
 
-class GVertex extends Vertex {
+class MutableVertex extends Vertex {
   /**
    * @private
    */
@@ -26,7 +26,7 @@ class GVertex extends Vertex {
    * @param {*} label  The vertex's label.
    * @param {number?} weight  The weight associated to the vertex (by default, 1).
    * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
-   * @return {GVertex}  The Vertex created.
+   * @return {MutableVertex}  The Vertex created.
    * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, weight is not
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
@@ -73,11 +73,11 @@ class GVertex extends Vertex {
 
   /**
    *
-   * @param {GVertex} v
+   * @param {MutableVertex} v
    * @returns {undefined}
    */
   edgeTo(v) {
-    if (!(v instanceof GVertex)) {
+    if (!(v instanceof MutableVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
@@ -94,7 +94,7 @@ class GVertex extends Vertex {
   }
 
   addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
-    if (!(v instanceof GVertex)) {
+    if (!(v instanceof MutableVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
     }
     let edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
@@ -110,7 +110,7 @@ class GVertex extends Vertex {
   }
 
   removeEdgeTo(v) {
-    if (!(v instanceof GVertex)) {
+    if (!(v instanceof MutableVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
     }
     return replaceEdgeTo(this.#adjacencyMap, v);
@@ -120,7 +120,7 @@ class GVertex extends Vertex {
    * @override
    */
   clone() {
-    return new GVertex(this.label, { weight: this.weight });
+    return new MutableVertex(this.label, { weight: this.weight });
   }
 
   /**
@@ -200,7 +200,7 @@ class Graph {
    */
   static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
-    vertices.forEach(v => g.addVertex(GVertex.fromJsonObject(v)));
+    vertices.forEach(v => g.addVertex(MutableVertex.fromJsonObject(v)));
     edges.forEach(e => g.addEdge(Edge.fromJsonObject(e)));
     return g;
   }
@@ -213,11 +213,11 @@ class Graph {
    *
    */
   get vertices() {
-    return [...getVertices(this)].map(v => v.clone());
+    return [...getVertices(this)];
   }
 
   get edges() {
-    return [...getEdges(this)].map(e => e.clone());
+    return [...getEdges(this)];
   }
 
   /**
@@ -236,7 +236,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     }
 
-    let v = new GVertex(label, { weight: weight });
+    let v = new MutableVertex(label, { weight: weight });
 
     let vcs = _vertices.get(this);
     vcs.set(v.id, v);
@@ -255,7 +255,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', vertex));
     }
 
-    const v = new GVertex(vertex.label, { weight: vertex.weight });
+    const v = new MutableVertex(vertex.label, { weight: vertex.weight });
     vcs.set(vertex.id, v);
     _vertices.set(this, vcs);
 
@@ -264,12 +264,11 @@ class Graph {
 
   hasVertex(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) && (v instanceof GVertex);
+    return isDefined(v) && (v instanceof MutableVertex);
   }
 
   getVertex(vertex) {
-    let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? v.clone() : undefined;
+    return getGraphVertex(this, vertex);
   }
 
   getVertexWeight(vertex) {
@@ -333,8 +332,7 @@ class Graph {
   }
 
   getEdgeBetween(source, destination) {
-    let e = getGraphEdge(this, source, destination);
-    return isDefined(e) ? e.clone() : undefined;
+    return getGraphEdge(this, source, destination);
   }
 
   getEdge(edge) {
@@ -342,7 +340,7 @@ class Graph {
 
     for (const e of this.edges) {
       if (e.id === edge) {
-        return e.clone();
+        return e;
       }
     }
     return undefined;
@@ -507,7 +505,7 @@ export class UndirectedGraph extends Graph {
  * This method should not be exposed because clients shouldn't be able to directly manipulate vertices.
  *
  * @param {Graph} graph
- * @param {GVertex|any} vertex
+ * @param {MutableVertex|any} vertex
  */
 function getGraphVertex(graph, vertex) {
   let id = vertexId(vertex);

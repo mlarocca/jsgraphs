@@ -25,8 +25,8 @@ describe('EmbeddedVertex API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let embeddedVertex = new EmbeddedVertex("test", new Point2D(1, 2));
-    let methods = ['constructor', 'toJsonObject', 'toString', 'toSvg', 'clone'];
-    let attributes = ['position', 'radius'];
+    let methods = ['constructor', 'radius', 'toJsonObject', 'toString', 'toSvg', 'clone'];
+    let attributes = ['position'];
     testAPI(embeddedVertex, attributes, methods);
   });
 });
@@ -96,36 +96,6 @@ describe('EmbeddedVertex Creation', () => {
         (() => new EmbeddedVertex(1, point, { weight: '-1.5e7' })).should.not.throw();
       });
     });
-
-    describe('# 4th argument (optional)', () => {
-      it('should default to DEFAULT_VERTEX_RADIUS', () => {
-        new EmbeddedVertex(2, point).radius.should.eql(EmbeddedVertex.DEFAULT_VERTEX_RADIUS);
-      });
-
-      it('should throw when vertexRadius is not (parsable to) a number', () => {
-        (() => new EmbeddedVertex(1, point, { vertexRadius: null })).should.throw(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', null));
-        (() => new EmbeddedVertex('1', point, { vertexRadius: 'a' })).should.throw(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', 'a'));
-        (() => new EmbeddedVertex([1, 2, 3], point, { vertexRadius: new Map() })).should.throw(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', new Map()));
-      });
-
-      it('should throw when vertexRadius is not positive', () => {
-        (() => new EmbeddedVertex(1, point, { vertexRadius: 0 })).should.throw(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', 0));
-        (() => new EmbeddedVertex('1', point, { vertexRadius: -1 })).should.throw(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', -1));
-      });
-
-
-      it('should NOT throw with numbers and numeric strings', () => {
-        (() => new EmbeddedVertex(1, point, { vertexRadius: 1 })).should.not.throw();
-        (() => new EmbeddedVertex(1, point, { vertexRadius: 3.14 })).should.not.throw();
-        (() => new EmbeddedVertex(1, point, { vertexRadius: '3.14' })).should.not.throw();
-        (() => new EmbeddedVertex(1, point, { vertexRadius: '1.5e7' })).should.not.throw();
-      });
-
-      it('should set vertex\' radius correctly', () => {
-        new EmbeddedVertex(1, point, { vertexRadius: 3.14 }).radius.should.eql(3.14);
-        new EmbeddedVertex(1, point, { vertexRadius: '12' }).radius.should.eql(12);
-      });
-    });
   });
 });
 
@@ -150,7 +120,7 @@ describe('Attributes', () => {
 
 describe('Methods', () => {
   describe('toJson()', () => {
-    const v = new EmbeddedVertex('test', new Point2D(2, 0), { weight: 1.5, vertexRadius: 10 });
+    const v = new EmbeddedVertex('test', new Point2D(2, 0), { weight: 1.5 });
 
     it('# should return a valid json', () => {
       JSON.parse(v.toJson()).should.not.throw();
@@ -164,7 +134,7 @@ describe('Methods', () => {
   });
 
   describe('fromJson()', () => {
-    const v = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
+    const v = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.50 });
     it('# applyed to the result of toJson, it should match source vertex', () => {
       const u = EmbeddedVertex.fromJson(v.toJson());
       u.equals(v).should.be.true();

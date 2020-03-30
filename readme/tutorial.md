@@ -60,7 +60,7 @@ graph.addVertex(u);
 // graph.addVertex(new Vertex('u)) // ERROR, duplicated vertex 'u'
 ```
 
-There is also a shortcut to create those vertices directly on the graph, without first creating them as a separate variable; besides being shorter, this way is also more efficient, because vertices (and edges) _added_ to a graph are actually cloned.
+There is also a shortcut to create those vertices directly on the graph, without first creating them as a separate variable; besides being shorter, this way is also more efficient, because vertices (and edges) _added_ to a graph are actually cloned beforehand (meaning that, in the example above, a clone of `v` and `u` is actually added to `graph`).
 
 ```javascript
 let graph = new Graph();
@@ -82,7 +82,7 @@ console.log(u1.equals(u2));     // false
 console.log(u1.id === u2.id);   // true
 ```
 
-You might want to hold to the id of a vertex, because you will need it to retrieve (a copy of) the actual vertex from the graph, and even to create a new edge (as we'll see in the next section).
+You might want to hold to the id of a vertex, because you will need it to retrieve a reference to the actual vertex from the graph, and even to create a new edge (as we'll see in the next section).
 
 ```javascript
 const u = graph.getVertex(uId);
@@ -97,7 +97,15 @@ graph.getVertex(uId);
 graph.getVertex(graph.getVertex(uId));
 ```
 
-both work and return vertex `u` (although only one does it efficiently!).
+both work and return a reference to vertex `u` (although only one does it efficiently!).
+
+Once you get ahold of a reference to a graph's vertex, you can read all its fields, but you can only update its weight.
+
+
+>  Although having vertices as perfectly immutable entities would have been desirable, this would have had repercussions on the performance of the graph, because updating a vertex `v`'s weight would have meant replacing `v` in the graph with a new instance of `Vertex`, and also updating all the references to `v` in (potentially, up to ) all the edges in the graph.
+As a compromise, a vertex' label and id are kept immutable and impossible to change, while weight is mutable. Similar compromises will be made for embedded vertices and edges.
+Switching to `TypeScript`, or whenever a future `EcmaScript` specification will include protected fields, would allow for more flexibility and possibly this aspect will be reviewed. For now, changing the mutable attributes of a graph's vertices and edges directly is **discouraged**: the **forward-compatible** way is going to be changing them through the `Graph` and `Embedding`'s methods.
+
 
 ## Edges
 

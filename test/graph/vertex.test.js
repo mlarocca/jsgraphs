@@ -178,11 +178,9 @@ describe('Methods', () => {
       v.label.should.eql(w.label);
       v.weight.should.eql(w.weight);
       v.equals(w).should.be.true();
-      v.label['test'] = 2;
-      v.label['new'] = 3;
-
-      v.label.should.not.eql(w.label);
-      v.equals(w).should.not.be.true();
+      v.weight = 2;
+      v.label.should.eql(w.label);
+      v.equals(w).should.be.not.true();
     });
   });
 
