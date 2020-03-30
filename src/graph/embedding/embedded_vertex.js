@@ -3,21 +3,15 @@ import Vertex from '../vertex.js';
 import Point2D from '../../geometric/point2d.js';
 
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.js';
-import { isNumber, toNumber } from '../../common/numbers.js';
 
 class EmbeddedVertex extends Vertex {
 
   static DEFAULT_VERTEX_RADIUS = 15;
 
   /**
-   * @private
+   * @protected
    */
-  #center;
-
-  /**
-   * @private
-   */
-  #radius;
+  _center;
 
   /**
    * @static
@@ -33,34 +27,31 @@ class EmbeddedVertex extends Vertex {
     return new EmbeddedVertex(label, Point2D.fromJson(position), { weight: weight });
   }
 
-  constructor(label, vertexPosition, { weight, vertexRadius = EmbeddedVertex.DEFAULT_VERTEX_RADIUS } = {}) {
+  constructor(label, vertexPosition, { weight } = {}) {
     super(label, { weight: weight });
     if (!(vertexPosition instanceof Point2D) || vertexPosition.dimensionality < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexPosition', vertexPosition));
     }
 
-    const radius = toNumber(vertexRadius);
-    if (!isNumber(radius) || radius <= 0 ) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexRadius', vertexRadius));
-    }
-
-    this.#center = vertexPosition.clone();
-    this.#radius = toNumber(radius);
+    this._center = vertexPosition.clone();
   }
 
   get position() {
-    return this.#center.clone();
+    return this._center.clone();
   }
 
+  /**
+   * @param {Point2D} center
+   */
   set position(center) {
     if (!(center instanceof Point2D)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.setPosition', 'center', center));
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex.setPosition', 'center', center));
     }
-    this.#center = center.clone();
+    this._center = center.clone();
   }
 
-  get radius() {
-    return this.#radius * this.weight;
+  radius() {
+    return EmbeddedVertex.DEFAULT_VERTEX_RADIUS * this.weight;
   }
 
   clone() {
@@ -71,7 +62,7 @@ class EmbeddedVertex extends Vertex {
     return {
       label: this.label,
       weight: this.weight,
-      position: this.position.toJson()
+      position: this._center.toJson()
     };
   }
 
@@ -83,7 +74,7 @@ class EmbeddedVertex extends Vertex {
     let [x, y] = this.position.coordinates();
     return `
     <g class="vertex ${cssClasses.join(' ')}" transform="translate(${x},${y})">
-      <circle cx="0" cy="0" r="${this.radius}" />
+      <circle cx="0" cy="0" r="${this.radius()}" />
       <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.label}</text>
     </g>`;
   }

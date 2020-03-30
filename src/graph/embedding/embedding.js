@@ -156,6 +156,7 @@ class Embedding {
       if (!(v instanceof EmbeddedVertex)) {
         throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'vertices', vertices));
       }
+
       this.#vertices.set(v.id, v.clone());
     }
 

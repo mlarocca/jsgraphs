@@ -379,8 +379,8 @@ describe('Methods', () => {
 
     it('# changing the cloned instance should not affect the original', () => {
       const e1 = new Edge(
-        new Vertex([1, 2, { 3: '3' }]),
-        new Vertex({ 'a': [true, { false: 3.0 }] }),
+        new Vertex([1, 2, { 3: '3' }], { weight: -1 }),
+        new Vertex({ 'a': [true, { false: 3.0 }] }, { weight: 2 }),
         {
           label: choose(labels), weight: Math.random()
         });
@@ -391,16 +391,16 @@ describe('Methods', () => {
       e1.equals(e3).should.be.true();
       e3.equals(e2).should.be.true();
 
-      e2.source.label[2][1] = 'new';
+      e2.source.weight = 3.14;
       e1.equals(e2).should.be.false();
-      e1.source.label.should.eql([1, 2, { 3: '3' }]);
-      e2.source.label.should.eql([1, 2, { 3: '3', 1: 'new' }]);
       e1.equals(e3).should.be.true();
+      e1.source.weight.should.not.eql(e2.source.weight);
+      e1.source.weight.should.eql(e3.source.weight);
 
-      e3.destination.label['a'] = 'changed';
+      e3.destination.weight = 0.01;
       e1.equals(e3).should.be.false();
-      e1.destination.label.should.eql({ 'a': [true, { false: 3.0 }] });
-      e3.destination.label.should.eql({ 'a': 'changed' });
+      e2.equals(e3).should.be.false();
+      e2.destination.weight.should.not.eql(e3.destination.weight);
     });
   });
 

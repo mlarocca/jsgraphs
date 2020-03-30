@@ -88,7 +88,10 @@ class EmbeddedEdge extends Edge {
   }
 
   set arcControlDistance(arcControlDistance) {
-    this.#arcControlDistance = arcControlDistance;
+    if (!isNumber(arcControlDistance)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge.arcControlDistance=', 'arcControlDistance', arcControlDistance));
+    }
+    this.#arcControlDistance = toNumber(arcControlDistance);
   }
 
   isDirected() {
@@ -159,8 +162,8 @@ function rectilinearEdgeSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x1, y1] = edge.source.position.coordinates();
   const [x2, y2] = edge.destination.position.coordinates();
 
-  const srcVertexRadius = edge.source.radius;
-  const destVertexRadius = edge.destination.radius;
+  const srcVertexRadius = edge.source.radius();
+  const destVertexRadius = edge.destination.radius();
 
   const alpha = Math.atan2(x2 - x1, y2 - y1);
   const [dx2, dy2] = [destVertexRadius * Math.sin(alpha), destVertexRadius * Math.cos(alpha)];
@@ -191,8 +194,8 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDis
   const [x1, y1] = edge.source.position.coordinates();
   const [x2, y2] = edge.destination.position.coordinates();
 
-  const srcVertexRadius = edge.source.radius;
-  const destVertexRadius = edge.destination.radius;
+  const srcVertexRadius = edge.source.radius();
+  const destVertexRadius = edge.destination.radius();
 
   const alpha = Math.atan2(x2 - x1, y2 - y1);
   const [dx1, dy1] = [srcVertexRadius * Math.sin(alpha), srcVertexRadius * Math.cos(alpha)];
@@ -231,13 +234,13 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDis
 function loopSvg(edge, cssClasses, displayLabel, displayWeight) {
   const [x, y] = edge.source.position.coordinates();
   const arcRadius = Math.round(Math.sqrt(edge.source.weight) * edge.arcControlDistance);
-  const delta = edge.source.radius * Math.cos(Math.PI / 4);
+  const delta = edge.source.radius() * Math.cos(Math.PI / 4);
   const [x2, y2] = [delta, -delta];
   const [tx, ty] = [delta + arcRadius, -delta - arcRadius];
 
   return `
   <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
-    <path d="M ${0} ${Math.round(-edge.source.radius)} A ${arcRadius} ${arcRadius}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
+    <path d="M ${0} ${Math.round(-edge.source.radius())} A ${arcRadius} ${arcRadius}, 0, 1, 1, ${Math.round(x2)} ${Math.round(y2)}"
      marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
      ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
     </g>`;

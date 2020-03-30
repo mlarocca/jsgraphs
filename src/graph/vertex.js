@@ -74,7 +74,7 @@ class Vertex {
   }
 
   get label() {
-    return this.#label;
+    return deepClone(this.#label);
   }
 
   get id() {
@@ -83,6 +83,13 @@ class Vertex {
 
   get weight() {
     return this.#weight;
+  }
+
+  set weight(weight) {
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.weight=', 'weight', weight));
+    }
+    return this.#weight = toNumber(weight);
   }
 
   toJson() {
