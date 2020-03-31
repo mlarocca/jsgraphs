@@ -11,7 +11,7 @@ A graph is a data structure that allow modeling interconnected data, where heter
 In _JsGraphs_, creating a graph is quite simple:
 
 ```javascript
-import Graph from '/src/graph/graph.js';
+import Graph from '/src/graph/graph.mjs';
 
 let graph = new Graph();
 ```
@@ -23,7 +23,7 @@ The instance variable graph now has been created, without any vertex or edge. Of
 Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of any graph, in turn modeling the entities (data) part of a graph.
 
 ```javascript
-import Vertex from '/src/graph/vertex.js';
+import Vertex from '/src/graph/vertex.mjs';
 
 const v = new Vertex('vertex label', {weight: 3});
 const u = new Vertex('u');
