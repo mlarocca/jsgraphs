@@ -2,7 +2,7 @@
 In complete graphs, every vertex is connected to every other vertex by an edge.
 
 ```javascript
-import Embedding from '/src/graph/embedding/embedding.js';
+import Embedding from '/src/graph/embedding/embedding.mjs';
 
 Embedding.completeGraph(10, 400)
   .toSvg(400, 400, {
@@ -22,8 +22,8 @@ Embedding.completeGraph(10, 400)
 In bipartite-complete graphs, there are two sets of vertices, set A and set B, and every vertex in A is connected to every in B by an edge.
 
 ```javascript
-import Embedding from '/src/graph/embedding/embedding.js';
-import { range } from '/src/common/numbers.js';
+import Embedding from '/src/graph/embedding/embedding.mjs';
+import { range } from '/src/common/numbers.mjs';
 
 let vClasses = {};
 range(1, 7).forEach(i => vClasses[`${i}`] = ['left']);
@@ -35,7 +35,7 @@ Embedding.completeBipartiteGraph(6, 4, 400)
     verticesCss: vClasses,
     displayEdgesWeight: false,
     displayEdgesLabel: false
-  }));
+  });
 ```
 
 ![Bipartite Complete Graph](./img/bipartite_complete.jpg)
@@ -45,8 +45,8 @@ Embedding.completeBipartiteGraph(6, 4, 400)
 A DAG (Directed Acyclic Graph) is a kind of graph often used to model structured information, for instance for compilers, spreadsheets and electronic circuits design,  or inter-dependent events, like in Bayesian newtworks.
 
 ```javascript
-import Embedding from '/src/graph/embedding/embedding.js';
-import Graph from '/src/graph/graph.js';
+import Embedding from '/src/graph/embedding/embedding.mjs';
+import Graph from '/src/graph/graph.mjs';
 
 let graph = new Graph();
 graph.createVertex('Start', { weight: 2 });
@@ -107,8 +107,8 @@ Every **reg**ular **ex**pression can be translated to an _FSA_ (**F**inite **S**
 This example shows a regular expression for email validation: note that it intentionally uses a simpler regex than the most generic one, accepting only  a subset of all valid emails.
 
 ```javascript
-import Embedding from '/src/graph/embedding/embedding.js';
-import Graph from '/src/graph/graph.js';
+import Embedding from '/src/graph/embedding/embedding.mjs';
+import Graph from '/src/graph/graph.mjs';
 
 let graph = new Graph();
 const start = graph.createVertex('Start', { weight: 2 });

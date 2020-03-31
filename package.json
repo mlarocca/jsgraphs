@@ -2,12 +2,12 @@
   "name": "js-graphs",
   "version": "0.1.0",
   "description": "JsGraphs library",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "node --experimental-modules --es-module-specifier-resolution=node",
-    "lint": "jslint --max-warnings 0 --fix --ext .js,.ts src/"
+    "lint": "jslint --max-warnings 0 --fix --ext .js,.ts src/",
+    "bundle": "npx webpack --config webpack.config"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mlarocca/jsgraphs.git"
@@ -19,15 +19,27 @@
   },
   "homepage": "https://github.com/mlarocca/jsgraphs#readme",
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "babel-loader": "^8.1.0",
     "chai": "^4.2.0",
     "jshint": "^2.11.0",
     "mjs-mocha": "^3.0.0",
     "mocha": "7.0.0",
-    "should": "^13.2.3"
+    "should": "^13.2.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "@std/esm": "^0.26.0",
     "esm": "^3.2.25",
     "rfdc": "^1.1.4"
-  }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "keywords": []
 }
