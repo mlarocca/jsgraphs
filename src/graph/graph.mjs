@@ -276,6 +276,18 @@ class Graph {
     return isDefined(v) ? v.weight : undefined;
   }
 
+  setVertexWeight(vertex, weight) {
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', weight));
+    }
+    let v = getGraphVertex(this, vertex);
+    if (isDefined(v)) {
+      v.weight = weight;
+    } else {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', vertex));
+    }
+  }
+
   /**
    * For a regular graph, returns the size of the adjacency vector for this vertex (as to each destination,
    * at most one edge is allowed).

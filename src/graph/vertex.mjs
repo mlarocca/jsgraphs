@@ -24,11 +24,6 @@ class Vertex {
    */
   #weight;
 
-  /**
-   * @private
-   */
-  #adjacencyMap;
-
   static isSerializable(label) {
     return isJsonStringifiable(label);
   }
@@ -129,6 +124,5 @@ class Vertex {
     return new Vertex(this.label, { weight: this.weight });
   }
 }
-
 
 export default Vertex;

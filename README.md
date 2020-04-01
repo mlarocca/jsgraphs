@@ -27,6 +27,14 @@ For instance
 npm t test/geometric/test_point.js
 ```
 
+## Bundle
+
+To bundle the library, I used [Webpack](https://webpack.js.org) - but you can use whatever you like.
+
+A word of caution, though: the combination of ECMAScript modules and advanced features (ES2019) makes configuration non-trivial.
+
+Check out how to configure babel plugins in [webpack.config.js](./webpack.config.js).
+
 # Tutorial
 
 To learn by example what you can do with _JsGraphs_ and how to do it, check out this [tutorial](./readme/tutorial.md)
