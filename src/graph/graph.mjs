@@ -8,6 +8,7 @@ import { isDefined, isUndefined } from '../common/basic.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.mjs';
 import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
+import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
 
 const _vertices = new WeakMap();
 
@@ -205,6 +206,48 @@ class Graph {
     return g;
   }
 
+  static completeGraph(n) {
+    if (!isNumber(n) || n < 2) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeGraph', 'n', n));
+    }
+
+    let g = new Graph();
+    let vertexIDs = [];
+    const r = range(1, n + 1);
+    r.forEach(i => vertexIDs[i] = g.createVertex(i));
+    r.forEach(i =>
+      range(i + 1, n + 1).forEach(j => {
+        g.createEdge(vertexIDs[i], vertexIDs[j]);
+        g.createEdge(vertexIDs[j], vertexIDs[i]);
+    }));
+
+    return g;
+  }
+
+  static completeBipartiteGraph(n, m) {
+    if (!isNumber(n) || n < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'n', n));
+    }
+
+    if (!isNumber(m) || m < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'm', m));
+    }
+
+    let g = new Graph();
+    let vertexIDs = [];
+    const r1 = range(1, n + 1);
+    const r2 = range(n + 1, n + m + 1);
+    r1.forEach(i => vertexIDs[i] = g.createVertex(i));
+    r2.forEach(j => vertexIDs[j] = g.createVertex(j));
+
+    r1.forEach(i => r2.forEach(j => {
+      g.createEdge(vertexIDs[i], vertexIDs[j]);
+      g.createEdge(vertexIDs[j], vertexIDs[i]);
+    }));
+
+    return g;
+  }
+
   constructor() {
     _vertices.set(this, new Map());
   }
@@ -271,6 +314,16 @@ class Graph {
     return getGraphVertex(this, vertex);
   }
 
+  /**
+   * For a regular graph, returns the size of the adjacency vector for this vertex (as to each destination,
+   * at most one edge is allowed).
+   * @returns {*}
+   */
+  getVertexOutDegree(vertex) {
+    let v = getGraphVertex(this, vertex);
+    return isDefined(v) ? vertex.outDegree() : undefined;
+  }
+
   getVertexWeight(vertex) {
     let v = getGraphVertex(this, vertex);
     return isDefined(v) ? v.weight : undefined;
@@ -286,16 +339,6 @@ class Graph {
     } else {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', vertex));
     }
-  }
-
-  /**
-   * For a regular graph, returns the size of the adjacency vector for this vertex (as to each destination,
-   * at most one edge is allowed).
-   * @returns {*}
-   */
-  getVertexOutDegree(vertex) {
-    let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? vertex.outDegree() : undefined;
   }
 
   createEdge(source, destination, { weight, label } = {}) {
@@ -358,6 +401,18 @@ class Graph {
     return undefined;
   }
 
+  setEdgeWeight(edge, weight) {
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
+    }
+    let e = getEdge(this, edge);
+    if (isDefined(e)) {
+      e.weight = weight;
+    } else {
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.setEdgeWeight', edge));
+    }
+  }
+
   /**
    * Shortcut to avoid edge cloning
    * @param {*} sourceLabel
@@ -409,7 +464,7 @@ class Graph {
 export class UndirectedGraph extends Graph {
   static completeGraph(n) {
     if (!isNumber(n) || n < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeGraph', 'n', n));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeGraph', 'n', n));
     }
 
     let g = new UndirectedGraph();
@@ -426,11 +481,11 @@ export class UndirectedGraph extends Graph {
 
   static completeBipartiteGraph(n, m) {
     if (!isNumber(n) || n < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'n', n));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeBipartiteGraph', 'n', n));
     }
 
     if (!isNumber(m) || m < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'm', m));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeBipartiteGraph', 'm', m));
     }
 
     let g = new UndirectedGraph();
