@@ -80,6 +80,10 @@ class Edge {
     this.#label = label;
   }
 
+  get id() {
+    return `[${this.source.id}][${this.destination.id}]`;
+  }
+
   get source() {
     return this.#source;
   }
@@ -88,16 +92,19 @@ class Edge {
     return this.#destination;
   }
 
-  get weight() {
-    return this.#weight;
-  }
-
   get label() {
     return this.#label;
   }
 
-  get id() {
-    return `[${this.source.id}][${this.destination.id}]`;
+  get weight() {
+    return this.#weight;
+  }
+
+  set weight(weight) {
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge.weight=', 'weight', weight));
+    }
+    this.#weight = toNumber(weight);
   }
 
   hasNegativeWeight() {

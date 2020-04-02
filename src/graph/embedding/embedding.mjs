@@ -76,7 +76,7 @@ class Embedding {
     return new Embedding(vertices.values(), edges.values());
   }
 
-  static completeGraph(n, canvasSize) {
+  static completeGraph(n, canvasSize, directed = false) {
     if (!isNumber(n) || n < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeGraph', 'n', n));
     }
@@ -88,7 +88,7 @@ class Embedding {
     // Make all these arguments are parsed as numbers
     [n, canvasSize] = [n, canvasSize].map(toNumber);
 
-    const g = UndirectedGraph.completeGraph(n);
+    const g = directed ? Graph.completeGraph(n) : UndirectedGraph.completeGraph(n);
 
     let coordinates = {};
     for (const v of g.vertices) {
@@ -101,7 +101,7 @@ class Embedding {
     return Embedding.forGraph(g, { coordinates: coordinates });
   }
 
-  static completeBipartiteGraph(n, m, canvasSize) {
+  static completeBipartiteGraph(n, m, canvasSize, directed = false) {
     if (!isNumber(n) || n < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'n', n));
     }
@@ -117,7 +117,7 @@ class Embedding {
     // Make all these arguments are parsed as numbers
     [n, m, canvasSize] = [n, m, canvasSize].map(toNumber);
 
-    const g = UndirectedGraph.completeBipartiteGraph(n, m);
+    const g = directed ? Graph.completeBipartiteGraph(n, m) : UndirectedGraph.completeBipartiteGraph(n, m);
 
     const deltaN = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (n - 1);
     const deltaM = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (m - 1);
