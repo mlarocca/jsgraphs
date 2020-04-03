@@ -1,10 +1,10 @@
-# JSGraphs Tutorial
+# **JsGraphs Tutorial**
 
 There are two main entities that can be created in this library: graphs (class [_Graph_](../src/graph/graph.js)) and embeddings ([_Embedding_](../src/graph/embedding/embedding.js)).
 
 The former focuses on modeling data and transforming it through algorithms, the latter is used to represent graphs on display (or paper!).
 
-# Graph
+# **Graph**
 
 A graph is a data structure that allow modeling interconnected data, where heterogeneous entities (the graph's vertices) can be in relation among them; these relations are modeled by graph's edges.
 
@@ -18,9 +18,11 @@ let graph = new Graph();
 
 The instance variable graph now has been created, without any vertex or edge. Of course, these entities are also modeled in the library:
 
-## Vertices
+## **Vertices**
 
 Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of any graph, in turn modeling the entities (data) part of a graph.
+
+### **Create a Vertex**
 
 ```javascript
 import Vertex from '/src/graph/vertex.mjs';
@@ -33,19 +35,19 @@ Vertices in _JsGraphs_ are immutable, hence `u` and `v` above are real consts. O
 
 A vertex's label doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson` method.
 
-It is possible to use the `static` method `Vertex.isSerializable` to check if a value is a valid label:
+It is possible to use the `static` method `Vertex.isValidLabel` to check if a value is a valid label:
 
 ```javascript
-Vertex.isSerializable(1);   // true
-Vertex.isSerializable('abc');   // true
-Vertex.isSerializable([1, 2, true, 'a']);   // true
-Vertex.isSerializable({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
-Vertex.isSerializable(new Vertex('test'));   // true, Vertex has a toJson() method
-Vertex.isSerializable(new Graph());   // true!! Graph has a toJson() method
+Vertex.isValidLabel(1);   // true
+Vertex.isValidLabel('abc');   // true
+Vertex.isValidLabel([1, 2, true, 'a']);   // true
+Vertex.isValidLabel({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
+Vertex.isValidLabel(new Vertex('test'));   // true, Vertex has a toJson() method
+Vertex.isValidLabel(new Graph());   // true!! Graph has a toJson() method
 
-Vertex.isSerializable(new Map());   // false
-Vertex.isSerializable(new Set());   // false
-Vertex.isSerializable(() => true));   // false, functions can't be serialized to JSON
+Vertex.isValidLabel(new Map());   // false
+Vertex.isValidLabel(new Set());   // false
+Vertex.isValidLabel(() => true));   // false, functions can't be serialized to JSON
 ```
 
 Existing vertices can be added to graphs: notice that it's NOT possible to add two vertices with the same label to the same graph.
@@ -71,6 +73,7 @@ const vId = graph.createVertex(['I', 'am', 'a', 'valid', 'label'], {weight: 3});
 const uId = graph.createVertex('u');
 // graph.createVertex('u) // ERROR, duplicated vertex 'u'
 ```
+### **Vertex ID**
 
 As you can see in the snippet above, `createVertex` (as well as `addVertex`) returns the ID of the vertex created (NOT a reference to the actual instance held by the graph).
 
@@ -83,6 +86,8 @@ const u2 = new Vertex('u');
 console.log(u1.equals(u2));     // false
 console.log(u1.id === u2.id);   // true
 ```
+
+### **Retrieve a Vertex**
 
 You might want to hold to the id of a vertex, because you will need it to retrieve a reference to the actual vertex from the graph, and even to create a new edge (as we'll see in the next section).
 
@@ -109,7 +114,7 @@ As a compromise, a vertex' label and id are kept immutable and impossible to cha
 Switching to `TypeScript`, or whenever a future `EcmaScript` specification will include protected fields, would allow for more flexibility and possibly this aspect will be reviewed. For now, changing the mutable attributes of a graph's vertices and edges directly is **discouraged**: the **forward-compatible** way is going to be changing them through the `Graph` and `Embedding`'s methods.
 
 
-## Edges
+## **Edges**
 
 The other fundamental entity on which graphs are based are _edges_, implemented in class [`Edge`](../src/graph/edge.js).
 
@@ -129,9 +134,9 @@ Like vertices, Edges are only mutable for what concers their weight: it's the on
 
 And likewise, edges also have an `id` field, that uniquely identify them in a graph: in simple graphs (like the ones implemented in classes `Graph` and `UndirectedGraph`), there can be at most a single edge between two vertices, so an edge's ID is based on the IDs of its source and destination, and can uniquely identify an edge _within a graph_.
 
-Note that two edges detached from any graph, or belonging to two different graphs, could be different while having the same ID (because, for instance, they have a different label or weight), but this is not possible within any individual graph.
+Notice that two edges detached from any graph, or belonging to two different graphs, could be different while having the same ID (because, for instance, they have a different label or weight), but this is not possible within any individual graph.
 
-### Creating Edges
+### **Create an Edge**
 
 You can add an existing edge to a graph with method `addEdge`, or equivalently (and perhaps more easily), you can create the new edge directly through an instance of `graph`:
 
@@ -149,7 +154,7 @@ const e = g.createEdge(u, v, {weight: 0.4, label: "I'm an edge!"});
 
 ![An edge](./img/tutorial_edge_1.jpg)
 
-### Directed vs Undirected
+### **Directed vs Undirected**
 
 While the vertices at the two ends of an edge uniquely determine the edge's ID, it has to be clear that their order matters, at least in directed graphs.
 
@@ -166,7 +171,7 @@ const e2 = g.createEdge(v, u, {weight: 1.4, label: "and forth"});
 
 ![A couple of edges](./img/tutorial_edge_2.jpg)
 
-### Weight Matter
+### **Weight Matters**
 
 While for vertices we saw that weight is something useful in niche situations, it's much more common to set a weight for edges: many graph's algorithms like _Dijkstra's_ or _A*_ make sense only on weighted graphs (while for unweighted graphs, i.e. graphs whose edges have no weights associated, we can likely make do with _BFS_).
 
@@ -182,7 +187,7 @@ g.setEdgeWeight(e, 1.5);
 g.setEdgeWeight(e.id, -3.1);
 ```
 
-### Retrieving an Edge
+### **Retrieving an Edge**
 
 The easiest way to get ahold of a reference to a graph's edge is through its ID:
 
@@ -202,7 +207,7 @@ e = g.getEdgeBetween(u, v.id);
 e = g.getEdgeBetween(u.id, v);
 ```
 
-### Loops
+### **Loops**
 
 Last but not least, so far we have always assumed that source and destination of an edge are distinct: this doesn't necessarily need to be true. In other words, it's possible to have an edge starting from and ending to the same vertex: in this case, the edge is called a loop.
 
@@ -212,7 +217,7 @@ let loop = g.getEdgeBetween(u, u, {label: 'Loop'});
 
 ![An edge and a loop](./img/tutorial_edge_3.jpg)
 
-## Graph
+## **Graph class**
 
 The only thing that still needs to be said about class `Graph` as a data structure is that it implements an undirected graph.
 
@@ -222,15 +227,15 @@ If, instead, we don't care about that, and edges can be traveled in both directi
 
 Let's explore the difference with a couple of examples.
 
-### Generators
+### **Generators**
 
 Both classes offers generators to simplify the creation of some of the most common classes of graphs; in the following sections, we'll explore the available ones, and lay out the roadmap to implement more of these.
 
-### Complete Graphs
+### **Complete Graphs**
 
 In a complete graph, each vertex is connected by an edge to each other vertex in the graph; in these graphs, the number of edges is maximal for simple graphs, quadratic with respect to the number of vertices.
 
-> Note that a complete graph doesn't contain loops.
+> Notice that a complete graph doesn't contain loops.
 
 Creating complete graphs is easy, you just need to pass the number of vertices that the graph will hold:
 
@@ -244,11 +249,11 @@ let ug = UndirectedGraph.completeGraph(12);
 Of course, the labels for the vertices are standard, just the numbers between 1 and n.
 The representation of such graphs is cool for both directed and undirected ones:
 
-![A complete directed Graph](./img/tutorial_graph_complete_1.JPG)![A complete undirected Graph](./img/tutorial_graph_complete_2.JPG)
+![A complete directed Graph](./img/tutorial_graph_complete_1.jpg)![A complete undirected Graph](./img/tutorial_graph_complete_2.jpg)
 
 > We'll discuss how to get these drawings later, in the section about embeddings.
 
-### Bipartite Complete Graphs
+### **Bipartite Complete Graphs**
 
 In a bipartite graph vertices can be partitioned in two groups, such that vertices in each group are only connected with vertices in the other group (in other words, each vertex in group A can't have any edge to another vertex within group A, and likewise for the other group).
 
@@ -259,9 +264,9 @@ let g = Graph.completeBipartiteGraph(4, 6);   // Just pass the sizes of the two 
 let ug = UndirectedGraph.completeBipartiteGraph(7, 3);
 ```
 
-![A complete bipartite directed Graph](./img/tutorial_graph_complete_bipartite_1.JPG)![A complete bipartite undirected Graph](./img/tutorial_graph_complete_bipartite_2.JPG)
+![A complete bipartite directed Graph](./img/tutorial_graph_complete_bipartite_1.jpg)![A complete bipartite undirected Graph](./img/tutorial_graph_complete_bipartite_2.jpg)
 
-### Generators: TODO
+### **Generators: TODO**
 
 - [x] Complete Graphs
 - [x] Bipartite Complete Graphs
@@ -269,7 +274,23 @@ let ug = UndirectedGraph.completeBipartiteGraph(7, 3);
 - [ ] Triangular Mesh
 - [ ] Random Graph
 
-## Graph Algorithms
+### **Serialization**
+
+Well, turns out there is another important thing to mention: _serialization_. All the entities in _JsGraphs_ are serializable to _JSON_, and can be created back from a _JSON_ file.
+
+```javascript
+let g = new Graph();
+// ...
+const json = g.toJson();
+let g1 = Graph.fromJSON(json);
+```
+This is an important property (and the reason why we restricted the type of valid labels), because it allows you to create a graph in any other platform/language, possibly run algorithms or transformations on it, and then export it to a _JSON_ file, pick it up in you web app with _JsGraphs_, and display it.
+
+Or, vice versa, create it in JS (perhaps with an ad-hoc tool: stay tuned!), and then import it in your application written in any other language, or just store it in a **database** and retrieve it later.
+
+As long as you adhere by the (simple) format used, compatibility is assured.
+
+## **Graph Algorithms**
 
 The most interesting part about graphs is that, once we have created one, we can run a ton of algorithms on it.
 
@@ -290,7 +311,7 @@ Here there is a list of algorithms that are implemented (or will be implemented)
 - [ ] Edmonds-Karp's
 - [ ] Relabel to Front
 
-# Embedding
+# **Embedding**
 
 While many graphs' applications are interested in the result of applying one of the algorithms above, there are many, probably just as many, for which either the visual feedback or the actual way we lay out vertices and edges on a plane (or in a 3D space) are fundamental.
 
@@ -299,6 +320,214 @@ but to keep things simple here, we can describe it as a way to assign a position
 
 In this library, we will restrict the way in which we draw edges; they will be either:
 - Straight line segments;
-- Quadratic Bezier curves, with their control point lying on a line perpendicular to the edge and passing through its middle point.
+- Quadratic Bézier curves, with their control point lying on a line perpendicular to the edge and passing through its middle point.
 
-[...]
+This, obviously, restricts the set of possible ways to draw a graph (for instance, polylines or higher order curves are not allowed), but it allows a simpler approach, while still leaving plenty of options for nice and effective drawings.
+
+We'll see how this simplification is important when we get to automatic embedding generators.
+
+## **Of Appearance and Essence**
+
+This dualism is common in computer science, so much so that there is one of the fundamental design patterns, _MVC_, that guides how the former should be separated from the latter.
+
+Applied to graphs, the substance is the graph data structure, which has the maximum level of abstraction: it's a perfect candidate for the _Model_ part of MVC pattern.
+
+In a way, an embedding is partly more about the form than the graph itself: we arrange vertices and esges as a way to _display_ a graph, to make it easier to comprehend to humans.
+
+An embedding, however, can also be substance: for instance if vertices are electronic components on a circuit board, and edges are connective tracks, then their position is not just about appearance.
+
+For our `Embedding` class, we have thus tried to separate form and substance accordingly: all the attributes that we can associate with an embedding's structure (its substance) can be passed to the construtor and modified using setters.
+
+The form, for class `Embedding`, is the way we can later represent it: this is a separate concern, in line with MVC; regardless of whether we provide methods inside this class to generate the view, it's possible to write separate classes taking an embedding an generating a view.
+
+The build-in methods to generate a view for an `Embedding` are `toJson`, to produce a _JSON_ representation of the embedding (and serialize/deserialize it), and - perhaps more interestingly - `toSvg` that generates _SVG_ markup for vertices and edges.
+
+Again, this method is provided so that you have an out-of-the-box default way to display a graph, but it's decoupled from the model, relying on its public interface only, so that you can also write your own class to handle the view part.
+
+This decoupling also translates to the fact that you will need to pass everything that is related to the _View_ (i.e. the form) to method `toSvg` directly (and each time you call it). More on this in a few lines...
+
+## ***Create an Embedding...***
+
+Embeddings creation works following the same logic as graphs: an embedding, in particular, is a collection of embedded vertices (class `EmbeddedVertex`), meaning graph's vertices to which we assigned a position with respect to some coordinate system, and embedded edges (class `EmbeddedEdge`), whose position is determined by the vertices at their ends, but for which we can still decide how they are drawn.
+
+You should never worry about these two classes: although they are public classes and you can retrieve a reference to either through an instance of `Embedding`, you should never need to interact with those classes directly.
+
+While it is true that the constructor for `Embedding` takes two collections as input, one of embedded vertices and one of embedded edges, there are easier way to create an embedding from a graph.
+
+### **... From a Graph**
+
+The easiest way is to create an embedding starting from an existing graph:
+
+```javascript
+import Embedding from '/src/graph/embedding/embedding.mjs';
+
+let g = new Graph();
+const v = g.createVertex('v', {weight: 1.5});
+const u = g.createVertex('u', {weight: 1.5});
+
+const e = g.createEdge(u, v, {weight: 0.4, label: "back"});
+
+let embedding = Embedding.forGraph(g, {width: 640, height: 480});
+```
+
+This will create an embedding for graph `g`, where the positions of the vertices are chosen randomly within a canvas of the specified size (in this case, a box spanning from `(0, 0)` to `(639, 479)`).
+
+To control how the vertices and edges are laid out, we can pass two optional arguments to the static method `forGraph`:
+
+- `vertexCoordinates`, a map between vertices' IDs and `Point2D` objects specifying where the vertex center will lie in the embedding;
+- `edgeArcControlDistances`, another map, this time between edges' IDs and a parameter regulating how the edge is drawn (more on this later).
+
+```javascript
+let g = new Graph();
+const v = g.createVertex('v', {weight: 1.5});
+const u = g.createVertex('u', {weight: 1.5});
+
+const e = g.createEdge(u, v, {weight: 0.4, label: "back"});
+
+let embedding = Embedding.forGraph(g, {
+  width: 640,
+  height: 480,
+  vertexCoordinates: {
+    [v]: new Point2D(100, 100),
+    [u]: new Point2D(400, 300)
+  },
+  edgeArcControlDistances: {
+    [e]: -60
+  }
+});
+```
+
+Alternatively, it's possible to change a vertex' position or an edge's control distance at any time, using:
+
+```javascript
+// Depending on your coordinate system, real (or even negative) coordinates can make sense
+embedding.setVertexPosition(v, new Point2D(-1, -1));
+embedding.setEdgeControlPoint(e, 3.14);
+```
+
+### **... or, with Generators**
+
+The other suggested way to create embeddings is through generators. We have already seen how to speed up the creation of graphs for some of the most common types, like complete graphs for instance.
+
+It is totally possible to create a graph first and then the embedding manually, like this:
+
+```javascript
+let g = Graph.completeGraph(9);
+let embedding = Embedding.forGraph(g, {width: 480, height: 480});
+```
+
+The result, however, is not as appalling as you might expect, because the positions of the vertices are assigned randomly.
+
+![A complete directed Graph](./img/tutorial_embedding_complete_1.jpg)
+
+It's still possible to manually set the position of each vertex... but it's quite tedious, right?
+Instead, we can use the matching generators provided by class `Embedding`, that will also automatically assign positions to the vertices in order to obtain a nice drawing.
+
+```javascript
+let embedding = Embedding.completeGraph(9, 480, false);
+```
+
+![An embedding for complete directed Graph](./img/tutorial_embedding_complete_2.jpg)
+
+## **About Edge Drawing**
+
+As already mentioned, we only allow edges to be drawn as line segments or arcs, in the form of quadratic Bézier curves.
+These curves are a subset of second order polynomials whose trajectory is determined by a _control point_, that is going to be the third vertex in a triangle including the two ends of the curve.
+
+The curve will then be the interpolation of the two linear Bézier curves between the first end and the control point, and between the control point and the second end of the curve.
+
+For _JsGraphs_ we further restrict to only the quadratic Bézier curves whose control point lies on a line perpendicular to the segment connecting the two edge's ends, and passing in the middle point of said segment: the following figure illustrates this case:
+
+![Using a quadratic curve to draw an edge](./img/tutorial_quadratic_bezier_curve.png)
+
+Notice that the distance between the control point and the two ends will always be the same, so the arc drawn for the edge will be symmetrical.
+
+We can control the curvature of the arc by setting the distance of the control point from the segment on which the two ends lie, i.e. parameter `d` in the figure above: that's exactly the value set by method `setEdgeControlPoint`.
+
+If we set this distance to `0`, we will draw the arc as a straight line segment; positive values will cause the edge's curve to point up, while negative values will make the curve point down.
+
+```javascript
+let g = new Graph();
+const v = g.createVertex('v', {weight: 1.5});
+const u = g.createVertex('u', {weight: 1.5});
+
+const e = g.createEdge(u, v);
+
+let embedding = Embedding.forGraph(g);
+
+embedding.setVertexPosition(u, new Point2D(30, 60));
+embedding.setVertexPosition(v, new Point2D(270, 60));
+
+embedding.setEdgeControlPoint(e, 70);
+// Draw 1
+embedding.setEdgeControlPoint(e, 0);
+// Draw 2
+embedding.setEdgeControlPoint(e, -70);
+// Draw 3
+```
+
+![Using a quadratic curve to draw an edge](./img/tutorial_embedding_edges_cp.jpg)
+
+You can also find a deeper explanation of [Bézier curves](https://en.wikipedia.org/wiki/Bézier_curve#Quadratic_curves) on Wikipedia, and of how they work in SVG on [Mozilla's developer blog](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths).
+
+## **Styling**
+
+Styling, i.e. the _appearance_ part, is mainly specified through CSS: each vertex and each edge can individually be assigned one or more CSS classes, at the moment the SVG is generated.
+
+Additionally, there a few parameters that can be tuned to enable/disable features, like displaying edges' labels and weights, or disabling arcs in favor of line segments.
+
+It's also possible to assign CSS classes to the group containing the whole graph.
+
+```javascript
+let embedding = Embedding.forGraph(g);
+// [...]
+embedding.toSvg(700, 550, {
+  graphCss: ['FSA'],          // This class is added to the whole graph, can be used as a selector
+  verticesCss: {[u]: ['source'], [v]: ['dest', 'error'],
+  edgesCss: {[e]: ['test1', 'test2']},
+  drawEdgesAsArcs: true,      // Display edges as curves or segments
+  displayEdgesLabel: false,  //  No label added to edges
+  displayEdgesWeight: false   // Weights are not displayed either
+})
+```
+
+The output will look something like:
+
+```html
+<svg width="300" height="120">
+
+  <defs>
+    <marker id="arrowhead" markerWidth="14" markerHeight="12" markerUnits="userSpaceOnUse" refX="13" refY="6" orient="auto">
+      <polygon points="0 0, 14 6, 0 12" style="fill:var(--color-arrow)"/>
+    </marker>
+    <linearGradient id="linear-shape-gradient" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="var(--color-stop)" />
+      <stop offset="30%" stop-color="var(--color-stop)" />
+      <stop offset="100%" stop-color="var(--color-bot)" />
+    </linearGradient>
+    <radialGradient id="radial-shape-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="var(--color-inner)" style="stop-opacity:1" />
+      <stop offset="50%" stop-color="var(--color-mid)" style="stop-opacity:1" />
+      <stop offset="100%" stop-color="var(--color-outer)" style="stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <g class="graph FSA">
+    <g class="edges">
+      <g class="edge test1 test2" transform="translate(30,60)">
+        <path d="M0,0 Q120,70 218,0"
+        marker-end="url(#arrowhead)"/>
+      </g>
+    </g>
+    <g class="vertices">
+      <g class="vertex dest error" transform="translate(270,60)">
+        <circle cx="0" cy="0" r="22.5" />
+        <text x="0" y="0" text-anchor="middle" dominant-baseline="central">v</text>
+      </g>
+      <g class="vertex source" transform="translate(30,60)">
+        <circle cx="0" cy="0" r="22.5" />
+        <text x="0" y="0" text-anchor="middle" dominant-baseline="central">u</text>
+      </g>
+    </g>
+  </g>
+</svg>
+```
