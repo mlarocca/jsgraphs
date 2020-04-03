@@ -62,7 +62,7 @@ graph.addVertex(u);
 // graph.addVertex(new Vertex('u)) // ERROR, duplicated vertex 'u'
 ```
 
-![A simple graph](./img/tutorial/tutorial_vertex_1.jpg)
+![A simple graph](./img/tutorial/tutorial_vertex.jpg)
 
 There is also a shortcut to create those vertices directly on the graph, without first creating them as a separate variable; besides being shorter, this way is also more efficient, because vertices (and edges) _added_ to a graph are actually cloned beforehand (meaning that, in the example above, a clone of `v` and `u` is actually added to `graph`).
 
