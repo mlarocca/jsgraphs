@@ -62,7 +62,7 @@ graph.addVertex(u);
 // graph.addVertex(new Vertex('u)) // ERROR, duplicated vertex 'u'
 ```
 
-![A simple graph](./img/tutorial_vertex_1.jpg)
+![A simple graph](./img/tutorial/tutorial_vertex_1.jpg)
 
 There is also a shortcut to create those vertices directly on the graph, without first creating them as a separate variable; besides being shorter, this way is also more efficient, because vertices (and edges) _added_ to a graph are actually cloned beforehand (meaning that, in the example above, a clone of `v` and `u` is actually added to `graph`).
 
@@ -152,7 +152,7 @@ const u = g.createVertex('u', {weight: 1.5});
 const e = g.createEdge(u, v, {weight: 0.4, label: "I'm an edge!"});
 ```
 
-![An edge](./img/tutorial_edge_1.jpg)
+![An edge](./img/tutorial/tutorial_edge_1.jpg)
 
 ### **Directed vs Undirected**
 
@@ -169,7 +169,7 @@ const e1 = g.createEdge(u, v, {weight: 0.4, label: "back"});
 const e2 = g.createEdge(v, u, {weight: 1.4, label: "and forth"});
 ```
 
-![A couple of edges](./img/tutorial_edge_2.jpg)
+![A couple of edges](./img/tutorial/tutorial_edge_2.jpg)
 
 ### **Weight Matters**
 
@@ -215,7 +215,7 @@ Last but not least, so far we have always assumed that source and destination of
 let loop = g.getEdgeBetween(u, u, {label: 'Loop'});
 ```
 
-![An edge and a loop](./img/tutorial_edge_3.jpg)
+![An edge and a loop](./img/tutorial/tutorial_edge_3.jpg)
 
 ## **Graph class**
 
@@ -249,7 +249,7 @@ let ug = UndirectedGraph.completeGraph(12);
 Of course, the labels for the vertices are standard, just the numbers between 1 and n.
 The representation of such graphs is cool for both directed and undirected ones:
 
-![A complete directed Graph](./img/tutorial_graph_complete_1.jpg)![A complete undirected Graph](./img/tutorial_graph_complete_2.jpg)
+![A complete directed Graph](./img/tutorial/tutorial_graph_complete_1.jpg)![A complete undirected Graph](./img/tutorial/tutorial_graph_complete_2.jpg)
 
 > We'll discuss how to get these drawings later, in the section about embeddings.
 
@@ -264,7 +264,7 @@ let g = Graph.completeBipartiteGraph(4, 6);   // Just pass the sizes of the two 
 let ug = UndirectedGraph.completeBipartiteGraph(7, 3);
 ```
 
-![A complete bipartite directed Graph](./img/tutorial_graph_complete_bipartite_1.jpg)![A complete bipartite undirected Graph](./img/tutorial_graph_complete_bipartite_2.jpg)
+![A complete bipartite directed Graph](./img/tutorial/tutorial_graph_complete_bipartite_1.jpg)![A complete bipartite undirected Graph](./img/tutorial/tutorial_graph_complete_bipartite_2.jpg)
 
 ### **Generators: TODO**
 
@@ -418,7 +418,7 @@ let embedding = Embedding.forGraph(g, {width: 480, height: 480});
 
 The result, however, is not as appalling as you might expect, because the positions of the vertices are assigned randomly.
 
-![A complete directed Graph](./img/tutorial_embedding_complete_1.jpg)
+![A complete directed Graph](./img/tutorial/tutorial_embedding_complete_1.jpg)
 
 It's still possible to manually set the position of each vertex... but it's quite tedious, right?
 Instead, we can use the matching generators provided by class `Embedding`, that will also automatically assign positions to the vertices in order to obtain a nice drawing.
@@ -427,7 +427,7 @@ Instead, we can use the matching generators provided by class `Embedding`, that 
 let embedding = Embedding.completeGraph(9, 480, false);
 ```
 
-![An embedding for complete directed Graph](./img/tutorial_embedding_complete_2.jpg)
+![An embedding for complete directed Graph](./img/tutorial/tutorial_embedding_complete_2.jpg)
 
 ## **About Edge Drawing**
 
@@ -438,7 +438,7 @@ The curve will then be the interpolation of the two linear Bézier curves betwee
 
 For _JsGraphs_ we further restrict to only the quadratic Bézier curves whose control point lies on a line perpendicular to the segment connecting the two edge's ends, and passing in the middle point of said segment: the following figure illustrates this case:
 
-![Using a quadratic curve to draw an edge](./img/tutorial_quadratic_bezier_curve.png)
+![Using a quadratic curve to draw an edge](./img/tutorial/tutorial_quadratic_bezier_curve.png)
 
 Notice that the distance between the control point and the two ends will always be the same, so the arc drawn for the edge will be symmetrical.
 
@@ -466,7 +466,7 @@ embedding.setEdgeControlPoint(e, -70);
 // Draw 3
 ```
 
-![Using a quadratic curve to draw an edge](./img/tutorial_embedding_edges_cp.jpg)
+![Using a quadratic curve to draw an edge](./img/tutorial/tutorial_embedding_edges_cp.jpg)
 
 You can also find a deeper explanation of [Bézier curves](https://en.wikipedia.org/wiki/Bézier_curve#Quadratic_curves) on Wikipedia, and of how they work in SVG on [Mozilla's developer blog](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths).
 

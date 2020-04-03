@@ -37,7 +37,7 @@ Check out how to configure babel plugins in [webpack.config.js](./webpack.config
 
 # [**Tutorial**](./readme/tutorial.md)
 
-![A complete directed Graph](./readme/img/tutorial_graph_complete_1.JPG)
+[![A complete directed Graph](./readme/img/tutorial_graph_complete_1.JPG)](./readme/tutorial.md)
 
 To learn by example what you can do with _JsGraphs_ and how to do it, check out this [tutorial](./readme/tutorial.md)
 
