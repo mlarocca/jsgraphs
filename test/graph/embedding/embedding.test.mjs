@@ -242,7 +242,7 @@ describe('Methods', () => {
     it('# should allow passing coordinates for some or all vertices', () => {
       const p = new Point2D(1,2);
       const q = new Point2D(2,1);
-      let emb = Embedding.forGraph(g, {coordinates: {[u.id]: p, [w.id]: q}});
+      let emb = Embedding.forGraph(g, {vertexCoordinates: {[u.id]: p, [w.id]: q}});
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
         eV.label.should.eql(vertex.label);
@@ -268,7 +268,7 @@ describe('Methods', () => {
     it('# should allow passing arc\'s control point for some or all edges', () => {
       const p = new Point2D(1,2);
       const q = new Point2D(2,1);
-      let emb = Embedding.forGraph(g, {edgesArcControlDistance: {[e2.id]: -91, [e3.id]: 0.101}});
+      let emb = Embedding.forGraph(g, {edgeArcControlDistances: {[e2.id]: -91, [e3.id]: 0.101}});
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
         eV.label.should.eql(vertex.label);

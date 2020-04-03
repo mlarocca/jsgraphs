@@ -35,24 +35,24 @@ class Embedding {
     return new Embedding(vertices.map(v => EmbeddedVertex.fromJson(v)), edges.map(e => EmbeddedEdge.fromJson(e)));
   }
 
-  static forGraph(graph, { width, height, coordinates = {}, edgesArcControlDistance = {} } = {}) {
+  static forGraph(graph, { width, height, vertexCoordinates = {}, edgeArcControlDistances = {} } = {}) {
     if (!(graph instanceof Graph)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'graph', graph));
     }
 
-    if (!isPlainObject(coordinates)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'coordinates', coordinates));
+    if (!isPlainObject(vertexCoordinates)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'coordinates', vertexCoordinates));
     }
 
-    if (!isPlainObject(edgesArcControlDistance)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'edgesArcControlDistance', edgesArcControlDistance));
+    if (!isPlainObject(edgeArcControlDistances)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'edgesArcControlDistance', edgeArcControlDistances));
     }
 
     let vertices = new Map();
     let edges = new Map();
 
     for (const v of graph.vertices) {
-      let cs = coordinates[vertexId(v)];
+      let cs = vertexCoordinates[vertexId(v)];
       if (!(cs instanceof Point2D)) {
         cs = Point2D.random({ width, height });
       }
@@ -68,7 +68,7 @@ class Embedding {
           weight: e.weight,
           label: e.label,
           isDirected: graph.isDirected(),
-          arcControlDistance: edgesArcControlDistance[e.id]
+          arcControlDistance: edgeArcControlDistances[e.id]
         });
       edges.set(ee.id, ee);
     }
@@ -98,7 +98,7 @@ class Embedding {
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
       coordinates[v.id] = new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta));
     }
-    return Embedding.forGraph(g, { coordinates: coordinates });
+    return Embedding.forGraph(g, { vertexCoordinates: coordinates });
   }
 
   static completeBipartiteGraph(n, m, canvasSize, directed = false) {
@@ -135,7 +135,7 @@ class Embedding {
       }
       coordinates[v.id] = new Point2D(x, y);
     }
-    return Embedding.forGraph(g, { coordinates: coordinates });
+    return Embedding.forGraph(g, { vertexCoordinates: coordinates });
   }
 
   // -----  INSTANCE METHODS  -----

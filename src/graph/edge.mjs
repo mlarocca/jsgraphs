@@ -5,10 +5,7 @@ import { isNumber, toNumber } from '../common/numbers.mjs';
 import { consistentStringify, isString } from '../common/strings.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL } from '../common/errors.mjs';
 
-import rfdc from 'rfdc';
-
 const DEFAULT_EDGE_WEIGHT = 1;
-const deepClone = rfdc({ proto: true, circles: false });
 
 class Edge {
   /**

@@ -1,4 +1,3 @@
-import Edge from './edge.mjs';
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
 import { consistentStringify, isJsonStringifiable } from '../common/strings.mjs';
@@ -24,7 +23,7 @@ class Vertex {
    */
   #weight;
 
-  static isSerializable(label) {
+  static isValidLabel(label) {
     return isJsonStringifiable(label);
   }
 
@@ -56,7 +55,7 @@ class Vertex {
     if (!isDefined(label)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
     }
-    if (!Vertex.isSerializable(label)) {
+    if (!Vertex.isValidLabel(label)) {
       throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', label));
     }
     if (!isNumber(weight)) {

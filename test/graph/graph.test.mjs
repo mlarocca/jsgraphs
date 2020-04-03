@@ -50,8 +50,8 @@ describe('Graph API', () => {
     Graph.should.be.a.constructor();
   });
 
-  it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject'];
+  it('# should have static methods availabel', function () {
+    let staticMethods = ['fromJson', 'fromJsonObject', 'completeGraph', 'completeBipartiteGraph'];
     testStaticAPI(Graph, staticMethods);
   });
 

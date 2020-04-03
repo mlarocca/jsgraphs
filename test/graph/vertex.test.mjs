@@ -16,7 +16,7 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject', 'isSerializable', 'idFromLabel'];
+    let staticMethods = ['fromJson', 'fromJsonObject', 'isValidLabel', 'idFromLabel'];
     testStaticAPI(Vertex, staticMethods);
   });
 
@@ -186,7 +186,7 @@ describe('Methods', () => {
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
-      Vertex.isSerializable(new Vertex('test')).should.be.true();
+      Vertex.isValidLabel(new Vertex('test')).should.be.true();
       vertexLabels.forEach(label => {
         const source = new Vertex(label);
         const dest = new Vertex(choose(vertexLabels));
