@@ -256,7 +256,7 @@ function loopSvg(edge, cssClasses, displayLabel, displayWeight) {
  */
 function edgeLabel(edge, tx, ty, displayLabel, displayWeight) {
   let labelText = [
-    (displayLabel && isNonEmptyString(edge.label)) ? edge.label : '',
+    displayLabel ? edge.escapedLabel : '',
     displayWeight ? edge.weight.toString() : ''
   ].filter(isNonEmptyString).join(DEFAULT_LABEL_WEIGHT_SEPARATOR);
 

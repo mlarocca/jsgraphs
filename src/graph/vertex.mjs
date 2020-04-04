@@ -4,6 +4,7 @@ import { consistentStringify, isJsonStringifiable } from '../common/strings.mjs'
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
 
 import rfdc from 'rfdc';
+import escape from 'escape-html';
 
 const DEFAULT_VERTEX_WEIGHT = 1;
 
@@ -71,6 +72,13 @@ class Vertex {
     return deepClone(this.#label);
   }
 
+  /**
+   * HTML-escaped string from label
+   */
+  get escapedLabel() {
+    return escape(this.#label.toString());
+  }
+
   get id() {
     return Vertex.idFromLabel(this.label);
   }
@@ -108,10 +116,6 @@ class Vertex {
    */
   equals(v) {
     return (v instanceof Vertex) && this.toJson() === v.toJson();
-  }
-
-  labelEquals(label) {
-    return consistentStringify(label) === consistentStringify(this.#label);
   }
 
   /**

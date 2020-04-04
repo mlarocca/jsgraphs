@@ -75,7 +75,7 @@ class EmbeddedVertex extends Vertex {
     return `
     <g class="vertex ${cssClasses.join(' ')}" transform="translate(${x},${y})">
       <circle cx="0" cy="0" r="${this.radius()}" />
-      <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.label}</text>
+      <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.escapedLabel}</text>
     </g>`;
   }
 }

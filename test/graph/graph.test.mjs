@@ -287,7 +287,7 @@ describe('toJson()', () => {
       let u = new Vertex(source.label, { weight: Math.random(), outgoingEdges: [e] });
       let v = new Vertex(dest.label, { weight: Math.random() });
       g.addVertex(u);
-      if (!v.labelEquals(u.label)) {
+      if (v.id != u.id) {
         g.addVertex(v);
       }
       g.addEdge(e);

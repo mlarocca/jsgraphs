@@ -40,7 +40,7 @@ class MutableVertex extends Vertex {
     this.#adjacencyMap = new Map();
 
     outgoingEdges.forEach(edge => {
-      if (!(edge instanceof Edge) || !this.labelEquals(edge.source)) {
+      if (!(edge instanceof Edge) || this.id !== edge.source.id) {
         throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
       }
 
