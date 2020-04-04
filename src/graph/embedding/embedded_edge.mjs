@@ -41,7 +41,12 @@ class EmbeddedEdge extends Edge {
   #directed;
 
   /**
+   * @field arcControlDistance
    * @private
+   * @description
+   * The distance between the segment passing through an edge's ends, and the control point of the
+   * Bézier quadratic curve used to draw the edge as an arc.
+   * See https://github.com/mlarocca/jsgraphs/raw/master/readme/img/tutorial/tutorial_quadratic_bezier_curve.png
    */
   #arcControlDistance
 

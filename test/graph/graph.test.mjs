@@ -10,6 +10,10 @@ import { ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../../s
 
 import chai from "chai";
 import should from "should";
+import { range } from '../../src/common/numbers.mjs';
+import { isObject } from '../../src/common/basic.mjs';
+import { UndirectedGraph } from '../../src/graph/graph.mjs';
+import BfsResult from '../../src/graph/algo/bfs.mjs';
 
 const expect = chai.expect;
 
@@ -46,11 +50,11 @@ function createRandomGraph(minV, maxV, minE, maxE) {
 
 describe('Graph API', () => {
 
-  it('# Class should have a constructor method', function () {
+  it('# Class should have a constructor method', () => {
     Graph.should.be.a.constructor();
   });
 
-  it('# should have static methods availabel', function () {
+  it('# should have static methods availabel', () => {
     let staticMethods = ['fromJson', 'fromJsonObject', 'completeGraph', 'completeBipartiteGraph'];
     testStaticAPI(Graph, staticMethods);
   });
@@ -60,7 +64,8 @@ describe('Graph API', () => {
     let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgeLabel',
-      'getEdgeWeight', 'setEdgeWeight'];
+      'getEdgeWeight', 'setEdgeWeight',
+      'bfs'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
@@ -68,7 +73,7 @@ describe('Graph API', () => {
 
 describe('createVertex()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
-  it('# should add all valid label types', function () {
+  it('# should add all valid label types', () => {
     let g = new Graph();
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
@@ -79,7 +84,7 @@ describe('createVertex()', () => {
     });
   });
 
-  it('# should throw on duplicates', function () {
+  it('# should throw on duplicates', () => {
     let g = new Graph();
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
@@ -93,7 +98,7 @@ describe('createVertex()', () => {
 
 describe('addVertex()', () => {
   const vertices = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(v => new Vertex(v));
-  it('# should add all valid label types', function () {
+  it('# should add all valid label types', () => {
     let g = new Graph();
     vertices.forEach(v => {
       g.addVertex(v);
@@ -104,7 +109,7 @@ describe('addVertex()', () => {
     });
   });
 
-  it('# should throw on duplicates', function () {
+  it('# should throw on duplicates', () => {
     let g = new Graph();
     vertices.forEach(v => {
       g.addVertex(v);
@@ -119,14 +124,14 @@ describe('addVertex()', () => {
 describe('getVertexWeight', () => {
   const g = createExampleGraph();
 
-  it('# Should retrieve the right weight', function () {
+  it('# Should retrieve the right weight', () => {
     g.getVertexWeight(Vertex.idFromLabel(1)).should.eql(-21);
     // defaults to 1 when not explicitly set
     g.getVertexWeight(Vertex.idFromLabel('a random unicòde string ☺')).should.eql(1);
     g.getVertexWeight(Vertex.idFromLabel({ 'what': -3 })).should.eql(1);
   });
 
-  it('# Should return undefined when the graph does not have a vertex', function () {
+  it('# Should return undefined when the graph does not have a vertex', () => {
     expect(g.getVertexWeight('not here')).to.be.undefined;
     expect(g.getVertexWeight(2)).to.be.undefined;
   });
@@ -136,7 +141,7 @@ describe('createEdge()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
   const ids = labels.map(Vertex.idFromLabel);
 
-  it('# should add all valid label types', function () {
+  it('# should add all valid label types', () => {
     let g = new Graph();
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
@@ -167,7 +172,7 @@ describe('createEdge()', () => {
     g.hasEdgeBetween(ids[2], ids[0]).should.be.false();
   });
 
-  it('# should throw when vertices are not in the graph', function () {
+  it('# should throw when vertices are not in the graph', () => {
     let g = new Graph();
     labels.forEach(label => {
       g.createVertex(label, { weight: Math.random() });
@@ -179,7 +184,7 @@ describe('createEdge()', () => {
 
 describe('addEdge()', () => {
   const sources = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(lab => new Vertex(lab));
-  it('# should add all valid label types', function () {
+  it('# should add all valid label types', () => {
     let g = new Graph();
     sources.forEach(v => {
       g.addVertex(v, { weight: Math.random() });
@@ -192,7 +197,7 @@ describe('addEdge()', () => {
     g.hasEdge(expected).should.be.true();
   });
 
-  it('# should throw when vertices are not in the graph', function () {
+  it('# should throw when vertices are not in the graph', () => {
     let g = new Graph();
     sources.forEach(v => {
       g.addVertex(v, { weight: Math.random() });
@@ -207,16 +212,16 @@ describe('addEdge()', () => {
 describe('getEdgeLabel', () => {
   const g = createExampleGraph();
 
-  it('# Should retrieve the right label', function () {
+  it('# Should retrieve the right label', () => {
     g.getEdgeLabel(Vertex.idFromLabel('a random unicòde string ☺'), Vertex.idFromLabel(1)).should.eql('label');
   });
 
-  it('# Should return undefined when edge does not have a label', function () {
+  it('# Should return undefined when edge does not have a label', () => {
     g.hasEdgeBetween(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 })).should.be.true();
     expect(g.getEdgeLabel(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 }))).to.be.undefined;
   });
 
-  it('# Should return undefined when edge does not exist', function () {
+  it('# Should return undefined when edge does not exist', () => {
     expect(g.getEdgeLabel(1, 'a random unicòde string ☺')).to.be.undefined;
     expect(g.getEdgeLabel('not in graph', 1)).to.be.undefined;
     expect(g.getEdgeLabel(3, 2)).to.be.undefined;
@@ -226,18 +231,18 @@ describe('getEdgeLabel', () => {
 describe('getEdgeWeight', () => {
   const g = createExampleGraph();
 
-  it('# Should retrieve the right weight', function () {
+  it('# Should retrieve the right weight', () => {
     g.getEdgeWeight(Vertex.idFromLabel('a random unicòde string ☺'), Vertex.idFromLabel(1)).should.eql(-0.1e14);
     g.getEdgeWeight(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel({ 'what': -3 })).should.eql(33);
 
   });
 
-  it('# Should default to 1 (when edge weight is not set explicitly)', function () {
+  it('# Should default to 1 (when edge weight is not set explicitly)', () => {
     g.hasEdgeBetween(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel([1, true, -3])).should.be.true();
     g.getEdgeWeight(Vertex.idFromLabel(-3.1415), Vertex.idFromLabel([1, true, -3])).should.eql(1);
   });
 
-  it('# Should return undefined when edge does not exist', function () {
+  it('# Should return undefined when edge does not exist', () => {
     expect(g.getEdgeWeight(1, 'a random unicòde string ☺')).to.be.undefined;
     expect(g.getEdgeWeight('not in graph', 1)).to.be.undefined;
     expect(g.getEdgeWeight(3, 2)).to.be.undefined;
@@ -377,5 +382,119 @@ describe('fromJson()', () => {
     g1.hasVertex(v2).should.be.true();
     g1.hasVertex(v4).should.be.true();
     g1.hasVertex(new Vertex('def')).should.be.false();
+  });
+});
+
+describe('Algorithms', () => {
+  describe('bfs', () => {
+    describe('# UndirectedGraph', () => {
+      it('> bfs on a connected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const bfs = g.bfs('"1"');
+
+        isObject(bfs).should.be.true();
+        (bfs instanceof BfsResult).should.be.true();
+
+        Object.keys(bfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => bfs.predecessor['"1"']).should.be.null;
+        bfs.predecessor['"2"'].should.equal('"1"');
+        bfs.predecessor['"3"'].should.equal('"1"');
+        bfs.predecessor['"4"'].should.equal('"1"');
+        bfs.predecessor['"5"'].should.equal('"3"');
+
+        Object.keys(bfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        bfs.distance['"1"'].should.equal(0);
+        bfs.distance['"2"'].should.equal(1);
+        bfs.distance['"3"'].should.equal(1);
+        bfs.distance['"4"'].should.equal(1);
+        bfs.distance['"5"'].should.equal(2);
+      });
+
+      it('> Invalid input returns error', () => {
+        let g = new UndirectedGraph();
+        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
+      });
+
+      it('> bfs on a disconnected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const bfs = g.bfs('"1"');
+
+        isObject(bfs).should.be.true();
+        (bfs instanceof BfsResult).should.be.true();
+
+        Object.keys(bfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => bfs.predecessor['"1"']).should.be.null;
+        bfs.predecessor['"2"'].should.equal('"1"');
+        bfs.predecessor['"3"'].should.equal('"1"');
+        bfs.predecessor['"4"'].should.equal('"1"');
+        bfs.predecessor['"5"'].should.equal('"3"');
+        (() => bfs.predecessor['"6"']).should.be.undefined;
+        (() => bfs.predecessor['"7"']).should.be.undefined;
+
+        Object.keys(bfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
+        bfs.distance['"1"'].should.equal(0);
+        bfs.distance['"2"'].should.equal(1);
+        bfs.distance['"3"'].should.equal(1);
+        bfs.distance['"4"'].should.equal(1);
+        bfs.distance['"5"'].should.equal(2);
+        bfs.distance['"6"'].should.equal(Infinity);
+        bfs.distance['"7"'].should.equal(Infinity);
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('> bfs on a connected di-graph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const bfs = g.bfs('"1"');
+
+        isObject(bfs).should.be.true();
+        (bfs instanceof BfsResult).should.be.true();
+
+        Object.keys(bfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => bfs.predecessor['"1"']).should.be.null;
+        bfs.predecessor['"2"'].should.equal('"1"');
+        bfs.predecessor['"3"'].should.equal('"1"');
+        bfs.predecessor['"4"'].should.equal('"2"');
+        bfs.predecessor['"5"'].should.equal('"3"');
+
+        Object.keys(bfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        bfs.distance['"1"'].should.equal(0);
+        bfs.distance['"2"'].should.equal(1);
+        bfs.distance['"3"'].should.equal(1);
+        bfs.distance['"4"'].should.equal(2);
+        bfs.distance['"5"'].should.equal(2);
+      });
+
+      it('> Invalid input returns error', () => {
+        let g = new Graph();
+        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
+      });
+    });
+
   });
 });
