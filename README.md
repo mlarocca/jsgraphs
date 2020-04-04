@@ -35,6 +35,15 @@ A word of caution, though: the combination of ECMAScript modules and advanced fe
 
 Check out how to configure babel plugins in [webpack.config.js](./webpack.config.js).
 
+# [**Graph Theory**](https://www.manning.com/books/algorithms-and-data-structures-in-action#toc)
+
+For an introduction to Graph, feel free to take a look at ["Algorithms and Data Structures in Action](https://www.manning.com/books/algorithms-and-data-structures-in-action#toc)
+In particular you can check out online, on Manning's livebook site:
+
+- [Chapter 14](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/chapter-14) for an intro to graph data structure.
+- [Appendix B](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-b) for an intro to Big-O notation
+- [Appendix C](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-c) for a summary of core data structures like trees or linked lists.
+
 # [**Tutorial**](./readme/tutorial.md)
 
 [![A complete directed Graph](./readme/img/tutorial_graph_complete_1.JPG)](./readme/tutorial.md)
@@ -51,3 +60,36 @@ Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and
 [![DAG](readme/img/dag.jpg)](readme/examples.md#dag)
 [![Complete Graph](readme/img/complete.jpg)![Same Complete Graph, with arc rather than segments](readme/img/complete_arcs.jpg)](readme/examples.md#complete-graphs)
 [![Bipartite Complete Graph](readme/img/bipartite_complete.jpg)](readme/examples.md#complete-bipartite-graphs)
+
+# **RoadMap**
+
+Here we keep a list of the roadmap for the development of this library. If you have ideas or suggestions, feel free to open an issue (to suggest a feature or report a problem) or a Pull Request, to contribute to the development.
+
+## **Algorithms**
+
+- [ ] BFS
+- [ ] DFS
+- [ ] Dijkstra's
+- [ ] Bellman-Ford's
+- [ ] A*
+- [ ] Kruskal's
+- [ ] Prim's
+- [ ] Connected Components
+- [ ] Strongly Connected Components
+- [ ] Topological Sorting
+- [ ] Floyd-Warshall's
+- [ ] Edmonds-Karp's
+- [ ] Relabel to Front
+
+## **Features**
+
+- [] Custom label/weights separator
+- [] Edge.setLabel
+
+### **Generators**
+
+- [x] Complete Graphs
+- [x] Bipartite Complete Graphs
+- [ ] Square Mesh
+- [ ] Triangular Mesh
+- [ ] Random Graph

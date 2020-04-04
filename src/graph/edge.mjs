@@ -4,6 +4,9 @@ import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
 import { consistentStringify, isString } from '../common/strings.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL } from '../common/errors.mjs';
+import { isNonEmptyString } from '../common/strings.mjs';
+
+import escape from 'escape-html';
 
 const DEFAULT_EDGE_WEIGHT = 1;
 
@@ -91,6 +94,13 @@ class Edge {
 
   get label() {
     return this.#label;
+  }
+
+  /**
+   * HTML-escaped version of label
+   */
+  get escapedLabel() {
+    return isNonEmptyString(this.#label) ? escape(this.#label) : "";
   }
 
   get weight() {

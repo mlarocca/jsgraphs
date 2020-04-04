@@ -22,8 +22,8 @@ describe('Vertex API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'equals', 'labelEquals', 'toJson', 'toJsonObject', 'toString', 'clone'];
-    let attributes = ['label', 'id', 'weight'];
+    let methods = ['constructor', 'equals', 'toJson', 'toJsonObject', 'toString', 'clone'];
+    let attributes = ['label', 'escapedLabel',  'id', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });
@@ -144,30 +144,11 @@ describe('Methods', () => {
     });
   });
 
-  describe('labelEquals()', () => {
-    const labels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
-    it('# should return true if the edge\'s label is (deeply)equal to the argument', () => {
-      labels.forEach(label => {
-        let v = new Vertex(label);
-        v.labelEquals(label).should.be.true();
-      });
-    });
-
-    it('# should return false iff label is different', () => {
-      labels.forEach(label => {
-        let v = new Vertex(label);
-        v.labelEquals(label).should.be.true();
-        const label2 = choose(labels);
-        v.labelEquals(label2).should.be.eql(Vertex.idFromLabel(label) === Vertex.idFromLabel(label2));
-      });
-    });
-  });
-
   describe('clone()', () => {
     it('# should clone the vertex fields', () => {
       vertexLabels.forEach(label => {
         let v = new Vertex(label);
-        v.clone().labelEquals(label).should.be.true();
+        v.clone().id.should.eql(v.id);
         v.clone().equals(v).should.be.true();
       });
     });

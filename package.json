@@ -35,10 +35,12 @@
   },
   "dependencies": {
     "@std/esm": "^0.26.0",
+    "escape-html": "^1.0.3",
     "esm": "^3.2.25",
     "rfdc": "^1.1.4"
   },
   "directories": {
+    "src": "src",
     "lib": "lib",
     "test": "test"
   },
