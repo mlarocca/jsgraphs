@@ -1,6 +1,10 @@
 # **JsGraphs**
 A lightweight library to model graphs, run graphs' algorithms, and display them on screen.
 
+You can use this library to create arbitrary graphs and run [**algorithms**](./readme/tutorial.md#graph-algorithms) and transformations on it, or just use it for [**visualization**](./readme/tutorial.md#embedding), importing graphs or even embeddings created in other languages/platforms and serialized using _JSON_.
+
+Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and both vertices and edges can be styled individually.
+
 # **Getting Started**
 
 ## **Installation**
@@ -31,6 +35,10 @@ npm t test/geometric/test_point.js
 
 To bundle the library, I used [Webpack](https://webpack.js.org) - but you can use whatever you like.
 
+```bash
+npm run bundle
+```
+
 A word of caution, though: the combination of ECMAScript modules and advanced features (ES2019) makes configuration non-trivial.
 
 Check out how to configure babel plugins in [webpack.config.js](./webpack.config.js).
@@ -40,22 +48,20 @@ Check out how to configure babel plugins in [webpack.config.js](./webpack.config
 For an introduction to Graph, feel free to take a look at ["Algorithms and Data Structures in Action](https://www.manning.com/books/algorithms-and-data-structures-in-action#toc)
 In particular you can check out online, on Manning's livebook site:
 
-- [Chapter 14](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/chapter-14) for an intro to graph data structure.
-- [Appendix B](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-b) for an intro to Big-O notation
+- [Chapter 14](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/chapter-14) for an intro to graph data structure. [In progress...]
+- [Appendix B](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-b) for an intro to Big-O notation.
 - [Appendix C](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-c) for a summary of core data structures like trees or linked lists.
 
 # [**Tutorial**](./readme/tutorial.md)
 
-[![A complete directed Graph](./readme/img/tutorial_graph_complete_1.JPG)](./readme/tutorial.md)
+[![A complete directed Graph](./readme/img/tutorial/tutorial_graph_complete_1.JPG)](./readme/tutorial.md)
 
-To learn by example what you can do with _JsGraphs_ and how to do it, check out this [tutorial](./readme/tutorial.md)
+To learn by example what you can do with _JsGraphs_ and how to do it, check out this [**tutorial**](./readme/tutorial.md).
 
-# **Examples**
+# [**Examples**](./readme/examples.md)
 
-The library allows to create arbitrary graphs, but also
-Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and both vertices and edges can be styled individually.
+**(click on the images to browse to the example)**
 
-(click on the images to browse to the example)
 [![FSA](readme/img/regex_fsa.jpg)](readme/examples.md#regex-finite-state-automaton)
 [![DAG](readme/img/dag.jpg)](readme/examples.md#dag)
 [![Complete Graph](readme/img/complete.jpg)![Same Complete Graph, with arc rather than segments](readme/img/complete_arcs.jpg)](readme/examples.md#complete-graphs)
@@ -83,8 +89,8 @@ Here we keep a list of the roadmap for the development of this library. If you h
 
 ## **Features**
 
-- [] Custom label/weights separator
-- [] Edge.setLabel
+- [ ] Custom label/weights separator
+- [ ] Edge.setLabel
 
 ### **Generators**
 
@@ -93,3 +99,7 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [ ] Square Mesh
 - [ ] Triangular Mesh
 - [ ] Random Graph
+
+# **License**
+
+This library ships under [GNU Affero General Public License](./LICENSE)
