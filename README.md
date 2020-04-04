@@ -54,7 +54,7 @@ In particular you can check out online, on Manning's livebook site:
 
 # [**Tutorial**](./readme/tutorial.md)
 
-[![A complete directed Graph](./readme/img/tutorial/tutorial_graph_complete_1.JPG)](./readme/tutorial.md)
+[![A complete directed Graph](./readme/img/tutorial/tutorial_graph_complete_1.jpg)](./readme/tutorial.md)
 
 To learn by example what you can do with _JsGraphs_ and how to do it, check out this [**tutorial**](./readme/tutorial.md).
 

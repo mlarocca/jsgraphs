@@ -9,6 +9,7 @@ import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERT
 import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
+import BfsResult from './algo/bfs.mjs';
 
 const _vertices = new WeakMap();
 
@@ -219,7 +220,7 @@ class Graph {
       range(i + 1, n + 1).forEach(j => {
         g.createEdge(vertexIDs[i], vertexIDs[j]);
         g.createEdge(vertexIDs[j], vertexIDs[i]);
-    }));
+      }));
 
     return g;
   }
@@ -458,9 +459,53 @@ class Graph {
   equals(g) {
     return (g instanceof Graph) && this.toJson() === g.toJson();
   }
+
+  // ALGORITHMS
+
+  /**
+   * @method bfs
+   * @for Graph
+   * @param {Vertex|string} start
+   */
+  bfs(start) {
+    const s = this.getVertex(start);
+
+    if (!isDefined(s)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', start));
+    }
+
+    let result = new BfsResult();
+    for (const v of this.vertices) {
+      result.distance[v.id] = Infinity;
+    }
+
+    result.distance[s.id] = 0;
+    result.predecessor[s.id] = null;
+
+    let queue = [s];
+
+    while (queue.length > 0) {
+      const u = queue.pop(0);
+
+      const adj = u.outgoingEdges();
+      for (const e of adj) {
+        const v = e.destination;
+        if (result.distance[v.id] === Infinity) {
+          result.predecessor[v.id] = u.id;
+          result.distance[v.id] = result.distance[u.id] + 1;
+          queue.push(v);
+        }
+      }
+    }
+
+    return result;
+  }
 }
 
 
+/**
+ * @class UndirectedGraph
+ */
 export class UndirectedGraph extends Graph {
   static completeGraph(n) {
     if (!isNumber(n) || n < 2) {
@@ -474,7 +519,7 @@ export class UndirectedGraph extends Graph {
     r.forEach(i =>
       range(i + 1, n + 1).forEach(j => {
         g.createEdge(vertexIDs[i], vertexIDs[j]);
-    }));
+      }));
 
     return g;
   }
