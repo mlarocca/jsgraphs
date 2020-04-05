@@ -290,27 +290,6 @@ Or, vice versa, create it in JS (perhaps with an ad-hoc tool: stay tuned!), and 
 
 As long as you adhere by the (simple) format used, compatibility is assured.
 
-## **Graph Algorithms**
-
-The most interesting part about graphs is that, once we have created one, we can run a ton of algorithms on it.
-
-Here there is a list of algorithms that are implemented (or will be implemented) in _JsGraphs_:
-
-
-- [ ] BFS
-- [ ] DFS
-- [ ] Dijkstra's
-- [ ] Bellman-Ford's
-- [ ] A*
-- [ ] Kruskal's
-- [ ] Prim's
-- [ ] Connected Components
-- [ ] Strongly Connected Components
-- [ ] Topological Sorting
-- [ ] Floyd-Warshall's
-- [ ] Edmonds-Karp's
-- [ ] Relabel to Front
-
 # **Embedding**
 
 While many graphs' applications are interested in the result of applying one of the algorithms above, there are many, probably just as many, for which either the visual feedback or the actual way we lay out vertices and edges on a plane (or in a 3D space) are fundamental.
@@ -531,3 +510,131 @@ The output will look something like:
   </g>
 </svg>
 ```
+
+# **Graph Algorithms**
+
+The most interesting part about graphs is that, once we have created one, we can run a ton of algorithms on it.
+
+Here there is a list of algorithms that are implemented (or will be implemented) in _JsGraphs_:
+
+
+## **BFS**
+
+It's possible to run the **B**readth **F**irst **S**earch algorithm on both directed and undirected graphs.
+
+```javascript
+import { range } from '/src/common/numbers.mjs';
+
+let g = new Graph();
+range(1, 8).forEach(i => g.createVertex(`${i}`, {weight: 1.5})); // Create vertices "1" to "7"
+
+g.createEdge(v1, v2);
+g.createEdge(v1, v3);
+g.createEdge(v2, v4);
+g.createEdge(v3, v5);
+g.createEdge(v3, v4);
+g.createEdge(v4, v6);
+g.createEdge(v6, v7);
+
+const bfs = g.bfs('"1"');
+```
+
+If we print out the result of running bfs, we obtain an object with both the distance and predecessor of each vertex in the graph (at least, each one reachable from the start vertex, `"1"` in this case).
+
+```javascript
+{
+  distance: {"1": 0, "2": 1, "3": 1, "4": 2, "5": 2, "6": 3, "7": 4},
+  predecessor: {"1": null, "2": '"1"', "3": '"1"', "5": '"3"', "4": '"3"', "6": '"4"', "7": '"6"'}
+}
+```
+
+That's not the easiest to visualize, though. One thing we can do, is reconstruct the path from the start vertex to any of the reacheable vertices (in this case, any other vertex in the graph, because they are all reacheable from `"1"`).
+
+The result of the `Graph.bfs` method, in fact, is an object, an instance of class `BfsResult`, that in turn offer an interesting method: `reconstructPathTo`. This method takes a destination vertex, and returns the shortest path (if any) from the starting point.
+
+```javascript
+bfs.reconstructPathTo('"7"');   // [""1"", ""3"", ""4"", ""6"", ""7""]
+```
+
+That's better, right? But how cooler would it be if we could also visualize it?
+Well, luckily we can! Remember, from the [_Embedding_](#embedding) section, that we can assign custom _CSS_ classes to edges and vertices? Well, this is a good time to use that feature!
+
+Let's start by creating an embedding for the graph:
+
+```javascript
+let embedding = Embedding.forGraph(g, {width: 480, height: 320});
+
+embedding.setVertexPosition('"1"', new Point2D(30, 180));
+embedding.setVertexPosition('"2"', new Point2D(120, 40));
+embedding.setVertexPosition('"3"', new Point2D(150, 280));
+embedding.setVertexPosition('"4"', new Point2D(200, 150));
+embedding.setVertexPosition('"5"', new Point2D(300, 280));
+embedding.setVertexPosition('"6"', new Point2D(350, 220));
+embedding.setVertexPosition('"7"', new Point2D(450, 150));
+
+embedding.setEdgeControlPoint('["2"]["4"]', 20);
+embedding.toSvg(480, 320, {drawEdgesAsArcs: true, displayEdgesWeight: false});
+```
+
+At this point, the result of drawing the embedding is more or less the following:
+
+![A directed graph](./img/tutorial/tutorial_bfs_1.jpg)
+
+Now, we want to highlight that path, starting at vertex `"1"` and ending at vertex `"7"`. The issue with the result of `reconstructPathTo` is that it returns the sequence of vertices in the path, and while that does help us highlighting vertices, we would also like to assign a different css class to the edges in the path.
+
+To do so, we also need to use method `Graph.getEdgesInPath`, that given a sequence of vertices, returns the edges connecting each adjacent pair.
+
+Then, it's just up to us to choose the classes to assign to edges and vertices in the path.
+
+```javascript
+const path = bfs.reconstructPathTo('"7"');
+const edges = g.getEdgesInPath(path);
+let vCss = {};
+path.forEach(v => vCss[v] = ['inpath']);
+vCss['"1"'].push('start');
+vCss['"7"'].push('end');
+
+let eCss = {};
+edges.forEach(e => eCss[e.id] = ['inpath']);
+
+embedding.toSvg(480, 320, {
+  drawEdgesAsArcs: true,
+  displayEdgesWeight: false,
+  verticesCss: vCss,
+  edgesCss: eCss,
+  graphCss: ['bfs']
+});
+```
+
+This is the final result:
+
+![A graph, with a shortest path highlighted](./img/tutorial/tutorial_bfs_2.jpg)
+
+Of course, to get the style right, we need to add a few CSS rules, for instance:
+
+```css
+.graph.bfs g.vertex.inpath circle {
+  stroke: crimson;
+}
+.graph.bfs g.vertex.start circle, .graph.bfs g.vertex.end circle {
+  fill: darkorange;
+  stroke-width: 7;
+}
+.graph.bfs g.vertex.start circle, .graph.bfs g.vertex.end text {
+  fill: white;
+}
+.graph,bfs g.edge path {
+  fill: none;
+  stroke: black;
+  stroke-width: 3;
+}
+.graph.bfs g.edge.inpath path {
+  fill: none;
+  stroke: crimson;
+  stroke-width: 5;
+}
+```
+
+## **In Progress**
+
+Check out our [RoadMap](../README#algorithms).
