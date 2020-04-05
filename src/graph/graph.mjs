@@ -10,6 +10,7 @@ import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
 import BfsResult from './algo/bfs.mjs';
+import { isIterable } from '../common/basic.mjs';
 
 const _vertices = new WeakMap();
 
@@ -402,6 +403,35 @@ class Graph {
     return undefined;
   }
 
+  /**
+   * @method getEdgesInPath
+   * @for Graph
+   * @description
+   * Takes a path, in the form of a sequence of vertices, and returns the sequence of edges in the path.
+   *
+   * @param {Array} verticesSequence The sequence of vertices in a path, from start to end.
+   * @return {Array<Edge>} The list of edges to get from the first to the last vertex in the path.
+   */
+  getEdgesInPath(verticesSequence) {
+    if (!Array.isArray(verticesSequence)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.getEdgesInPath', 'verticesSequence', verticesSequence));
+    }
+    const n = verticesSequence.length;
+    const edges = [];
+
+    for (let i = 0; i < n-1; i++) {
+      const source = vertexId(verticesSequence[i]);
+      const dest = vertexId(verticesSequence[i+1]);
+
+      const e = this.getEdgeBetween(source, dest);
+      if (!isDefined(e)) {
+        throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `${source}->${dest}`));
+      }
+      edges.push(e);
+    }
+    return edges;
+  }
+
   setEdgeWeight(edge, weight) {
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
@@ -462,6 +492,8 @@ class Graph {
 
   // ALGORITHMS
 
+
+
   /**
    * @method bfs
    * @for Graph
@@ -474,13 +506,14 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', start));
     }
 
-    let result = new BfsResult();
+    let distance = {};
+    let predecessor = {};
     for (const v of this.vertices) {
-      result.distance[v.id] = Infinity;
+      distance[v.id] = Infinity;
     }
 
-    result.distance[s.id] = 0;
-    result.predecessor[s.id] = null;
+    distance[s.id] = 0;
+    predecessor[s.id] = null;
 
     let queue = [s];
 
@@ -490,15 +523,15 @@ class Graph {
       const adj = u.outgoingEdges();
       for (const e of adj) {
         const v = e.destination;
-        if (result.distance[v.id] === Infinity) {
-          result.predecessor[v.id] = u.id;
-          result.distance[v.id] = result.distance[u.id] + 1;
+        if (distance[v.id] === Infinity) {
+          predecessor[v.id] = u.id;
+          distance[v.id] = distance[u.id] + 1;
           queue.push(v);
         }
       }
     }
 
-    return result;
+    return new BfsResult(distance, predecessor);
   }
 }
 
