@@ -6,7 +6,7 @@ import Vertex from '../../src/graph/vertex.mjs';
 import { choose } from '../../src/common/array.mjs';
 import { randomInt } from '../../src/common/numbers.mjs';
 import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
-import { ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../../src/common/errors.mjs'
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import chai from "chai";
 import should from "should";
@@ -63,8 +63,8 @@ describe('Graph API', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
-      'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgeLabel',
-      'getEdgeWeight', 'setEdgeWeight',
+      'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesInPath',
+      'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'bfs'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
@@ -249,6 +249,68 @@ describe('getEdgeWeight', () => {
   });
 });
 
+describe('getEdgesInPath()', () => {
+  let g = new Graph();
+
+  before(() => {
+    range(1, 8).forEach(i => g.createVertex(`${i}`));
+    g.createEdge('"1"', '"2"');
+    g.createEdge('"1"', '"3"');
+    g.createEdge('"2"', '"3"');
+    g.createEdge('"2"', '"4"');
+    g.createEdge('"3"', '"5"');
+    g.createEdge('"4"', '"1"');
+    g.createEdge('"6"', '"7"');
+  })
+
+  it('# should throw when the wrong argument type is passed', () => {
+    (() => g.getEdgesInPath(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.getEdgesInPath', 'verticesSequence', null));
+    (() => g.getEdgesInPath()).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.getEdgesInPath', 'verticesSequence', undefined));
+    (() => g.getEdgesInPath({})).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.getEdgesInPath', 'verticesSequence', {}));
+  });
+
+  it('# should throw when the path is not in the graph', () => {
+    (() => g.getEdgesInPath(['"1"', '"8"'])).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `"1"->"8"`));
+    (() => g.getEdgesInPath(['"a"', '"2"'])).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `"a"->"2"`));
+    (() => g.getEdgesInPath(['"3"', '"5"', '"7"'])).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `"5"->"7"`));
+  });
+
+  it('# should not throw with empty path', () => {
+    g.getEdgesInPath([]).should.eql([]);
+  });
+
+  it('# should reconstruct a path', () => {
+    let path = g.getEdgesInPath(['"1"', '"2"', '"4"']);
+    Array.isArray(path).should.be.true();
+    path.length.should.eql(2);
+    path.every(e => e instanceof Edge).should.be.true();
+    path[0].source.id.should.eql('"1"');
+    path[0].destination.id.should.eql('"2"');
+    path[1].source.id.should.eql('"2"');
+    path[1].destination.id.should.eql('"4"');
+
+    path = g.getEdgesInPath(['"1"', '"2"', '"4"', '"1"', '"3"']);
+    Array.isArray(path).should.be.true();
+    path.length.should.eql(4);
+    path.every(e => e instanceof Edge).should.be.true();
+    path[0].source.id.should.eql('"1"');
+    path[0].destination.id.should.eql('"2"');
+    path[1].source.id.should.eql('"2"');
+    path[1].destination.id.should.eql('"4"');
+    path[2].source.id.should.eql('"4"');
+    path[2].destination.id.should.eql('"1"');
+    path[3].source.id.should.eql('"1"');
+    path[3].destination.id.should.eql('"3"');
+
+    path = g.getEdgesInPath(['"6"', '"7"']);
+    Array.isArray(path).should.be.true();
+    path.length.should.eql(1);
+    path.every(e => e instanceof Edge).should.be.true();
+    path[0].source.id.should.eql('"6"');
+    path[0].destination.id.should.eql('"7"');
+  });
+});
+
 describe('equals()', () => {
   it('# should abide by reflexive property', () => {
     let g = createExampleGraph();
@@ -388,7 +450,12 @@ describe('fromJson()', () => {
 describe('Algorithms', () => {
   describe('bfs', () => {
     describe('# UndirectedGraph', () => {
-      it('> bfs on a connected graph', () => {
+      it('Invalid input should return error', () => {
+        let g = new UndirectedGraph();
+        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
+      });
+
+      it('should compute bfs on a connected graph', () => {
         let g = new UndirectedGraph();
         range(1, 6).forEach(i => g.createVertex(`${i}`));
         g.createEdge('"1"', '"2"');
@@ -418,12 +485,7 @@ describe('Algorithms', () => {
         bfs.distance['"5"'].should.equal(2);
       });
 
-      it('> Invalid input returns error', () => {
-        let g = new UndirectedGraph();
-        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
-      });
-
-      it('> bfs on a disconnected graph', () => {
+      it('should compute bfs on a disconnected graph', () => {
         let g = new UndirectedGraph();
         range(1, 8).forEach(i => g.createVertex(`${i}`));
         g.createEdge('"1"', '"2"');
@@ -460,7 +522,12 @@ describe('Algorithms', () => {
     });
 
     describe('# DirectedGraph', () => {
-      it('> bfs on a connected di-graph', () => {
+      it('Invalid input should return error', () => {
+        let g = new Graph();
+        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
+      });
+
+      it('should compute bfs on a connected di-graph', () => {
         let g = new Graph();
         range(1, 6).forEach(i => g.createVertex(`${i}`));
         g.createEdge('"1"', '"2"');
@@ -490,11 +557,46 @@ describe('Algorithms', () => {
         bfs.distance['"5"'].should.equal(2);
       });
 
-      it('> Invalid input returns error', () => {
+      it('should build the correct path', () => {
         let g = new Graph();
-        (() => g.bfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.bfs', 'NotAVertex'));
+        range(1, 7).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const bfs = g.bfs('"4"');
+
+        let path = g.getEdgesInPath(bfs.reconstructPathTo('"3"'));
+
+        path.length.should.eql(2);
+        path.every(e => e instanceof Edge).should.be.true();
+        path[0].source.id.should.eql('"4"');
+        path[0].destination.id.should.eql('"1"');
+        path[1].source.id.should.eql('"1"');
+        path[1].destination.id.should.eql('"3"');
+
+        path = g.getEdgesInPath(bfs.reconstructPathTo('"5"'));
+
+        path.length.should.eql(3);
+        path.every(e => e instanceof Edge).should.be.true();
+        path[0].source.id.should.eql('"4"');
+        path[0].destination.id.should.eql('"1"');
+        path[1].source.id.should.eql('"1"');
+        path[1].destination.id.should.eql('"3"');
+        path[2].source.id.should.eql('"3"');
+        path[2].destination.id.should.eql('"5"');
+
+        // Unreachable vertex
+        path = g.getEdgesInPath(bfs.reconstructPathTo('"6"'));
+        path.length.should.eql(0);
+
+        // Vertex not in graph
+        path = g.getEdgesInPath(bfs.reconstructPathTo('"a"'));
+        path.length.should.eql(0);
       });
     });
-
   });
 });
