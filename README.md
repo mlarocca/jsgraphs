@@ -73,7 +73,7 @@ Here we keep a list of the roadmap for the development of this library. If you h
 
 ## **Algorithms**
 
-- [ ] BFS
+- [x] BFS
 - [ ] DFS
 - [ ] Dijkstra's
 - [ ] Bellman-Ford's
