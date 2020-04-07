@@ -73,8 +73,8 @@ class EmbeddedVertex extends Vertex {
   toSvg(cssClasses = []) {
     let [x, y] = this.position.coordinates();
     return `
-    <g class="vertex ${cssClasses.join(' ')}" transform="translate(${x},${y})">
-      <circle cx="0" cy="0" r="${this.radius()}" />
+    <g class="vertex ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
+      <circle cx="0" cy="0" r="${Math.round(this.radius())}" />
       <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.escapedLabel}</text>
     </g>`;
   }

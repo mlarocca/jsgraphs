@@ -65,7 +65,7 @@ describe('Graph API', () => {
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
-      'bfs'];
+      'bfs', 'dfs'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
@@ -595,6 +595,158 @@ describe('Algorithms', () => {
 
         // Vertex not in graph
         path = g.getEdgesInPath(bfs.reconstructPathTo('"a"'));
+        path.length.should.eql(0);
+      });
+    });
+  });
+
+  describe('dfs', () => {
+    describe('# UndirectedGraph', () => {
+      it('Invalid input should return error', () => {
+        let g = new UndirectedGraph();
+        (() => g.dfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.dfs', 'NotAVertex'));
+      });
+
+      it('should compute dfs on a connected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const dfs = g.dfs('"1"');
+
+        isObject(dfs).should.be.true();
+        (dfs instanceof dfsResult).should.be.true();
+
+        Object.keys(dfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => dfs.predecessor['"1"']).should.be.null;
+        dfs.predecessor['"2"'].should.equal('"1"');
+        dfs.predecessor['"3"'].should.equal('"1"');
+        dfs.predecessor['"4"'].should.equal('"1"');
+        dfs.predecessor['"5"'].should.equal('"3"');
+
+        Object.keys(dfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.distance['"1"'].should.equal(0);
+        dfs.distance['"2"'].should.equal(1);
+        dfs.distance['"3"'].should.equal(1);
+        dfs.distance['"4"'].should.equal(1);
+        dfs.distance['"5"'].should.equal(2);
+      });
+
+      it('should compute dfs on a disconnected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const dfs = g.dfs('"1"');
+
+        isObject(dfs).should.be.true();
+        (dfs instanceof dfsResult).should.be.true();
+
+        Object.keys(dfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => dfs.predecessor['"1"']).should.be.null;
+        dfs.predecessor['"2"'].should.equal('"1"');
+        dfs.predecessor['"3"'].should.equal('"1"');
+        dfs.predecessor['"4"'].should.equal('"1"');
+        dfs.predecessor['"5"'].should.equal('"3"');
+        (() => dfs.predecessor['"6"']).should.be.undefined;
+        (() => dfs.predecessor['"7"']).should.be.undefined;
+
+        Object.keys(dfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
+        dfs.distance['"1"'].should.equal(0);
+        dfs.distance['"2"'].should.equal(1);
+        dfs.distance['"3"'].should.equal(1);
+        dfs.distance['"4"'].should.equal(1);
+        dfs.distance['"5"'].should.equal(2);
+        dfs.distance['"6"'].should.equal(Infinity);
+        dfs.distance['"7"'].should.equal(Infinity);
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('Invalid input should return error', () => {
+        let g = new Graph();
+        (() => g.dfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.dfs', 'NotAVertex'));
+      });
+
+      it('should compute dfs on a connected di-graph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const dfs = g.dfs('"1"');
+
+        isObject(dfs).should.be.true();
+        (dfs instanceof dfsResult).should.be.true();
+
+        Object.keys(dfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        (() => dfs.predecessor['"1"']).should.be.null;
+        dfs.predecessor['"2"'].should.equal('"1"');
+        dfs.predecessor['"3"'].should.equal('"1"');
+        dfs.predecessor['"4"'].should.equal('"2"');
+        dfs.predecessor['"5"'].should.equal('"3"');
+
+        Object.keys(dfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.distance['"1"'].should.equal(0);
+        dfs.distance['"2"'].should.equal(1);
+        dfs.distance['"3"'].should.equal(1);
+        dfs.distance['"4"'].should.equal(2);
+        dfs.distance['"5"'].should.equal(2);
+      });
+
+      it('should build the correct path', () => {
+        let g = new Graph();
+        range(1, 7).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const dfs = g.dfs('"4"');
+
+        let path = g.getEdgesInPath(dfs.reconstructPathTo('"3"'));
+
+        path.length.should.eql(2);
+        path.every(e => e instanceof Edge).should.be.true();
+        path[0].source.id.should.eql('"4"');
+        path[0].destination.id.should.eql('"1"');
+        path[1].source.id.should.eql('"1"');
+        path[1].destination.id.should.eql('"3"');
+
+        path = g.getEdgesInPath(dfs.reconstructPathTo('"5"'));
+
+        path.length.should.eql(3);
+        path.every(e => e instanceof Edge).should.be.true();
+        path[0].source.id.should.eql('"4"');
+        path[0].destination.id.should.eql('"1"');
+        path[1].source.id.should.eql('"1"');
+        path[1].destination.id.should.eql('"3"');
+        path[2].source.id.should.eql('"3"');
+        path[2].destination.id.should.eql('"5"');
+
+        // Unreachable vertex
+        path = g.getEdgesInPath(dfs.reconstructPathTo('"6"'));
+        path.length.should.eql(0);
+
+        // Vertex not in graph
+        path = g.getEdgesInPath(dfs.reconstructPathTo('"a"'));
         path.length.should.eql(0);
       });
     });
