@@ -57,7 +57,7 @@ class Embedding {
         cs = Point2D.random({ width, height });
       }
       let eV = new EmbeddedVertex(v.label, cs, { weight: v.weight });
-      vertices.set(v.id, eV);
+      vertices.set(eV.id, eV);
     }
 
     for (const e of graph.edges) {
