@@ -220,9 +220,16 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDis
     (y2 - y1 - dy2 + dy1) / 2 + arcControlDistance / 2 * Math.cos(Math.PI / 2 + alpha)
   ];
 
+  // If the edge is directed, we need it to stop at the intersection with the vertex, to show the arrow
+  // Otherwise, having the arc drawn to the center of the destination vertex gives a better visual result
+  const [xDest, yDest] = [
+    x2 - x1 - (edge.isDirected() ? dx2 : 0),
+    y2 - y1 - (edge.isDirected() ? dy2 : 0)
+  ]
+
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
-      <path d="M${0},${0} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(x2 - x1 - dx2)},${Math.round(y2 - y1 - dy2)}"
+      <path d="M${0},${0} Q${Math.round(cx)},${Math.round(cy)} ${Math.round(xDest)},${Math.round(yDest)}"
        marker-end="${edge.isDirected() ? "url(#arrowhead)" : ""}"/>
       ${edgeLabel(edge, tx, ty, displayLabel, displayWeight)}
     </g>`;
