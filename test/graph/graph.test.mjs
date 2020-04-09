@@ -629,19 +629,19 @@ describe('Algorithms', () => {
         dfs.predecessor['"4"'].should.equal('"2"');
         dfs.predecessor['"5"'].should.equal('"3"');
 
-        Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeVisited['"1"'].should.equal(0);
-        dfs.timeVisited['"2"'].should.equal(1);
-        dfs.timeVisited['"3"'].should.equal(2);
-        dfs.timeVisited['"4"'].should.equal(3);
-        dfs.timeVisited['"5"'].should.equal(5);
+        Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.timeDiscovered['"1"'].should.equal(0);
+        dfs.timeDiscovered['"2"'].should.equal(1);
+        dfs.timeDiscovered['"3"'].should.equal(2);
+        dfs.timeDiscovered['"4"'].should.equal(3);
+        dfs.timeDiscovered['"5"'].should.equal(5);
 
-        Object.keys(dfs.timeCompleted).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeCompleted['"1"'].should.equal(9);
-        dfs.timeCompleted['"2"'].should.equal(8);
-        dfs.timeCompleted['"3"'].should.equal(7);
-        dfs.timeCompleted['"4"'].should.equal(4);
-        dfs.timeCompleted['"5"'].should.equal(6);
+        Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.timeVisited['"1"'].should.equal(9);
+        dfs.timeVisited['"2"'].should.equal(8);
+        dfs.timeVisited['"3"'].should.equal(7);
+        dfs.timeVisited['"4"'].should.equal(4);
+        dfs.timeVisited['"5"'].should.equal(6);
       });
 
       it('should compute dfs on a disconnected graph', () => {
@@ -669,6 +669,15 @@ describe('Algorithms', () => {
         (() => dfs.predecessor['"6"']).should.be.null;
         (() => dfs.predecessor['"7"']).should.equal(7);
 
+        Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
+        dfs.timeDiscovered['"1"'].should.equal(0);
+        dfs.timeDiscovered['"2"'].should.equal(1);
+        dfs.timeDiscovered['"3"'].should.equal(1);
+        dfs.timeDiscovered['"4"'].should.equal(1);
+        dfs.timeDiscovered['"5"'].should.equal(2);
+        dfs.timeDiscovered['"6"'].should.equal(Infinity);
+        dfs.timeDiscovered['"7"'].should.equal(Infinity);
+
         Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
         dfs.timeVisited['"1"'].should.equal(0);
         dfs.timeVisited['"2"'].should.equal(1);
@@ -677,15 +686,6 @@ describe('Algorithms', () => {
         dfs.timeVisited['"5"'].should.equal(2);
         dfs.timeVisited['"6"'].should.equal(Infinity);
         dfs.timeVisited['"7"'].should.equal(Infinity);
-
-        Object.keys(dfs.timeCompleted).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
-        dfs.timeCompleted['"1"'].should.equal(0);
-        dfs.timeCompleted['"2"'].should.equal(1);
-        dfs.timeCompleted['"3"'].should.equal(1);
-        dfs.timeCompleted['"4"'].should.equal(1);
-        dfs.timeCompleted['"5"'].should.equal(2);
-        dfs.timeCompleted['"6"'].should.equal(Infinity);
-        dfs.timeCompleted['"7"'].should.equal(Infinity);
       });
     });
 
@@ -711,19 +711,19 @@ describe('Algorithms', () => {
         (dfs instanceof dfsResult).should.be.true();
 
 
-        Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeVisited['"1"'].should.equal(0);
-        dfs.timeVisited['"2"'].should.equal(1);
-        dfs.timeVisited['"3"'].should.equal(2);
-        dfs.timeVisited['"4"'].should.equal(3);
-        dfs.timeVisited['"5"'].should.equal(5);
+        Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.timeDiscovered['"1"'].should.equal(0);
+        dfs.timeDiscovered['"2"'].should.equal(1);
+        dfs.timeDiscovered['"3"'].should.equal(2);
+        dfs.timeDiscovered['"4"'].should.equal(3);
+        dfs.timeDiscovered['"5"'].should.equal(5);
 
-        Object.keys(dfs.timeCompleted).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeCompleted['"1"'].should.equal(9);
-        dfs.timeCompleted['"2"'].should.equal(8);
-        dfs.timeCompleted['"3"'].should.equal(7);
-        dfs.timeCompleted['"4"'].should.equal(4);
-        dfs.timeCompleted['"5"'].should.equal(6);
+        Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
+        dfs.timeVisited['"1"'].should.equal(9);
+        dfs.timeVisited['"2"'].should.equal(8);
+        dfs.timeVisited['"3"'].should.equal(7);
+        dfs.timeVisited['"4"'].should.equal(4);
+        dfs.timeVisited['"5"'].should.equal(6);
       });
     });
   });

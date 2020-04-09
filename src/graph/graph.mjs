@@ -378,9 +378,7 @@ class Graph {
    * @param {Edge|string} edge Either a string with the edge's id, or an instance of Edge
    */
   hasEdge(edge) {
-    edge = edgeId(edge);
-
-    return this.edges.some(e => e.id === edge);
+    return isDefined(this.getEdge(edge));
   }
 
   hasEdgeBetween(source, destination) {
@@ -395,7 +393,7 @@ class Graph {
   getEdge(edge) {
     edge = edgeId(edge);
 
-    for (const e of this.edges) {
+    for (const e of getEdges(this)) {
       if (e.id === edge) {
         return e;
       }
@@ -578,6 +576,11 @@ export class UndirectedGraph extends Graph {
     }));
 
     return g;
+  }
+
+  get edges() {
+    // For directed graphs, we only want one of the two directed edges back...
+    return [...getEdges(this)].filter(e => e.source.id <= e.destination.id);
   }
 
   /**
