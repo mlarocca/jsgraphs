@@ -511,6 +511,11 @@ The output will look something like:
 </svg>
 ```
 
+Finally, an example of how a combination of different visualization styles and different structural changes (directed vs undirected edges) can impact how a graph is perceived:
+
+![Different styles for a complete graph](./img/tutorial/tutorial_graph_complete_3.jpg)
+
+
 # **Graph Algorithms**
 
 The most interesting part about graphs is that, once we have created one, we can run a ton of algorithms on it.
