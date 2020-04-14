@@ -7,7 +7,6 @@ import { randomDouble } from '../common/numbers.mjs';
  * Models a 2D Point in the Cartesian plane.
  */
 class Point2D extends Point {
-
   /**
    * @static
    * @param {string} json
@@ -59,7 +58,7 @@ class Point2D extends Point {
    * @param {Number} height The point to validate.
    * @return {Point} A new random 2D point.
    */
-  static random({width, height} = {}) {
+  static random({ width, height } = {}) {
     return new Point2D(randomDouble(0, width), randomDouble(0, height));
   }
 
@@ -86,7 +85,6 @@ class Point2D extends Point {
   get y() {
     return this.coordinates()[1];
   }
-
 
   /**
    * @name clone

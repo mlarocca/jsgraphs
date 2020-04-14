@@ -1,4 +1,4 @@
-import {ERROR_MSG_TOO_FEW_ARGUMENTS} from './errors.mjs';
+import { ERROR_MSG_TOO_FEW_ARGUMENTS } from './errors.mjs';
 
 /**
  * @name isObject
@@ -47,7 +47,10 @@ export function isFunction(maybeFunction) {
  *
  */
 export function isUndefined(maybeUndefined) {
-  return maybeUndefined === void(0) && checkArgumentsLength(arguments, 1, 'isUndefined');
+  return (
+    maybeUndefined === void 0 &&
+    checkArgumentsLength(arguments, 1, 'isUndefined')
+  );
 }
 
 /**
@@ -73,8 +76,10 @@ export function isDefined(maybeDefined) {
  * @returns {boolean} true iff `maybeIterable` is an iterable.
  */
 export function isIterable(maybeIterable) {
-  return (isObject(maybeIterable) || isFunction(maybeIterable)) && (typeof maybeIterable[Symbol.iterator] === 'function');
-
+  return (
+    (isObject(maybeIterable) || isFunction(maybeIterable)) &&
+    typeof maybeIterable[Symbol.iterator] === 'function'
+  );
 }
 
 /**
@@ -95,13 +100,14 @@ export function isBoolean(maybeBoolean) {
  * @param {*} _ Anything.
  * @return {*} The function's argument.
  */
-export const identity = _ => _;
-
+export const identity = (_) => _;
 
 let checkArgumentsLength = (args, expectedArgsLength, fname) => {
   if (args.length >= expectedArgsLength) {
     return true;
   } else {
-    throw new TypeError(ERROR_MSG_TOO_FEW_ARGUMENTS(fname, expectedArgsLength, args.length));
+    throw new TypeError(
+      ERROR_MSG_TOO_FEW_ARGUMENTS(fname, expectedArgsLength, args.length)
+    );
   }
 };

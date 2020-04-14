@@ -1,4 +1,7 @@
-import { ERROR_MSG_ARGUMENT_TYPE, ERROR_MSG_POSITION_OUT_OF_BOUNDARIES } from './errors.mjs';
+import {
+  ERROR_MSG_ARGUMENT_TYPE,
+  ERROR_MSG_POSITION_OUT_OF_BOUNDARIES
+} from './errors.mjs';
 import { randomInt } from './numbers.mjs';
 import { identity } from './basic.mjs';
 
@@ -17,7 +20,12 @@ import { identity } from './basic.mjs';
  * @param {?number} right The index of the last element of the array to include in the portion to be sorted.
  * @returns {Array} A reference to the input array.
  */
-function inPlaceInsertionSort(array, key = identity, left = 0, right = array.length - 1) {
+function inPlaceInsertionSort(
+  array,
+  key = identity,
+  left = 0,
+  right = array.length - 1
+) {
   for (let i = left + 1; i <= right; i++) {
     let current = array[i];
     let currentKey = key(current);
@@ -45,10 +53,14 @@ function inPlaceInsertionSort(array, key = identity, left = 0, right = array.len
  */
 export function insertionSort(array, key = identity) {
   if (!Array.isArray(array)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('insertionSort', 'array', array, 'Array'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('insertionSort', 'array', array, 'Array')
+    );
   }
   if (!(key instanceof Function)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('insertionSort', 'key', key, 'Function'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('insertionSort', 'key', key, 'Function')
+    );
   }
   return inPlaceInsertionSort(array, key);
 }
@@ -150,14 +162,20 @@ function _randomizedSelect(array, k, left, right, key) {
  */
 export function randomizedSelect(array, i, key = identity) {
   if (!Array.isArray(array)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('randomizedSelect', 'array', array, 'Array'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('randomizedSelect', 'array', array, 'Array')
+    );
   }
   let [k, n] = [i - 1, array.length];
   if (!Number.isSafeInteger(i) || i <= 0 || i > n) {
-    throw new TypeError(ERROR_MSG_POSITION_OUT_OF_BOUNDARIES('randomizedSelect', 'array', i));
+    throw new TypeError(
+      ERROR_MSG_POSITION_OUT_OF_BOUNDARIES('randomizedSelect', 'array', i)
+    );
   }
   if (!(key instanceof Function)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('randomizedSelect', 'key', key, 'Function'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('randomizedSelect', 'key', key, 'Function')
+    );
   }
 
   return _randomizedSelect(array, k, 0, n - 1, key);
@@ -177,10 +195,14 @@ export function randomizedSelect(array, i, key = identity) {
  */
 export function median(array, key = identity) {
   if (!Array.isArray(array)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('median', 'array', array, 'Array'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('median', 'array', array, 'Array')
+    );
   }
   if (!(key instanceof Function)) {
-    throw new TypeError(ERROR_MSG_ARGUMENT_TYPE('median', 'key', key, 'Function'));
+    throw new TypeError(
+      ERROR_MSG_ARGUMENT_TYPE('median', 'key', key, 'Function')
+    );
   }
 
   let copy = Array.from(array);

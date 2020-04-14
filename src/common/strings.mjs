@@ -1,14 +1,15 @@
 import { isObject, isPlainObject, isUndefined, isFunction } from './basic.mjs';
-import { ERROR_MSG_RANDOM_STRING_LENGTH, ERROR_MSG_RANDOM_STRING_TOO_LARGE } from './errors.mjs';
+import {
+  ERROR_MSG_RANDOM_STRING_LENGTH,
+  ERROR_MSG_RANDOM_STRING_TOO_LARGE
+} from './errors.mjs';
 
-const ASCII_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\ \t\n';
+const ASCII_ALPHABET =
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\ \t\n';
 const ASCII_ALPHABET_LENGTH = ASCII_ALPHABET.length;
 
-
 const respondsToToJson = (obj) => {
-  return isObject(obj)
-    && isFunction(obj.toJson)
-    && obj.toJson.length === 0;
+  return isObject(obj) && isFunction(obj.toJson) && obj.toJson.length === 0;
 };
 
 /**
@@ -30,16 +31,18 @@ export function consistentStringify(key) {
   } else if (!isObject(key)) {
     return JSON.stringify(key);
   } else if (Array.isArray(key)) {
-    return JSON.stringify(key.map(k => applyToJson(k, true)));
+    return JSON.stringify(key.map((k) => applyToJson(k, true)));
   } else if (respondsToToJson(key)) {
     return key.toJson();
   } else if (isPlainObject(key)) {
     let newKey = {};
-    Object.keys(key).sort().forEach(k => newKey[k] = applyToJson(key[k]));
+    Object.keys(key)
+      .sort()
+      .forEach((k) => (newKey[k] = applyToJson(key[k])));
     return JSON.stringify(newKey);
   } else {
     // Map, WeakMap, Set and WeakSet are not directly stringifiable.
-    throw new Error("Impossible to convert to JSON");
+    throw new Error('Impossible to convert to JSON');
   }
 }
 
@@ -47,13 +50,18 @@ function applyToJson(key) {
   if (key === undefined) {
     key = null;
   }
-  if (isString(key) || !isObject(key) || isPlainObject(key) || Array.isArray(key)) {
+  if (
+    isString(key) ||
+    !isObject(key) ||
+    isPlainObject(key) ||
+    Array.isArray(key)
+  ) {
     return key;
   } else if (respondsToToJson(key)) {
     return key.toJson();
   } else {
     // Map, WeakMap, Set and WeakSet are not directly stringifiable.
-    throw new Error("Impossible to convert to JSON");
+    throw new Error('Impossible to convert to JSON');
   }
 }
 
@@ -63,7 +71,7 @@ export function isJsonStringifiable(key) {
   } else if (!isObject(key)) {
     return true;
   } else if (Array.isArray(key)) {
-    return key.every(k => isJsonStringifiable(k, true));
+    return key.every((k) => isJsonStringifiable(k, true));
   } else if (respondsToToJson(key)) {
     return true;
   } else if (isPlainObject(key)) {
@@ -87,8 +95,10 @@ export function randomString(length) {
     throw new TypeError(ERROR_MSG_RANDOM_STRING_LENGTH(length));
   }
   try {
-    return Array.from({ length: length }, () => ASCII_ALPHABET[Math.floor(Math.random() * ASCII_ALPHABET_LENGTH)])
-      .join('');
+    return Array.from(
+      { length: length },
+      () => ASCII_ALPHABET[Math.floor(Math.random() * ASCII_ALPHABET_LENGTH)]
+    ).join('');
   } catch (e) {
     if (e instanceof RangeError) {
       throw new RangeError(ERROR_MSG_RANDOM_STRING_TOO_LARGE(length));

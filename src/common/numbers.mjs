@@ -1,9 +1,9 @@
 import {
-    ERROR_MSG_RANGE_LOWER,
-    ERROR_MSG_RANGE_UPPER,
-    ERROR_MSG_RANGE_STEP,
-    ERROR_MSG_RANGE_BOUNDARIES,
-    ERROR_MSG_RANGE_TOO_LARGE
+  ERROR_MSG_RANGE_LOWER,
+  ERROR_MSG_RANGE_UPPER,
+  ERROR_MSG_RANGE_STEP,
+  ERROR_MSG_RANGE_BOUNDARIES,
+  ERROR_MSG_RANGE_TOO_LARGE
 } from './errors.mjs';
 
 /**
@@ -15,7 +15,7 @@ import {
  * @returns {boolean} true iff `maybeNumber` is a number.
  */
 export function isNumber(maybeNumber) {
-    return !Number.isNaN(parseFloat(maybeNumber));
+  return !Number.isNaN(parseFloat(maybeNumber));
 }
 
 /**
@@ -27,7 +27,7 @@ export function isNumber(maybeNumber) {
  * @returns {number|null} null iff `maybeNumber` is NOT a number, its float value otherwise.
  */
 export function toNumber(maybeNumber) {
-    return isNumber(maybeNumber) ? parseFloat(maybeNumber) : null;
+  return isNumber(maybeNumber) ? parseFloat(maybeNumber) : null;
 }
 
 /**
@@ -46,32 +46,32 @@ export function toNumber(maybeNumber) {
  * @throws {RangeError(ERROR_MSG_RANGE_TOO_LARGE)} If the array [a ... b-1] is too big to be allocated.
  */
 export function range(a, b, step = 1) {
-    if (!Number.isSafeInteger(a)) {
-        throw new TypeError(ERROR_MSG_RANGE_LOWER('range', a));
-    }
+  if (!Number.isSafeInteger(a)) {
+    throw new TypeError(ERROR_MSG_RANGE_LOWER('range', a));
+  }
 
-    if (!Number.isSafeInteger(b)) {
-        throw new TypeError(ERROR_MSG_RANGE_UPPER('range', b));
-    }
+  if (!Number.isSafeInteger(b)) {
+    throw new TypeError(ERROR_MSG_RANGE_UPPER('range', b));
+  }
 
-    if (!Number.isSafeInteger(step) || step <= 0) {
-        throw new TypeError(ERROR_MSG_RANGE_STEP('range', step));
-    }
+  if (!Number.isSafeInteger(step) || step <= 0) {
+    throw new TypeError(ERROR_MSG_RANGE_STEP('range', step));
+  }
 
-    if (a > b) {
-        throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('range', a, b));
-    }
+  if (a > b) {
+    throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('range', a, b));
+  }
 
-    let len = 1 + Math.floor((b - a - 1) / step);
-    try {
-        return Array.from({ length: len }, (_, i) => a + i * step);
-    } catch (e) {
-        if (e instanceof RangeError) {
-            throw new RangeError(ERROR_MSG_RANGE_TOO_LARGE('range', a, b));
-        } else {
-            throw e;
-        }
+  let len = 1 + Math.floor((b - a - 1) / step);
+  try {
+    return Array.from({ length: len }, (_, i) => a + i * step);
+  } catch (e) {
+    if (e instanceof RangeError) {
+      throw new RangeError(ERROR_MSG_RANGE_TOO_LARGE('range', a, b));
+    } else {
+      throw e;
     }
+  }
 }
 
 /**
@@ -90,25 +90,25 @@ export function range(a, b, step = 1) {
  * @throws {TypeError(ERROR_MSG_RANGE_TOO_LARGE)} If the array [a ... b-1] is too big to be allocated.
  */
 export function* xrange(a, b, step = 1) {
-    if (!Number.isSafeInteger(a)) {
-        throw new TypeError(ERROR_MSG_RANGE_LOWER('xrange', a));
-    }
+  if (!Number.isSafeInteger(a)) {
+    throw new TypeError(ERROR_MSG_RANGE_LOWER('xrange', a));
+  }
 
-    if (!Number.isSafeInteger(b)) {
-        throw new TypeError(ERROR_MSG_RANGE_UPPER('xrange', b));
-    }
+  if (!Number.isSafeInteger(b)) {
+    throw new TypeError(ERROR_MSG_RANGE_UPPER('xrange', b));
+  }
 
-    if (a > b) {
-        throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('xrange', a, b));
-    }
+  if (a > b) {
+    throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('xrange', a, b));
+  }
 
-    if (!Number.isSafeInteger(step) || step <= 0) {
-        throw new TypeError(ERROR_MSG_RANGE_STEP('xrange', step));
-    }
+  if (!Number.isSafeInteger(step) || step <= 0) {
+    throw new TypeError(ERROR_MSG_RANGE_STEP('xrange', step));
+  }
 
-    for (; a < b; a += step) {
-        yield a;
-    }
+  for (; a < b; a += step) {
+    yield a;
+  }
 }
 
 /**
@@ -120,22 +120,24 @@ export function* xrange(a, b, step = 1) {
  * @throws {TypeError(ERROR_MSG_RANGE_UPPER)} If b is not a SafeInteger.
  * @throws {TypeError(ERROR_MSG_RANGE_BOUNDARIES)} If a < b.
  */
-export function randomInt(a = Number.MIN_SAFE_INTEGER, b = Number.MAX_SAFE_INTEGER) {
-    if (!Number.isSafeInteger(a)) {
-        throw new TypeError(ERROR_MSG_RANGE_LOWER('randomInt', a));
-    }
+export function randomInt(
+  a = Number.MIN_SAFE_INTEGER,
+  b = Number.MAX_SAFE_INTEGER
+) {
+  if (!Number.isSafeInteger(a)) {
+    throw new TypeError(ERROR_MSG_RANGE_LOWER('randomInt', a));
+  }
 
-    if (!Number.isSafeInteger(b)) {
-        throw new TypeError(ERROR_MSG_RANGE_UPPER('randomInt', b));
-    }
+  if (!Number.isSafeInteger(b)) {
+    throw new TypeError(ERROR_MSG_RANGE_UPPER('randomInt', b));
+  }
 
-    if (a >= b) {
-        throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('randomInt', a, b));
-    }
+  if (a >= b) {
+    throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('randomInt', a, b));
+  }
 
-    return a + Math.floor(Math.random() * (b - a));
+  return a + Math.floor(Math.random() * (b - a));
 }
-
 
 /**
  *
@@ -146,18 +148,21 @@ export function randomInt(a = Number.MIN_SAFE_INTEGER, b = Number.MAX_SAFE_INTEG
  * @throws {TypeError(ERROR_MSG_RANGE_UPPER)} If b is not finite.
  * @throws {TypeError(ERROR_MSG_RANGE_BOUNDARIES)} If a < b.
  */
-export function randomDouble(a = Number.MIN_SAFE_INTEGER, b = Number.MAX_SAFE_INTEGER) {
-    if (!Number.isFinite(a)) {
-        throw new TypeError(ERROR_MSG_RANGE_LOWER('randomDouble', a));
-    }
+export function randomDouble(
+  a = Number.MIN_SAFE_INTEGER,
+  b = Number.MAX_SAFE_INTEGER
+) {
+  if (!Number.isFinite(a)) {
+    throw new TypeError(ERROR_MSG_RANGE_LOWER('randomDouble', a));
+  }
 
-    if (!Number.isFinite(b)) {
-        throw new TypeError(ERROR_MSG_RANGE_UPPER('randomDouble', b));
-    }
+  if (!Number.isFinite(b)) {
+    throw new TypeError(ERROR_MSG_RANGE_UPPER('randomDouble', b));
+  }
 
-    if (a >= b) {
-        throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('randomDouble', a, b));
-    }
+  if (a >= b) {
+    throw new TypeError(ERROR_MSG_RANGE_BOUNDARIES('randomDouble', a, b));
+  }
 
-    return a + Math.random() * (b - a);
+  return a + Math.random() * (b - a);
 }

@@ -7,7 +7,11 @@ import Edge from '../edge.mjs';
 
 import Point2D from '../../geometric/point2d.mjs';
 
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../common/errors.mjs';
+import {
+  ERROR_MSG_INVALID_ARGUMENT,
+  ERROR_MSG_VERTEX_NOT_FOUND,
+  ERROR_MSG_EDGE_NOT_FOUND
+} from '../../common/errors.mjs';
 import { isUndefined, isPlainObject, isIterable } from '../../common/basic.mjs';
 import { toNumber, isNumber } from '../../common/numbers.mjs';
 import { consistentStringify } from '../../common/strings.mjs';
@@ -28,24 +32,44 @@ class Embedding {
   // -----  CLASS METHODS  -----
 
   static fromJson(json) {
-    return Embedding.fromJsonObject(JSON.parse(json))
+    return Embedding.fromJsonObject(JSON.parse(json));
   }
 
   static fromJsonObject({ vertices, edges }) {
-    return new Embedding(vertices.map(v => EmbeddedVertex.fromJson(v)), edges.map(e => EmbeddedEdge.fromJson(e)));
+    return new Embedding(
+      vertices.map((v) => EmbeddedVertex.fromJson(v)),
+      edges.map((e) => EmbeddedEdge.fromJson(e))
+    );
   }
 
-  static forGraph(graph, { width, height, vertexCoordinates = {}, edgeArcControlDistances = {} } = {}) {
+  static forGraph(
+    graph,
+    { width, height, vertexCoordinates = {}, edgeArcControlDistances = {} } = {}
+  ) {
     if (!(graph instanceof Graph)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'graph', graph));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'graph', graph)
+      );
     }
 
     if (!isPlainObject(vertexCoordinates)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'coordinates', vertexCoordinates));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding:fromGraph',
+          'coordinates',
+          vertexCoordinates
+        )
+      );
     }
 
     if (!isPlainObject(edgeArcControlDistances)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding:fromGraph', 'edgesArcControlDistance', edgeArcControlDistances));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding:fromGraph',
+          'edgesArcControlDistance',
+          edgeArcControlDistances
+        )
+      );
     }
 
     let vertices = new Map();
@@ -69,7 +93,8 @@ class Embedding {
           label: e.label,
           isDirected: graph.isDirected(),
           arcControlDistance: edgeArcControlDistances[e.id]
-        });
+        }
+      );
       edges.set(ee.id, ee);
     }
 
@@ -78,49 +103,76 @@ class Embedding {
 
   static completeGraph(n, canvasSize, directed = false) {
     if (!isNumber(n) || n < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding.completeGraph', 'n', n)
+      );
     }
 
     if (!isNumber(canvasSize) || canvasSize <= 0) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeGraph', 'canvasSize', canvasSize));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding.completeGraph',
+          'canvasSize',
+          canvasSize
+        )
+      );
     }
 
     // Make all these arguments are parsed as numbers
     [n, canvasSize] = [n, canvasSize].map(toNumber);
 
-    const g = directed ? Graph.completeGraph(n) : UndirectedGraph.completeGraph(n);
+    const g = directed
+      ? Graph.completeGraph(n)
+      : UndirectedGraph.completeGraph(n);
 
     let coordinates = {};
     for (const v of g.vertices) {
       const i = toNumber(v.label) - 1;
-      const delta = 2 * Math.PI / n;
+      const delta = (2 * Math.PI) / n;
       const center = canvasSize / 2;
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
-      coordinates[v.id] = new Point2D(center + radius * Math.cos(i * delta), center + radius * Math.sin(i * delta));
+      coordinates[v.id] = new Point2D(
+        center + radius * Math.cos(i * delta),
+        center + radius * Math.sin(i * delta)
+      );
     }
     return Embedding.forGraph(g, { vertexCoordinates: coordinates });
   }
 
   static completeBipartiteGraph(n, m, canvasSize, directed = false) {
     if (!isNumber(n) || n < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'n', n)
+      );
     }
 
     if (!isNumber(m) || m < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'm', m));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'm', m)
+      );
     }
 
     if (!isNumber(canvasSize) || canvasSize <= 0) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding.completeBipartiteGraph', 'canvasSize', canvasSize));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding.completeBipartiteGraph',
+          'canvasSize',
+          canvasSize
+        )
+      );
     }
 
     // Make all these arguments are parsed as numbers
     [n, m, canvasSize] = [n, m, canvasSize].map(toNumber);
 
-    const g = directed ? Graph.completeBipartiteGraph(n, m) : UndirectedGraph.completeBipartiteGraph(n, m);
+    const g = directed
+      ? Graph.completeBipartiteGraph(n, m)
+      : UndirectedGraph.completeBipartiteGraph(n, m);
 
-    const deltaN = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (n - 1);
-    const deltaM = (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (m - 1);
+    const deltaN =
+      (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (n - 1);
+    const deltaM =
+      (canvasSize - 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS) / (m - 1);
     let coordinates = {};
     let x, y;
 
@@ -142,11 +194,15 @@ class Embedding {
 
   constructor(vertices, edges) {
     if (!(Array.isArray(vertices) || isIterable(vertices))) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'vertices', vertices));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'vertices', vertices)
+      );
     }
 
     if (!(Array.isArray(edges) || isIterable(edges))) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'edges', edges));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'edges', edges)
+      );
     }
 
     this.#vertices = new Map();
@@ -154,7 +210,9 @@ class Embedding {
 
     for (const v of vertices) {
       if (!(v instanceof EmbeddedVertex)) {
-        throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'vertices', vertices));
+        throw new Error(
+          ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'vertices', vertices)
+        );
       }
 
       this.#vertices.set(v.id, v.clone());
@@ -162,9 +220,12 @@ class Embedding {
 
     for (const e of edges) {
       if (!(e instanceof EmbeddedEdge)) {
-        throw new Error(ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'edges', edges));
+        throw new Error(
+          ERROR_MSG_INVALID_ARGUMENT('Embedding()', 'edges', edges)
+        );
       }
-      this.#edges.set(e.id,
+      this.#edges.set(
+        e.id,
         new EmbeddedEdge(
           this.getVertex(e.source),
           this.getVertex(e.destination),
@@ -173,7 +234,9 @@ class Embedding {
             label: e.label,
             isDirected: e.isDirected(),
             arcControlDistance: e.arcControlDistance
-          }));
+          }
+        )
+      );
     }
   }
 
@@ -209,10 +272,22 @@ class Embedding {
   setVertexPosition(vertex, position) {
     const v = this.#vertices.get(vertexId(vertex));
     if (isUndefined(v)) {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', vertex));
+      throw new Error(
+        ERROR_MSG_VERTEX_NOT_FOUND(
+          'Embedding.setVertexPosition',
+          'vertex',
+          vertex
+        )
+      );
     }
     if (!(position instanceof Point2D)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', position));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding.setVertexPosition',
+          'position',
+          position
+        )
+      );
     }
     v.position = position;
   }
@@ -225,10 +300,18 @@ class Embedding {
   setEdgeControlPoint(edge, arcControlDistance) {
     const e = this.#edges.get(edgeId(edge));
     if (isUndefined(e)) {
-      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', edge));
+      throw new Error(
+        ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', edge)
+      );
     }
     if (!isNumber(arcControlDistance)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setEdgeControlPoint', 'arcControlDistance', arcControlDistance));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Embedding.setEdgeControlPoint',
+          'arcControlDistance',
+          arcControlDistance
+        )
+      );
     }
     e.arcControlDistance = toNumber(arcControlDistance);
   }
@@ -238,7 +321,7 @@ class Embedding {
   }
 
   equals(other) {
-    return (other instanceof Embedding) && this.toJson() === other.toJson();
+    return other instanceof Embedding && this.toJson() === other.toJson();
   }
 
   toJson() {
@@ -247,8 +330,8 @@ class Embedding {
 
   toJsonObject() {
     return {
-      vertices: [...this.vertices].map(v => v.toJson()),
-      edges: [...this.edges].map(e => e.toJson())
+      vertices: [...this.vertices].map((v) => v.toJson()),
+      edges: [...this.edges].map((e) => e.toJson())
     };
   }
 
@@ -258,7 +341,9 @@ class Embedding {
    * @param {*} height
    * @param {*} options
    */
-  toSvg(width, height,
+  toSvg(
+    width,
+    height,
     {
       drawEdgesAsArcs = false,
       displayEdgesLabel = true,
@@ -266,21 +351,26 @@ class Embedding {
       graphCss = [],
       verticesCss = {},
       edgesCss = {}
-    } = {}) {
+    } = {}
+  ) {
     return `
 <svg width="${width}" height="${height}">
   ${svgDefs()}
   <g class="graph ${graphCss.join(' ')}">
-    <g class="edges">${[...this.edges].map(e => {
-      return e.toSvg({
-        cssClasses: edgesCss[e.id],
-        drawAsArc: drawEdgesAsArcs,
-        displayLabel: displayEdgesLabel,
-        displayWeight: displayEdgesWeight
-      });
-    }).join('')}
+    <g class="edges">${[...this.edges]
+      .map((e) => {
+        return e.toSvg({
+          cssClasses: edgesCss[e.id],
+          drawAsArc: drawEdgesAsArcs,
+          displayLabel: displayEdgesLabel,
+          displayWeight: displayEdgesWeight
+        });
+      })
+      .join('')}
     </g>
-  <g class="vertices">${[...this.vertices].map(v => v.toSvg(verticesCss[v.id])).join('')}</g>
+  <g class="vertices">${[...this.vertices]
+    .map((v) => v.toSvg(verticesCss[v.id]))
+    .join('')}</g>
   </g>
 </svg>`;
   }
@@ -331,6 +421,5 @@ function svgDefs() {
     </radialGradient>
   </defs>`;
 }
-
 
 export default Embedding;

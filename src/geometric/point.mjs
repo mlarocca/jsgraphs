@@ -1,7 +1,11 @@
 import { isNumber, range, toNumber } from '../common/numbers.mjs';
 import { mean } from '../common/array.mjs';
 import { isUndefined } from '../common/basic.mjs';
-import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_MSG_PARAM_TYPE } from '../common/errors.mjs';
+import {
+  ERROR_MSG_INVALID_DIMENSION_INDEX,
+  ERROR_MSG_PARAM_EMPTY_ARRAY,
+  ERROR_MSG_PARAM_TYPE
+} from '../common/errors.mjs';
 
 /**
  * @name validateCoordinates
@@ -15,16 +19,29 @@ import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_M
  */
 /* jshint ignore:start */
 function validateCoordinates(fname = 'validateCoordinates', ...coordinates) {
-
-  let valid = coordinates.length > 0 && coordinates.every(_ => isNumber(_));
+  let valid = coordinates.length > 0 && coordinates.every((_) => isNumber(_));
   if (!valid) {
-    throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'coordinates', coordinates, 'sequence of numbers'));
+    throw new TypeError(
+      ERROR_MSG_PARAM_TYPE(
+        fname,
+        'coordinates',
+        coordinates,
+        'sequence of numbers'
+      )
+    );
   }
 }
 /* jshint ignore:end */
 
-const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =>
-  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
+const ERROR_MSG_PARAM_INVALID_POINT = (
+  fname,
+  val,
+  dimension,
+  pname = 'point'
+) =>
+  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${
+    isUndefined(dimension) ? '' : ` (${dimension}D)`
+  }`;
 
 /**
  * @class Point
@@ -34,7 +51,6 @@ const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =
 class Point {
   #coordinates;
   #K;
-
 
   /**
    * @constructor
@@ -71,7 +87,11 @@ class Point {
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the coordinates aren't valid.
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the dimensionality parameter isn't a positive safe integer.
    */
-  static validatePoint(maybePoint, dimensionality = maybePoint ? maybePoint.dimensionality : undefined, fname = 'validatePoint') {
+  static validatePoint(
+    maybePoint,
+    dimensionality = maybePoint ? maybePoint.dimensionality : undefined,
+    fname = 'validatePoint'
+  ) {
     let invalid = true;
     if (maybePoint instanceof Point) {
       if (Number.isSafeInteger(dimensionality) && dimensionality > 0) {
@@ -80,12 +100,21 @@ class Point {
           invalid = false;
         }
       } else {
-        throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'dimensionality', dimensionality, 'positive integer'));
+        throw new TypeError(
+          ERROR_MSG_PARAM_TYPE(
+            fname,
+            'dimensionality',
+            dimensionality,
+            'positive integer'
+          )
+        );
       }
     }
 
     if (invalid) {
-      throw new TypeError(ERROR_MSG_PARAM_INVALID_POINT(fname, maybePoint, dimensionality));
+      throw new TypeError(
+        ERROR_MSG_PARAM_INVALID_POINT(fname, maybePoint, dimensionality)
+      );
     }
   }
 
@@ -105,7 +134,11 @@ class Point {
    * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if one of the array entries is not a valid point.
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the dimensionality parameter isn't a positive safe integer.
    */
-  static validatePointArray(maybePointsArray, dimensionality, fname = 'validatePointArray') {
+  static validatePointArray(
+    maybePointsArray,
+    dimensionality,
+    fname = 'validatePointArray'
+  ) {
     if (Array.isArray(maybePointsArray)) {
       if (isUndefined(dimensionality)) {
         try {
@@ -114,11 +147,27 @@ class Point {
           //Nothing to do, array might be empty, otherwise validation will fail for the first point.
         }
       } else if (!Number.isSafeInteger(dimensionality) || dimensionality <= 0) {
-        throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'dimensionality', dimensionality, 'positive integer'));
+        throw new TypeError(
+          ERROR_MSG_PARAM_TYPE(
+            fname,
+            'dimensionality',
+            dimensionality,
+            'positive integer'
+          )
+        );
       }
-      maybePointsArray.forEach(_ => Point.validatePoint(_, dimensionality, fname));
+      maybePointsArray.forEach((_) =>
+        Point.validatePoint(_, dimensionality, fname)
+      );
     } else {
-      throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'maybePointsArray', maybePointsArray, 'array'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_TYPE(
+          fname,
+          'maybePointsArray',
+          maybePointsArray,
+          'array'
+        )
+      );
     }
   }
 
@@ -141,7 +190,9 @@ class Point {
     if (pointsArray.length === 0) {
       throw new TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY(fname, 'pointsArray'));
     }
-    let cs = range(0, pointsArray[0].dimensionality).map(d => mean(pointsArray.map(p => p.coordinate(d))));
+    let cs = range(0, pointsArray[0].dimensionality).map((d) =>
+      mean(pointsArray.map((p) => p.coordinate(d)))
+    );
     return new Point(...cs);
   }
 
@@ -160,9 +211,18 @@ class Point {
    */
   static random(dimensionality, fname = 'random') {
     if (!Number.isSafeInteger(dimensionality) || dimensionality <= 0) {
-      throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'dimensionality', dimensionality, 'positive integer'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_TYPE(
+          fname,
+          'dimensionality',
+          dimensionality,
+          'positive integer'
+        )
+      );
     }
-    let cs = range(0, dimensionality).map(_ => (Math.random() - 0.5) * 2 * Number.MAX_SAFE_INTEGER);
+    let cs = range(0, dimensionality).map(
+      (_) => (Math.random() - 0.5) * 2 * Number.MAX_SAFE_INTEGER
+    );
     return new Point(...cs);
   }
 
@@ -180,9 +240,16 @@ class Point {
    */
   static zero(dimensionality, fname = 'zero') {
     if (!Number.isSafeInteger(dimensionality) || dimensionality <= 0) {
-      throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'dimensionality', dimensionality, 'positive integer'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_TYPE(
+          fname,
+          'dimensionality',
+          dimensionality,
+          'positive integer'
+        )
+      );
     }
-    let cs = range(0, dimensionality).map(_ => 0);
+    let cs = range(0, dimensionality).map((_) => 0);
     return new Point(...cs);
   }
 
@@ -211,7 +278,13 @@ class Point {
    */
   coordinate(dim) {
     if (!Number.isSafeInteger(dim) || dim < 0 || dim >= this.dimensionality) {
-      throw new TypeError(ERROR_MSG_INVALID_DIMENSION_INDEX('coordinate', dim, this.dimensionality));
+      throw new TypeError(
+        ERROR_MSG_INVALID_DIMENSION_INDEX(
+          'coordinate',
+          dim,
+          this.dimensionality
+        )
+      );
     }
 
     return this.coordinates()[dim];
@@ -279,16 +352,21 @@ class Point {
   maxDistance(pointsArray) {
     Point.validatePointArray(pointsArray, this.dimensionality, 'maxDistance');
     if (pointsArray.length === 0) {
-      throw new TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY('maxDistance', 'pointsArray'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_EMPTY_ARRAY('maxDistance', 'pointsArray')
+      );
     }
-    return pointsArray.reduce(([maxPoint, maxDist], p) => {
-      let d = this.distanceTo(p);
-      if (d > maxDist) {
-        maxDist = d;
-        maxPoint = p;
-      }
-      return [maxPoint, maxDist];
-    }, [null, -1]);
+    return pointsArray.reduce(
+      ([maxPoint, maxDist], p) => {
+        let d = this.distanceTo(p);
+        if (d > maxDist) {
+          maxDist = d;
+          maxPoint = p;
+        }
+        return [maxPoint, maxDist];
+      },
+      [null, -1]
+    );
   }
 
   /**
@@ -305,16 +383,21 @@ class Point {
   minDistance(pointsArray) {
     Point.validatePointArray(pointsArray, this.dimensionality, 'minDistance');
     if (pointsArray.length === 0) {
-      throw new TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY('minDistance', 'pointsArray'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_EMPTY_ARRAY('minDistance', 'pointsArray')
+      );
     }
-    return pointsArray.reduce(([maxPoint, maxDist], p) => {
-      let d = this.distanceTo(p);
-      if (d < maxDist) {
-        maxDist = d;
-        maxPoint = p;
-      }
-      return [maxPoint, maxDist];
-    }, [null, Number.POSITIVE_INFINITY]);
+    return pointsArray.reduce(
+      ([maxPoint, maxDist], p) => {
+        let d = this.distanceTo(p);
+        if (d < maxDist) {
+          maxDist = d;
+          maxPoint = p;
+        }
+        return [maxPoint, maxDist];
+      },
+      [null, Number.POSITIVE_INFINITY]
+    );
   }
 
   /**
@@ -329,7 +412,10 @@ class Point {
    */
   equals(other) {
     let eq = false;
-    if (other instanceof Point && other.dimensionality === this.dimensionality) {
+    if (
+      other instanceof Point &&
+      other.dimensionality === this.dimensionality
+    ) {
       let c1 = this.coordinates();
       let c2 = other.coordinates();
       eq = c1.every((c, index) => c === c2[index]);
@@ -347,7 +433,9 @@ class Point {
    * @returns {string} A proper, human readable string representation of the point.
    */
   toString() {
-    return `(${this.coordinates().map(_ => _.toString()).join(',')})`;
+    return `(${this.coordinates()
+      .map((_) => _.toString())
+      .join(',')})`;
   }
 
   /**
@@ -361,7 +449,6 @@ class Point {
   toJson() {
     return JSON.stringify(this.coordinates());
   }
-
 }
 
 export default Point;

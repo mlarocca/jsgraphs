@@ -1,10 +1,14 @@
-import {isIterable, isUndefined} from '../../common/basic.mjs';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../../common/errors.mjs';
+import { isIterable, isUndefined } from '../../common/basic.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.mjs';
 
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) => `Illegal argument for UnionFindLists constructor: ${val}`;
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) => `Duplicate element in initial set for UnionFindLists constructor: ${val}`;
-const ERROR_MSG_FIND_NOT_IN_SET = (val) => `Argument ${val} for method find does not belong to this set`;
-const ERROR_MSG_ADD_ELEMENT = (val) => `Illegal argument for method add: ${val}`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) =>
+  `Illegal argument for UnionFindLists constructor: ${val}`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) =>
+  `Duplicate element in initial set for UnionFindLists constructor: ${val}`;
+const ERROR_MSG_FIND_NOT_IN_SET = (val) =>
+  `Argument ${val} for method find does not belong to this set`;
+const ERROR_MSG_ADD_ELEMENT = (val) =>
+  `Illegal argument for method add: ${val}`;
 
 const _partitionsMap = new WeakMap();
 
@@ -35,9 +39,11 @@ class UnionFindLists {
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT)}   If initialSet is not an array, or any element is undefined or null.
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT)}   If initialSet contains duplicates.
    */
-  constructor(initialSet=[]) {
+  constructor(initialSet = []) {
     if (!isIterable(initialSet)) {
-      throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet));
+      throw new TypeError(
+        ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet)
+      );
     }
 
     let partitions = new Map();
@@ -45,12 +51,16 @@ class UnionFindLists {
 
     for (let elem of initialSet) {
       if (isUndefined(elem) || elem === null) {
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem)
+        );
       }
 
       if (partitions.has(elem)) {
         //We have a duplicated element
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem)
+        );
       }
       //else
       partitions.set(elem, new Set([elem]));
@@ -99,7 +109,6 @@ class UnionFindLists {
     return true;
   }
 
-
   /**
    * @name findPartition
    * @for DisjointSetLists
@@ -114,18 +123,19 @@ class UnionFindLists {
    * @throws {TypeError(ERROR_MSG_FIND_NOT_IN_SET)}   If the argument does not belong to this set.
    */
   findPartition(elem) {
-    if (isUndefined(elem)){
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem));
+    if (isUndefined(elem)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem)
+      );
     }
 
     let partitions = _partitionsMap.get(this);
-    if (!(partitions.has(elem))) {
+    if (!partitions.has(elem)) {
       throw new TypeError(ERROR_MSG_FIND_NOT_IN_SET(elem));
     }
 
     return partitions.get(elem);
   }
-
 
   /**
    * @name merge
@@ -142,8 +152,8 @@ class UnionFindLists {
    * @throws {TypeError(ERROR_MSG_INVALID_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   merge(elem1, elem2) {
-    let p1 = this.findPartition(elem1);  // this validates the input and might throw
-    let p2 = this.findPartition(elem2);  // this validates the input and might throw
+    let p1 = this.findPartition(elem1); // this validates the input and might throw
+    let p2 = this.findPartition(elem2); // this validates the input and might throw
 
     if (p1 === p2) {
       return false; // Not merged
@@ -154,18 +164,19 @@ class UnionFindLists {
     let partitions = _partitionsMap.get(this);
 
     if (r1 <= r2) {
-      p1.forEach(e => {
+      p1.forEach((e) => {
         p2.add(e);
         partitions.set(e, p2);
       });
-    } else {  // r1 > r2
-      p2.forEach(e => {
+    } else {
+      // r1 > r2
+      p2.forEach((e) => {
         p1.add(e);
         partitions.set(e, p1);
       });
     }
 
-    return true;  // Merged
+    return true; // Merged
   }
 
   /**
@@ -183,8 +194,8 @@ class UnionFindLists {
    * @throws {TypeError(ERROR_MSG_FIND_ILLEGAL_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   areDisjoint(elem1, elem2) {
-    let p1 = this.findPartition(elem1);  // this validates the input and might throw  //this might throw
-    let p2 = this.findPartition(elem2);  // this validates the input and might throw  //this might throw
+    let p1 = this.findPartition(elem1); // this validates the input and might throw  //this might throw
+    let p2 = this.findPartition(elem2); // this validates the input and might throw  //this might throw
 
     return p1 !== p2;
   }

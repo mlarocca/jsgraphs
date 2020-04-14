@@ -31,7 +31,11 @@ function defaultCompare(x, y) {
  * @returns {boolean} True iff it is possible to store this value in the heap
  */
 function validateElem(value) {
-  return typeof value !== 'undefined' && typeof value !== 'function' && value !== null;
+  return (
+    typeof value !== 'undefined' &&
+    typeof value !== 'function' &&
+    value !== null
+  );
 }
 
 /**
@@ -54,7 +58,7 @@ function validateElem(value) {
  * @throws {TypeError(ERROR_MSG_DWAYHEAP_SET_ELEMENT)} If the index parameter is not valid.
  */
 function setElementToPosition(elements, positions, elem, index, oldIndex) {
-//TODO remove and check in the callers
+  //TODO remove and check in the callers
 
   if (!positions.has(elem)) {
     positions.set(elem, [index]);
@@ -103,7 +107,7 @@ function removeElementFromPosition(elements, positions, index, splice) {
   }
   if (splice) {
     //Actually splice the element from the array
-    elements.splice(index, 1);  //assert === elem
+    elements.splice(index, 1); //assert === elem
   }
   return elem;
 }
@@ -158,14 +162,20 @@ function bubbleUp(elements, positions, branchFactor, compare, index) {
     let parentIndex = Math.floor((i - 1) / branchFactor);
     if (compare(elem, elements[parentIndex]) < 0) {
       //elem must keep bubbling up: sets elements[i] = elements[parentIndex];
-      setElementToPosition(elements, positions, elements[parentIndex], i, parentIndex);
+      setElementToPosition(
+        elements,
+        positions,
+        elements[parentIndex],
+        i,
+        parentIndex
+      );
       i = parentIndex;
     } else {
       //we found the right place for elem: position i
       break;
     }
   }
-  if (i !== index){
+  if (i !== index) {
     //Sets elements[i] = elem;
     setElementToPosition(elements, positions, elem, i, index);
   }
@@ -188,37 +198,43 @@ function bubbleUp(elements, positions, branchFactor, compare, index) {
  *
  * @return {Number} The new position for the element.
  */
-  function pushDown(elements, positions, branchFactor, compare, index) {
-    var elem = elements[index];
-    var n = elements.length;
-    var parentIndex = index;
-    var smallestChildIndex = index * branchFactor + 1;
-    //Iteratively go down the subtree
-    while (smallestChildIndex < n) {
-      let smallestChild = elements[smallestChildIndex];
-      let m = Math.min(n, smallestChildIndex + branchFactor);
-      //Look for the smallest child
-      for (let i = smallestChildIndex + 1; i < m; i++) {
-        if (compare(elements[i], smallestChild) < 0) {
-          smallestChildIndex = i;
-          smallestChild = elements[i];
-        }
-      }
-      //Check if the smallest of the children is smaller than elem
-      if (compare(smallestChild, elem) < 0) {
-        //we need to push the parent down
-        setElementToPosition(elements, positions, smallestChild, parentIndex, smallestChildIndex);
-        //Iteratively go down the subtree
-        parentIndex = smallestChildIndex;
-        smallestChildIndex = parentIndex * branchFactor + 1;
-      } else {
-        //We don't need to go down this subtree
-        break;
+function pushDown(elements, positions, branchFactor, compare, index) {
+  var elem = elements[index];
+  var n = elements.length;
+  var parentIndex = index;
+  var smallestChildIndex = index * branchFactor + 1;
+  //Iteratively go down the subtree
+  while (smallestChildIndex < n) {
+    let smallestChild = elements[smallestChildIndex];
+    let m = Math.min(n, smallestChildIndex + branchFactor);
+    //Look for the smallest child
+    for (let i = smallestChildIndex + 1; i < m; i++) {
+      if (compare(elements[i], smallestChild) < 0) {
+        smallestChildIndex = i;
+        smallestChild = elements[i];
       }
     }
-    if (index !== parentIndex) {
-      setElementToPosition(elements, positions, elem, parentIndex, index);
+    //Check if the smallest of the children is smaller than elem
+    if (compare(smallestChild, elem) < 0) {
+      //we need to push the parent down
+      setElementToPosition(
+        elements,
+        positions,
+        smallestChild,
+        parentIndex,
+        smallestChildIndex
+      );
+      //Iteratively go down the subtree
+      parentIndex = smallestChildIndex;
+      smallestChildIndex = parentIndex * branchFactor + 1;
+    } else {
+      //We don't need to go down this subtree
+      break;
     }
+  }
+  if (index !== parentIndex) {
+    setElementToPosition(elements, positions, elem, parentIndex, index);
+  }
 
   return parentIndex;
 }
@@ -237,7 +253,6 @@ function bubbleUp(elements, positions, branchFactor, compare, index) {
  * @return {undefined}
  */
 function heapify(elements, positions, branchFactor, compare, intialElements) {
-
   var n = intialElements.length;
 
   for (let i = 0; i < n; i++) {
@@ -268,15 +283,21 @@ function check(elements, branchFactor, compare) {
   return true;
 }
 
-const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM = (val) => `Illegal argument for DWayHeap constructor: branchFactor ${val}`;
-const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM = (val) => `Illegal argument for DWayHeap constructor: elements ${val}`;
-const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM = (val) => `Illegal argument for DWayHeap constructor: compare ${val}`;
+const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM = (val) =>
+  `Illegal argument for DWayHeap constructor: branchFactor ${val}`;
+const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM = (val) =>
+  `Illegal argument for DWayHeap constructor: elements ${val}`;
+const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM = (val) =>
+  `Illegal argument for DWayHeap constructor: compare ${val}`;
 const ERROR_MSG_DWAYHEAP_PUSH = (val) => `Illegal argument for push: ${val}`;
-const ERROR_MSG_DWAYHEAP_EMPTY_HEAP = () => `Invalid Status: Empty Heap`;
-const ERROR_MSG_DWAYHEAP_CHECK = () => `Heap Properties Violated`;
-const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY = (val) => `Out of range argument: element ${val} not stored in the heap`;
-const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API = (val) => `Illegal argument for updatePriority: ${val}`;
-const ERROR_MSG_DWAYHEAP_ELEMENT_POSITION = (val) => `Error: can't find position for elem:  ${val}`;
+const ERROR_MSG_DWAYHEAP_EMPTY_HEAP = () => 'Invalid Status: Empty Heap';
+const ERROR_MSG_DWAYHEAP_CHECK = () => 'Heap Properties Violated';
+const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY = (val) =>
+  `Out of range argument: element ${val} not stored in the heap`;
+const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API = (val) =>
+  `Illegal argument for updatePriority: ${val}`;
+const ERROR_MSG_DWAYHEAP_ELEMENT_POSITION = (val) =>
+  `Error: can't find position for elem:  ${val}`;
 
 /**
  * @class DWayHeap
@@ -310,14 +331,23 @@ class DWayHeap {
     //Force casting to Number and takes the integer part
     var bF = parseInt(branchFactor, 10);
     if (Number.isNaN(bF) || bF < 2) {
-      throw new TypeError(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(branchFactor));
+      throw new TypeError(
+        ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(branchFactor)
+      );
     }
 
-    if (elements === undefined || elements === null || !Array.isArray(elements)) {
+    if (
+      elements === undefined ||
+      elements === null ||
+      !Array.isArray(elements)
+    ) {
       throw new TypeError(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM(elements));
     }
 
-    if (typeof compare !== 'undefined' && (typeof compare !== 'function' || compare.length !== 2)) {
+    if (
+      typeof compare !== 'undefined' &&
+      (typeof compare !== 'function' || compare.length !== 2)
+    ) {
       throw new TypeError(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(compare));
     }
 
@@ -326,15 +356,52 @@ class DWayHeap {
     _positions.set(this, new Map());
     _elements.set(this, []);
 
-    _bubbleUp.set(this, bubbleUp.bind(this, _elements.get(this), _positions.get(this), bF, _compare.get(this)));
-    _pushDown.set(this, pushDown.bind(this, _elements.get(this), _positions.get(this), bF, _compare.get(this)));
-    _setElementToPosition.set(this, setElementToPosition.bind(this, _elements.get(this), _positions.get(this)));
-    _removeElementFromPosition.set(this, removeElementFromPosition.bind(this, _elements.get(this), _positions.get(this)));
-    _getElementPositions.set(this, getElementPositions.bind(this, _positions.get(this)));
-//DEBUG    _check.set(this, check.bind(this, _elements.get(this), bF, _compare.get(this)));
+    _bubbleUp.set(
+      this,
+      bubbleUp.bind(
+        this,
+        _elements.get(this),
+        _positions.get(this),
+        bF,
+        _compare.get(this)
+      )
+    );
+    _pushDown.set(
+      this,
+      pushDown.bind(
+        this,
+        _elements.get(this),
+        _positions.get(this),
+        bF,
+        _compare.get(this)
+      )
+    );
+    _setElementToPosition.set(
+      this,
+      setElementToPosition.bind(this, _elements.get(this), _positions.get(this))
+    );
+    _removeElementFromPosition.set(
+      this,
+      removeElementFromPosition.bind(
+        this,
+        _elements.get(this),
+        _positions.get(this)
+      )
+    );
+    _getElementPositions.set(
+      this,
+      getElementPositions.bind(this, _positions.get(this))
+    );
+    //DEBUG    _check.set(this, check.bind(this, _elements.get(this), bF, _compare.get(this)));
 
-    heapify(_elements.get(this), _positions.get(this), bF, _compare.get(this), elements);
-//DEBUG    _check.get(this)();
+    heapify(
+      _elements.get(this),
+      _positions.get(this),
+      bF,
+      _compare.get(this),
+      elements
+    );
+    //DEBUG    _check.get(this)();
   }
 
   /**
@@ -377,7 +444,6 @@ class DWayHeap {
     return _branchFactor.get(this);
   }
 
-
   /**
    * @name contains
    * @for DWayHeap
@@ -392,7 +458,6 @@ class DWayHeap {
     let ps = _getElementPositions.get(this)(elem);
     return ps !== null && ps.length > 0;
   }
-
 
   /**
    * @name push
@@ -418,7 +483,7 @@ class DWayHeap {
     //Then bubble it up
     _bubbleUp.get(this)(n);
 
-//DEBUG    _check.get(this)();
+    //DEBUG    _check.get(this)();
 
     return this;
   }
@@ -454,21 +519,21 @@ class DWayHeap {
     var n = this.size;
 
     switch (n) {
-    case 0:
-      throw new Error(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
-    case 1:
-      return _removeElementFromPosition.get(this)(0, true);
-    default:
-      //We MUST not change the position of subsequent array elements
-      let topElem = _removeElementFromPosition.get(this)(0, false);
-      //The last element, instead, needs to be removed
-      let elem = _removeElementFromPosition.get(this)(n - 1, true);
-      _setElementToPosition.get(this)(elem, 0, n - 1);
-      _pushDown.get(this)(0);
+      case 0:
+        throw new Error(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
+      case 1:
+        return _removeElementFromPosition.get(this)(0, true);
+      default:
+        //We MUST not change the position of subsequent array elements
+        let topElem = _removeElementFromPosition.get(this)(0, false);
+        //The last element, instead, needs to be removed
+        let elem = _removeElementFromPosition.get(this)(n - 1, true);
+        _setElementToPosition.get(this)(elem, 0, n - 1);
+        _pushDown.get(this)(0);
 
-//DEBUG      _check.get(this)();
+        //DEBUG      _check.get(this)();
 
-      return topElem;
+        return topElem;
     }
   }
 
@@ -494,7 +559,7 @@ class DWayHeap {
     var compareResult = _compare.get(this)(newValue, oldValue);
     var n = this.size;
     if (!this.contains(oldValue)) {
-    //TODO
+      //TODO
       throw new RangeError(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(oldValue));
     }
 
@@ -528,7 +593,7 @@ class DWayHeap {
     }
     //else: nothing to do, priority is the same as before
 
-//DEBUG    _check.get(this)();
+    //DEBUG    _check.get(this)();
 
     return this;
   }
@@ -548,7 +613,7 @@ class DWayHeap {
       res.push(this.top());
     }
 
-   return res;
+    return res;
   }
 
   /**

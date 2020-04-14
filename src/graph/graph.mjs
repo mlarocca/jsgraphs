@@ -5,7 +5,11 @@ import Edge from './edge.mjs';
 import Vertex from './vertex.mjs';
 import { isDefined, isUndefined } from '../common/basic.mjs';
 
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.mjs';
+import {
+  ERROR_MSG_INVALID_ARGUMENT,
+  ERROR_MSG_VERTEX_DUPLICATED,
+  ERROR_MSG_VERTEX_NOT_FOUND
+} from '../common/errors.mjs';
 import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
@@ -36,14 +40,26 @@ class MutableVertex extends Vertex {
   constructor(label, { weight, outgoingEdges = [] } = {}) {
     super(label, { weight: weight });
     if (!Array.isArray(outgoingEdges)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'GVertex constructor',
+          'outgoingEdges',
+          outgoingEdges
+        )
+      );
     }
 
     this.#adjacencyMap = new Map();
 
-    outgoingEdges.forEach(edge => {
+    outgoingEdges.forEach((edge) => {
       if (!(edge instanceof Edge) || this.id !== edge.source.id) {
-        throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+        throw new TypeError(
+          ERROR_MSG_INVALID_ARGUMENT(
+            'GVertex constructor',
+            'outgoingEdges',
+            outgoingEdges
+          )
+        );
       }
 
       this.addEdge(edge);
@@ -84,21 +100,27 @@ class MutableVertex extends Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
-    let edges = this.#adjacencyMap.has(v.id) ? this.#adjacencyMap.get(v.id) : [];
+    let edges = this.#adjacencyMap.has(v.id)
+      ? this.#adjacencyMap.get(v.id)
+      : [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
 
   addEdge(edge) {
-    if ((!(edge instanceof Edge)) || this.id !== edge.source.id) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
+    if (!(edge instanceof Edge) || this.id !== edge.source.id) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge)
+      );
     }
     return replaceEdgeTo(this.#adjacencyMap, edge.destination, edge);
   }
 
   addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
     if (!(v instanceof MutableVertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v)
+      );
     }
     let edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
     this.addEdge(edge);
@@ -107,14 +129,18 @@ class MutableVertex extends Vertex {
 
   removeEdge(edge) {
     if (!(edge instanceof Edge) || this.id !== edge.source.id) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge)
+      );
     }
     return replaceEdgeTo(this.#adjacencyMap, edge.destination);
   }
 
   removeEdgeTo(v) {
     if (!(v instanceof MutableVertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v)
+      );
     }
     return replaceEdgeTo(this.#adjacencyMap, v);
   }
@@ -178,7 +204,6 @@ function replaceEdgeTo(adj, destination, newEdge = null) {
  *   - ...
  */
 class Graph {
-
   /**
    * @method fromJson
    * @for Graph.class
@@ -203,49 +228,58 @@ class Graph {
    */
   static fromJsonObject({ vertices, edges }) {
     let g = new Graph();
-    vertices.forEach(v => g.addVertex(MutableVertex.fromJsonObject(v)));
-    edges.forEach(e => g.addEdge(Edge.fromJsonObject(e)));
+    vertices.forEach((v) => g.addVertex(MutableVertex.fromJsonObject(v)));
+    edges.forEach((e) => g.addEdge(Edge.fromJsonObject(e)));
     return g;
   }
 
   static completeGraph(n) {
     if (!isNumber(n) || n < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Graph.completeGraph', 'n', n)
+      );
     }
 
     let g = new Graph();
     let vertexIDs = [];
     const r = range(1, n + 1);
-    r.forEach(i => vertexIDs[i] = g.createVertex(i));
-    r.forEach(i =>
-      range(i + 1, n + 1).forEach(j => {
+    r.forEach((i) => (vertexIDs[i] = g.createVertex(i)));
+    r.forEach((i) =>
+      range(i + 1, n + 1).forEach((j) => {
         g.createEdge(vertexIDs[i], vertexIDs[j]);
         g.createEdge(vertexIDs[j], vertexIDs[i]);
-      }));
+      })
+    );
 
     return g;
   }
 
   static completeBipartiteGraph(n, m) {
     if (!isNumber(n) || n < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'n', n)
+      );
     }
 
     if (!isNumber(m) || m < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'm', m));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('Graph.completeBipartiteGraph', 'm', m)
+      );
     }
 
     let g = new Graph();
     let vertexIDs = [];
     const r1 = range(1, n + 1);
     const r2 = range(n + 1, n + m + 1);
-    r1.forEach(i => vertexIDs[i] = g.createVertex(i));
-    r2.forEach(j => vertexIDs[j] = g.createVertex(j));
+    r1.forEach((i) => (vertexIDs[i] = g.createVertex(i)));
+    r2.forEach((j) => (vertexIDs[j] = g.createVertex(j)));
 
-    r1.forEach(i => r2.forEach(j => {
-      g.createEdge(vertexIDs[i], vertexIDs[j]);
-      g.createEdge(vertexIDs[j], vertexIDs[i]);
-    }));
+    r1.forEach((i) =>
+      r2.forEach((j) => {
+        g.createEdge(vertexIDs[i], vertexIDs[j]);
+        g.createEdge(vertexIDs[j], vertexIDs[i]);
+      })
+    );
 
     return g;
   }
@@ -309,7 +343,7 @@ class Graph {
 
   hasVertex(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) && (v instanceof MutableVertex);
+    return isDefined(v) && v instanceof MutableVertex;
   }
 
   getVertex(vertex) {
@@ -333,13 +367,17 @@ class Graph {
 
   setVertexWeight(vertex, weight) {
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', weight)
+      );
     }
     let v = getGraphVertex(this, vertex);
     if (isDefined(v)) {
       v.weight = weight;
     } else {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', vertex));
+      throw new Error(
+        ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', vertex)
+      );
     }
   }
 
@@ -348,7 +386,9 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', source));
     }
     if (!this.hasVertex(destination)) {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', destination));
+      throw new Error(
+        ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', destination)
+      );
     }
 
     let u = getGraphVertex(this, source);
@@ -365,12 +405,15 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.source));
     }
     if (!this.hasVertex(edge.destination)) {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
+      throw new Error(
+        ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination)
+      );
     }
 
     let u = getGraphVertex(this, edge.source);
     let v = getGraphVertex(this, edge.destination);
-    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label }).id;
+    return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label })
+      .id;
   }
 
   /**
@@ -380,12 +423,12 @@ class Graph {
   hasEdge(edge) {
     edge = edgeId(edge);
 
-    return this.edges.some(e => e.id === edge);
+    return this.edges.some((e) => e.id === edge);
   }
 
   hasEdgeBetween(source, destination) {
     let e = getGraphEdge(this, source, destination);
-    return isDefined(e) && (e instanceof Edge);
+    return isDefined(e) && e instanceof Edge;
   }
 
   getEdgeBetween(source, destination) {
@@ -414,18 +457,26 @@ class Graph {
    */
   getEdgesInPath(verticesSequence) {
     if (!Array.isArray(verticesSequence)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.getEdgesInPath', 'verticesSequence', verticesSequence));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'Graph.getEdgesInPath',
+          'verticesSequence',
+          verticesSequence
+        )
+      );
     }
     const n = verticesSequence.length;
     const edges = [];
 
-    for (let i = 0; i < n-1; i++) {
+    for (let i = 0; i < n - 1; i++) {
       const source = vertexId(verticesSequence[i]);
-      const dest = vertexId(verticesSequence[i+1]);
+      const dest = vertexId(verticesSequence[i + 1]);
 
       const e = this.getEdgeBetween(source, dest);
       if (!isDefined(e)) {
-        throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `${source}->${dest}`));
+        throw new Error(
+          ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgesInPath', `${source}->${dest}`)
+        );
       }
       edges.push(e);
     }
@@ -434,7 +485,9 @@ class Graph {
 
   setEdgeWeight(edge, weight) {
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight)
+      );
     }
     let e = getEdge(this, edge);
     if (isDefined(e)) {
@@ -481,18 +534,16 @@ class Graph {
 
   toJsonObject() {
     return {
-      vertices: [...getVertices(this)].map(v => v.toJsonObject()),
-      edges: [...getEdges(this)].map(e => e.toJsonObject())
+      vertices: [...getVertices(this)].map((v) => v.toJsonObject()),
+      edges: [...getEdges(this)].map((e) => e.toJsonObject())
     };
   }
 
   equals(g) {
-    return (g instanceof Graph) && this.toJson() === g.toJson();
+    return g instanceof Graph && this.toJson() === g.toJson();
   }
 
   // ALGORITHMS
-
-
 
   /**
    * @method bfs
@@ -535,47 +586,63 @@ class Graph {
   }
 }
 
-
 /**
  * @class UndirectedGraph
  */
 export class UndirectedGraph extends Graph {
   static completeGraph(n) {
     if (!isNumber(n) || n < 2) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeGraph', 'n', n)
+      );
     }
 
     let g = new UndirectedGraph();
     let vertexIDs = [];
     const r = range(1, n + 1);
-    r.forEach(i => vertexIDs[i] = g.createVertex(i));
-    r.forEach(i =>
-      range(i + 1, n + 1).forEach(j => {
+    r.forEach((i) => (vertexIDs[i] = g.createVertex(i)));
+    r.forEach((i) =>
+      range(i + 1, n + 1).forEach((j) => {
         g.createEdge(vertexIDs[i], vertexIDs[j]);
-      }));
+      })
+    );
 
     return g;
   }
 
   static completeBipartiteGraph(n, m) {
     if (!isNumber(n) || n < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeBipartiteGraph', 'n', n));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'UndirectedGraph.completeBipartiteGraph',
+          'n',
+          n
+        )
+      );
     }
 
     if (!isNumber(m) || m < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.completeBipartiteGraph', 'm', m));
+      throw new Error(
+        ERROR_MSG_INVALID_ARGUMENT(
+          'UndirectedGraph.completeBipartiteGraph',
+          'm',
+          m
+        )
+      );
     }
 
     let g = new UndirectedGraph();
     let vertexIDs = [];
     const r1 = range(1, n + 1);
     const r2 = range(n + 1, n + m + 1);
-    r1.forEach(i => vertexIDs[i] = g.createVertex(i));
-    r2.forEach(j => vertexIDs[j] = g.createVertex(j));
+    r1.forEach((i) => (vertexIDs[i] = g.createVertex(i)));
+    r2.forEach((j) => (vertexIDs[j] = g.createVertex(j)));
 
-    r1.forEach(i => r2.forEach(j => {
-      g.createEdge(vertexIDs[i], vertexIDs[j]);
-    }));
+    r1.forEach((i) =>
+      r2.forEach((j) => {
+        g.createEdge(vertexIDs[i], vertexIDs[j]);
+      })
+    );
 
     return g;
   }
@@ -594,7 +661,10 @@ export class UndirectedGraph extends Graph {
    * @param {*} param2
    */
   createEdge(source, destination, { weight, label } = {}) {
-    const eId = super.createEdge(source, destination, { weight: weight, label: label });
+    const eId = super.createEdge(source, destination, {
+      weight: weight,
+      label: label
+    });
     const e = super.getEdge(eId);
 
     // Add an each for each direction, unless it's a loop
@@ -617,7 +687,9 @@ export class UndirectedGraph extends Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.source));
     }
     if (!this.hasVertex(edge.destination)) {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
+      throw new Error(
+        ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination)
+      );
     }
 
     let u = getGraphVertex(this, edge.source);

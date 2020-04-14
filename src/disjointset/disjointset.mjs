@@ -1,11 +1,16 @@
-import {isDefined, isIterable, isUndefined} from '../common/basic.mjs';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../common/errors.mjs';
+import { isDefined, isIterable, isUndefined } from '../common/basic.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../common/errors.mjs';
 
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) => `Illegal argument for DisjointSet constructor: ${val}`;
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) => `Duplicate element in initial set for DisjointSet constructor: ${val}`;
-const ERROR_MSG_FIND_ILLEGAL_ARGUMENT = (val) => `Illegal argument for method find: ${val}`;
-const ERROR_MSG_FIND_NOT_IN_SET = (val) => `Argument ${val} for method find does not belong to this set`;
-const ERROR_MSG_ADD_ELEMENT = (val) => `Illegal argument for method add: ${val}`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) =>
+  `Illegal argument for DisjointSet constructor: ${val}`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) =>
+  `Duplicate element in initial set for DisjointSet constructor: ${val}`;
+const ERROR_MSG_FIND_ILLEGAL_ARGUMENT = (val) =>
+  `Illegal argument for method find: ${val}`;
+const ERROR_MSG_FIND_NOT_IN_SET = (val) =>
+  `Argument ${val} for method find does not belong to this set`;
+const ERROR_MSG_ADD_ELEMENT = (val) =>
+  `Illegal argument for method add: ${val}`;
 
 const _elements = new WeakMap();
 
@@ -35,9 +40,11 @@ class DisjointSet {
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT)}   If initialSet is not an array, or any element is undefined or null.
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT)}   If initialSet contains duplicates.
    */
-  constructor(initialSet=[]) {
+  constructor(initialSet = []) {
     if (!isIterable(initialSet)) {
-      throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet));
+      throw new TypeError(
+        ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet)
+      );
     }
 
     let elements = new Map();
@@ -45,12 +52,16 @@ class DisjointSet {
 
     for (let elem of initialSet) {
       if (!isDefined(elem)) {
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem)
+        );
       }
 
       if (elements.has(elem)) {
         //We have a duplicated element
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem)
+        );
       }
       //else
       elements.set(elem, new Info(elem));
@@ -98,7 +109,6 @@ class DisjointSet {
     return true;
   }
 
-
   /**
    * @name findPartition
    * @for DisjointSet
@@ -113,11 +123,13 @@ class DisjointSet {
    * @throws {TypeError(ERROR_MSG_FIND_NOT_IN_SET)}   If the argument does not belong to this set.
    */
   findPartition(elem) {
-    if (isUndefined(elem)){
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem));
+    if (isUndefined(elem)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem)
+      );
     }
 
-    if (!(_elements.get(this).has(elem))) {
+    if (!_elements.get(this).has(elem)) {
       throw new TypeError(ERROR_MSG_FIND_NOT_IN_SET(elem));
     }
 
@@ -130,7 +142,6 @@ class DisjointSet {
       return info.root;
     }
   }
-
 
   /**
    * @name merge
@@ -147,8 +158,8 @@ class DisjointSet {
    * @throws {TypeError(ERROR_MSG_INVALID_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   merge(elem1, elem2) {
-    let r1 = this.findPartition(elem1);  // this validates the input and might throw
-    let r2 = this.findPartition(elem2);  // this validates the input and might throw
+    let r1 = this.findPartition(elem1); // this validates the input and might throw
+    let r2 = this.findPartition(elem2); // this validates the input and might throw
 
     if (r1 === r2) {
       return false; // Not merged
@@ -160,12 +171,13 @@ class DisjointSet {
     if (info1.rank >= info2.rank) {
       info2.root = info1.root;
       info1.rank += info2.rank;
-    } else {  // r1 < r2
+    } else {
+      // r1 < r2
       info1.root = info2.root;
       info2.rank += info1.rank;
     }
 
-    return true;  // Merged
+    return true; // Merged
   }
 
   /**
@@ -184,8 +196,8 @@ class DisjointSet {
    * @throws {TypeError(ERROR_MSG_FIND_ILLEGAL_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   areDisjoint(elem1, elem2) {
-    let p1 = this.findPartition(elem1);  // this validates the input and might throw
-    let p2 = this.findPartition(elem2);  // this validates the input and might throw
+    let p1 = this.findPartition(elem1); // this validates the input and might throw
+    let p2 = this.findPartition(elem2); // this validates the input and might throw
 
     return p1 !== p2;
   }
@@ -211,7 +223,9 @@ class Info {
    */
   constructor(elem) {
     if (!isDefined(elem)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('constructor', 'elem', elem));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('constructor', 'elem', elem)
+      );
     }
     this._root = elem;
     this._rank = 1;
@@ -231,7 +245,9 @@ class Info {
 
   set root(newRoot) {
     if (!isDefined(newRoot)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('set root', 'newRoot', newRoot));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('set root', 'newRoot', newRoot)
+      );
     }
 
     this._root = newRoot;

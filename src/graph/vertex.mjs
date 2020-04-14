@@ -1,7 +1,13 @@
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
-import { consistentStringify, isJsonStringifiable } from '../common/strings.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
+import {
+  consistentStringify,
+  isJsonStringifiable
+} from '../common/strings.mjs';
+import {
+  ERROR_MSG_INVALID_ARGUMENT,
+  ERROR_MSG_INVALID_LABEL
+} from '../common/errors.mjs';
 
 import rfdc from 'rfdc';
 import escape from 'escape-html';
@@ -54,13 +60,17 @@ class Vertex {
    */
   constructor(label, { weight = DEFAULT_VERTEX_WEIGHT } = {}) {
     if (!isDefined(label)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label)
+      );
     }
     if (!Vertex.isValidLabel(label)) {
       throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', label));
     }
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight)
+      );
     }
 
     // Deep clone label
@@ -89,9 +99,11 @@ class Vertex {
 
   set weight(weight) {
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.weight=', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Vertex.weight=', 'weight', weight)
+      );
     }
-    return this.#weight = toNumber(weight);
+    return (this.#weight = toNumber(weight));
   }
 
   toJson() {
@@ -115,7 +127,7 @@ class Vertex {
    * @returns {boolean}
    */
   equals(v) {
-    return (v instanceof Vertex) && this.toJson() === v.toJson();
+    return v instanceof Vertex && this.toJson() === v.toJson();
   }
 
   /**

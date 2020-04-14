@@ -1,9 +1,12 @@
-import Vertex from './vertex.mjs'
+import Vertex from './vertex.mjs';
 
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
 import { consistentStringify, isString } from '../common/strings.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL } from '../common/errors.mjs';
+import {
+  ERROR_MSG_INVALID_ARGUMENT,
+  ERROR_MSG_INVALID_EDGE_LABEL
+} from '../common/errors.mjs';
 import { isNonEmptyString } from '../common/strings.mjs';
 
 import escape from 'escape-html';
@@ -35,8 +38,17 @@ class Edge {
     return Edge.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({ source, destination, weight = DEFAULT_EDGE_WEIGHT, label = undefined }) {
-    return new Edge(Vertex.fromJsonObject(source), Vertex.fromJsonObject(destination), { weight: weight, label: label });
+  static fromJsonObject({
+    source,
+    destination,
+    weight = DEFAULT_EDGE_WEIGHT,
+    label = undefined
+  }) {
+    return new Edge(
+      Vertex.fromJsonObject(source),
+      Vertex.fromJsonObject(destination),
+      { weight: weight, label: label }
+    );
   }
 
   /**
@@ -54,24 +66,36 @@ class Edge {
    * @throws {TypeError} if the arguments are not valid, i.e. source or destination are not defined, or weight is not
    *                     (parsable to) a number.
    */
-  constructor(source, destination, { weight = DEFAULT_EDGE_WEIGHT, label } = {}) {
-    if (!(isDefined(source) && (source instanceof Vertex))) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', source));
+  constructor(
+    source,
+    destination,
+    { weight = DEFAULT_EDGE_WEIGHT, label } = {}
+  ) {
+    if (!(isDefined(source) && source instanceof Vertex)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', source)
+      );
     }
 
-    if (!(isDefined(destination) && (destination instanceof Vertex))) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', destination));
+    if (!(isDefined(destination) && destination instanceof Vertex)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', destination)
+      );
     }
 
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Edge()', 'weight', weight)
+      );
     }
 
     if (label === null) {
       label = undefined;
     }
-    if (isDefined(label) && !(isString(label))) {
-      throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', 'label', label));
+    if (isDefined(label) && !isString(label)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_EDGE_LABEL('Edge()', 'label', label)
+      );
     }
 
     this.#source = source;
@@ -100,7 +124,7 @@ class Edge {
    * HTML-escaped version of label
    */
   get escapedLabel() {
-    return isNonEmptyString(this.#label) ? escape(this.#label) : "";
+    return isNonEmptyString(this.#label) ? escape(this.#label) : '';
   }
 
   get weight() {
@@ -109,7 +133,9 @@ class Edge {
 
   set weight(weight) {
     if (!isNumber(weight)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Edge.weight=', 'weight', weight));
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('Edge.weight=', 'weight', weight)
+      );
     }
     this.#weight = toNumber(weight);
   }
@@ -144,7 +170,7 @@ class Edge {
   }
 
   equals(e) {
-    return (e instanceof Edge) && this.toJson() === e.toJson();
+    return e instanceof Edge && this.toJson() === e.toJson();
   }
 
   /**
@@ -154,10 +180,10 @@ class Edge {
    * @param {*} shallow When true, source's and destination's labels are copied by reference, not cloned.
    */
   clone() {
-    return new Edge(
-      this.source.clone(),
-      this.destination.clone(),
-      { weight: this.weight, label: this.label });
+    return new Edge(this.source.clone(), this.destination.clone(), {
+      weight: this.weight,
+      label: this.label
+    });
   }
 }
 

@@ -1,9 +1,12 @@
-import {isIterable, isUndefined} from '../../common/basic.mjs';
-import {ERROR_MSG_INVALID_ARGUMENT} from '../../common/errors.mjs';
+import { isIterable, isUndefined } from '../../common/basic.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.mjs';
 
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) => `Illegal argument for UnionFindTrees constructor: ${val}`;
-const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) => `Duplicate element in initial set for UnionFindTrees constructor: ${val}`;
-const ERROR_MSG_FIND_NOT_IN_SET = (val) => `Argument ${val} for method find does not belong to this set`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val) =>
+  `Illegal argument for UnionFindTrees constructor: ${val}`;
+const ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT = (val) =>
+  `Duplicate element in initial set for UnionFindTrees constructor: ${val}`;
+const ERROR_MSG_FIND_NOT_IN_SET = (val) =>
+  `Argument ${val} for method find does not belong to this set`;
 
 const _parentsMap = new WeakMap();
 
@@ -33,9 +36,11 @@ class UnionFindTrees {
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT)}   If initialSet is not an array, or any element is undefined or null.
    * @throws {TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT)}   If initialSet contains duplicates.
    */
-  constructor(initialSet=[]) {
+  constructor(initialSet = []) {
     if (!isIterable(initialSet)) {
-      throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet));
+      throw new TypeError(
+        ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(initialSet)
+      );
     }
 
     let parents = new Map();
@@ -43,12 +48,16 @@ class UnionFindTrees {
 
     for (let elem of initialSet) {
       if (isUndefined(elem) || elem === null) {
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT(elem)
+        );
       }
 
       if (parents.has(elem)) {
         //We have a duplicated element
-        throw new TypeError(ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem));
+        throw new TypeError(
+          ERROR_MSG_UNION_FIND_CONSTRUCTOR_DUPLICATE_ELEMENT(elem)
+        );
       }
       //else
       parents.set(elem, elem);
@@ -96,7 +105,6 @@ class UnionFindTrees {
     return true;
   }
 
-
   /**
    * @name findPartition
    * @for DisjointSetTrees
@@ -111,11 +119,13 @@ class UnionFindTrees {
    * @throws {TypeError(ERROR_MSG_FIND_NOT_IN_SET)}   If the argument does not belong to this set.
    */
   findPartition(elem) {
-    if (isUndefined(elem)){
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem));
+    if (isUndefined(elem)) {
+      throw new TypeError(
+        ERROR_MSG_INVALID_ARGUMENT('findPartition', 'elem', elem)
+      );
     }
 
-    if (!(_parentsMap.get(this).has(elem))) {
+    if (!_parentsMap.get(this).has(elem)) {
       throw new TypeError(ERROR_MSG_FIND_NOT_IN_SET(elem));
     }
 
@@ -125,7 +135,6 @@ class UnionFindTrees {
     }
     return parent;
   }
-
 
   /**
    * @name merge
@@ -142,8 +151,8 @@ class UnionFindTrees {
    * @throws {TypeError(ERROR_MSG_INVALID_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   merge(elem1, elem2) {
-    let p1 = this.findPartition(elem1);  // this validates the input and might throw
-    let p2 = this.findPartition(elem2);  // this validates the input and might throw
+    let p1 = this.findPartition(elem1); // this validates the input and might throw
+    let p2 = this.findPartition(elem2); // this validates the input and might throw
 
     if (p1 === p2) {
       return false; // Not merged
@@ -152,7 +161,7 @@ class UnionFindTrees {
     let parent = _parentsMap.get(this);
     parent.set(p2, parent.get(p1));
 
-    return true;  // Merged
+    return true; // Merged
   }
 
   /**
@@ -170,8 +179,8 @@ class UnionFindTrees {
    * @throws {TypeError(ERROR_MSG_FIND_ILLEGAL_ARGUMENT)}   If anyone of the parameters hasn't been passed or if it can't be found.
    */
   areDisjoint(elem1, elem2) {
-    let p1 = this.findPartition(elem1);  // this validates the input and might throw
-    let p2 = this.findPartition(elem2);  // this validates the input and might throw
+    let p1 = this.findPartition(elem1); // this validates the input and might throw
+    let p2 = this.findPartition(elem2); // this validates the input and might throw
 
     return p1 !== p2;
   }

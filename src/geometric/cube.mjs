@@ -1,14 +1,19 @@
 import Point from './point.mjs';
 import { isUndefined } from '../common/basic.mjs';
 import { range } from '../common/numbers.mjs';
-import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE } from '../common/errors.mjs';
+import {
+  ERROR_MSG_INVALID_DIMENSION_INDEX,
+  ERROR_MSG_PARAM_TYPE
+} from '../common/errors.mjs';
 import Point2D from './point2d.mjs';
 
 const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
   `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
 
 const ERROR_MSG_PARAM_INVALID_CUBE = (fname, val, dimension, pname = 'cube') =>
-  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Cube${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
+  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Cube${
+    isUndefined(dimension) ? '' : ` (${dimension}D)`
+  }`;
 
 function validateVertices(bottomVertex, topVertex, fname = 'validateVertices') {
   Point.validatePoint(bottomVertex, undefined, fname);
@@ -16,7 +21,9 @@ function validateVertices(bottomVertex, topVertex, fname = 'validateVertices') {
   let bottomCs = bottomVertex.coordinates();
   let topCs = topVertex.coordinates();
   if (!bottomCs.every((bottomCVal, index) => bottomCVal < topCs[index])) {
-    throw new TypeError(ERROR_MSG_PARAM_INVALID_VERTICES(fname, bottomVertex, topVertex));
+    throw new TypeError(
+      ERROR_MSG_PARAM_INVALID_VERTICES(fname, bottomVertex, topVertex)
+    );
   }
 }
 
@@ -68,7 +75,11 @@ class Cube {
    * @throws TypeError(ERROR_MSG_PARAM_INVALID_VERTICES) if each one of the bottom vertex's coordinates aren't lower
    *                                                     than each one of the corresponding top vertex coordinate.
    */
-  static validateCube(maybeCube, dimensionality = maybeCube && maybeCube.dimensionality, fname = 'validateCube') {
+  static validateCube(
+    maybeCube,
+    dimensionality = maybeCube && maybeCube.dimensionality,
+    fname = 'validateCube'
+  ) {
     let invalid = true;
     if (maybeCube instanceof Cube) {
       if (Number.isSafeInteger(dimensionality) && dimensionality > 0) {
@@ -77,12 +88,21 @@ class Cube {
           invalid = false;
         }
       } else {
-        throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'dimensionality', dimensionality, 'positive integer'));
+        throw new TypeError(
+          ERROR_MSG_PARAM_TYPE(
+            fname,
+            'dimensionality',
+            dimensionality,
+            'positive integer'
+          )
+        );
       }
     }
 
     if (invalid) {
-      throw new TypeError(ERROR_MSG_PARAM_INVALID_CUBE(fname, maybeCube, dimensionality));
+      throw new TypeError(
+        ERROR_MSG_PARAM_INVALID_CUBE(fname, maybeCube, dimensionality)
+      );
     }
   }
 
@@ -98,11 +118,22 @@ class Cube {
    */
   static R(dimensionality) {
     if (Number.isSafeInteger(dimensionality) && dimensionality > 0) {
-      let bottom = new Point(...range(0, dimensionality).map(_ => Number.NEGATIVE_INFINITY));
-      let top = new Point(...range(0, dimensionality).map(_ => Number.POSITIVE_INFINITY));
+      let bottom = new Point(
+        ...range(0, dimensionality).map((_) => Number.NEGATIVE_INFINITY)
+      );
+      let top = new Point(
+        ...range(0, dimensionality).map((_) => Number.POSITIVE_INFINITY)
+      );
       return new Cube(bottom, top);
     } else {
-      throw new TypeError(ERROR_MSG_PARAM_TYPE('R', 'dimensionality', dimensionality, 'positive integer'));
+      throw new TypeError(
+        ERROR_MSG_PARAM_TYPE(
+          'R',
+          'dimensionality',
+          dimensionality,
+          'positive integer'
+        )
+      );
     }
   }
 
@@ -124,10 +155,20 @@ class Cube {
    *                                                  different dimensionality.
    */
   intersectWithTopBound(point, dim) {
-    Point.validatePoint(point, this.dimensionality, 'Cube.intersectWithTopBound');
+    Point.validatePoint(
+      point,
+      this.dimensionality,
+      'Cube.intersectWithTopBound'
+    );
 
     if (!Number.isSafeInteger(dim) || dim < 0 || dim >= this.dimensionality) {
-      throw new TypeError(ERROR_MSG_INVALID_DIMENSION_INDEX('Cube.intersectWithTopBound', dim, this.dimensionality));
+      throw new TypeError(
+        ERROR_MSG_INVALID_DIMENSION_INDEX(
+          'Cube.intersectWithTopBound',
+          dim,
+          this.dimensionality
+        )
+      );
     }
 
     let topCs = this.top.coordinates();
@@ -135,7 +176,6 @@ class Cube {
     topCs[dim] = Math.min(topCs[dim], point.coordinate(dim));
     return new Cube(this.bottom, new Point(...topCs));
   }
-
 
   /**
    * @name intersectWithBottomBound
@@ -155,10 +195,20 @@ class Cube {
    *                                                  different dimensionality.
    */
   intersectWithBottomBound(point, dim) {
-    Point.validatePoint(point, this.dimensionality, 'Cube.intersectWithBottomBound');
+    Point.validatePoint(
+      point,
+      this.dimensionality,
+      'Cube.intersectWithBottomBound'
+    );
 
     if (!Number.isSafeInteger(dim) || dim < 0 || dim >= this.dimensionality) {
-      throw new TypeError(ERROR_MSG_INVALID_DIMENSION_INDEX('Cube.intersectWithBottomBound', dim, this.dimensionality));
+      throw new TypeError(
+        ERROR_MSG_INVALID_DIMENSION_INDEX(
+          'Cube.intersectWithBottomBound',
+          dim,
+          this.dimensionality
+        )
+      );
     }
 
     let bottomCs = this.bottom.coordinates();
@@ -243,13 +293,17 @@ class Cube {
    */
   intersects(other) {
     Cube.validateCube(other, this.dimensionality, 'intersects');
-    return range(0, this.dimensionality).every(d => {
+    return range(0, this.dimensionality).every((d) => {
       let bottomC = this.bottom.coordinate(d);
       let topC = this.top.coordinate(d);
       let otherBottomC = other.bottom.coordinate(d);
       let otherTopC = other.top.coordinate(d);
-      return (bottomC <= otherBottomC && otherBottomC <= topC) || (bottomC <= otherTopC && otherTopC <= topC) ||
-        (otherBottomC <= bottomC && bottomC <= otherTopC) || (otherBottomC <= topC && topC <= otherTopC);
+      return (
+        (bottomC <= otherBottomC && otherBottomC <= topC) ||
+        (bottomC <= otherTopC && otherTopC <= topC) ||
+        (otherBottomC <= bottomC && bottomC <= otherTopC) ||
+        (otherBottomC <= topC && topC <= otherTopC)
+      );
     });
   }
 
@@ -265,11 +319,16 @@ class Cube {
   containsPoint(point) {
     Point.validatePoint(point, this.dimensionality, 'containsPoint');
     let eq = false;
-    if (point instanceof Point && point.dimensionality === this.dimensionality) {
+    if (
+      point instanceof Point &&
+      point.dimensionality === this.dimensionality
+    ) {
       let bottomCs = this.bottom.coordinates();
       let topCs = this.top.coordinates();
       let pointCS = point.coordinates();
-      eq = bottomCs.every((c, i) => c <= pointCS[i]) && topCs.every((c, i) => c >= pointCS[i]);
+      eq =
+        bottomCs.every((c, i) => c <= pointCS[i]) &&
+        topCs.every((c, i) => c >= pointCS[i]);
     }
     return eq;
   }
