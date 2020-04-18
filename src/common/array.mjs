@@ -64,7 +64,7 @@ export function arrayMin(values, { key = identity } = {}) {
     throw new TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY('arrayMin', 'values'));
   }
 
-  let [min, index] = values.reduce(([min, index], v, i) => {
+  let [_, index] = values.reduce(([min, index], v, i) => {
     if (key(v) < min) {
       index = i;
       min = key(v);
@@ -96,7 +96,7 @@ export function arrayMax(values, { key = identity } = {}) {
     throw new TypeError(ERROR_MSG_PARAM_EMPTY_ARRAY('arrayMax', 'values'));
   }
 
-  let [max, index] = values.reduce(([max, index], v, i) => {
+  let [_, index] = values.reduce(([max, index], v, i) => {
     if (key(v) > max) {
       index = i;
       max = key(v);

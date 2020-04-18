@@ -1,6 +1,3 @@
-import UnionFind from '../disjointset/disjointset.mjs';
-import DWayHeap from '../dway_heap/dway_heap.mjs';
-
 import Edge from './edge.mjs';
 import Vertex from './vertex.mjs';
 
@@ -149,10 +146,7 @@ class MutableVertex extends Vertex {
  *                        remove the old edge.
  */
 function replaceEdgeTo(adj, destination, newEdge = null) {
-  let edgesToDest = adj.has(destination) ? adj.get(destination) : [];
-
-  // removes all the edges to the destination
-  edgesToDest = [];
+  let edgesToDest = [];
 
   // then add the new edge (if defined)
   if (isDefined(newEdge)) {
@@ -445,7 +439,7 @@ class Graph {
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
     }
-    let e = getEdge(this, edge);
+    let e = this.getEdge(edge);
     if (isDefined(e)) {
       e.weight = weight;
     } else {
@@ -554,7 +548,6 @@ class Graph {
     let timeVisited = {};
     let currentTime = 0;
     let acyclic = true;
-    let n = this.vertices.size;
 
     this.vertices.forEach(v => {
       if (!timeDiscovered[v.id]) {

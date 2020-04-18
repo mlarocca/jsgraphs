@@ -57,7 +57,7 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
     }
     if (!Vertex.isValidLabel(label)) {
-      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', label));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', label));
     }
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));

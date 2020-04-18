@@ -225,7 +225,7 @@ function arcEdgeSvg(edge, cssClasses, displayLabel, displayWeight, arcControlDis
   const [xDest, yDest] = [
     x2 - x1 - (edge.isDirected() ? dx2 : 0),
     y2 - y1 - (edge.isDirected() ? dy2 : 0)
-  ]
+  ];
 
   return `
     <g class="edge ${cssClasses.join(' ')}" transform="translate(${Math.round(x1)},${Math.round(y1)})">
