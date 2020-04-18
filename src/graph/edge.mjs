@@ -71,7 +71,7 @@ class Edge {
       label = undefined;
     }
     if (isDefined(label) && !(isString(label))) {
-      throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', 'label', label));
+      throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', label));
     }
 
     this.#source = source;

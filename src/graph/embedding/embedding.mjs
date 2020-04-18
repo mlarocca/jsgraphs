@@ -209,7 +209,7 @@ class Embedding {
   setVertexPosition(vertex, position) {
     const v = this.#vertices.get(vertexId(vertex));
     if (isUndefined(v)) {
-      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', vertex));
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', vertex));
     }
     if (!(position instanceof Point2D)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', position));
@@ -225,7 +225,7 @@ class Embedding {
   setEdgeControlPoint(edge, arcControlDistance) {
     const e = this.#edges.get(edgeId(edge));
     if (isUndefined(e)) {
-      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', edge));
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', edge));
     }
     if (!isNumber(arcControlDistance)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Embedding.setEdgeControlPoint', 'arcControlDistance', arcControlDistance));

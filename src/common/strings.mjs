@@ -30,7 +30,7 @@ export function consistentStringify(key) {
   } else if (!isObject(key)) {
     return JSON.stringify(key);
   } else if (Array.isArray(key)) {
-    return JSON.stringify(key.map(k => applyToJson(k, true)));
+    return JSON.stringify(key.map(k => applyToJson(k)));
   } else if (respondsToToJson(key)) {
     return key.toJson();
   } else if (isPlainObject(key)) {
@@ -63,7 +63,7 @@ export function isJsonStringifiable(key) {
   } else if (!isObject(key)) {
     return true;
   } else if (Array.isArray(key)) {
-    return key.every(k => isJsonStringifiable(k, true));
+    return key.every(k => isJsonStringifiable(k));
   } else if (respondsToToJson(key)) {
     return true;
   } else if (isPlainObject(key)) {
