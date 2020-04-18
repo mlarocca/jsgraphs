@@ -3,14 +3,17 @@ import DWayHeap from '../dway_heap/dway_heap.mjs';
 
 import Edge from './edge.mjs';
 import Vertex from './vertex.mjs';
+
+import BfsResult from './algo/bfs.mjs';
+import DfsResult from './algo/dfs.mjs';
+
 import { isDefined, isUndefined } from '../common/basic.mjs';
 
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND } from '../common/errors.mjs';
 import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
-import BfsResult from './algo/bfs.mjs';
-import { isIterable } from '../common/basic.mjs';
+
 
 const _vertices = new WeakMap();
 
@@ -401,6 +404,14 @@ class Graph {
     return undefined;
   }
 
+  *getEdgesFrom(vertex) {
+    let u = getGraphVertex(this, vertex);
+    if (isUndefined(u)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getEdgesFrom', vertex));
+    }
+    yield* u.outgoingEdges();
+  }
+
   /**
    * @method getEdgesInPath
    * @for Graph
@@ -496,6 +507,7 @@ class Graph {
    * @method bfs
    * @for Graph
    * @param {Vertex|string} start
+   * @return {BfsResult}
    */
   bfs(start) {
     const s = this.getVertex(start);
@@ -531,8 +543,85 @@ class Graph {
 
     return new BfsResult(distance, predecessor);
   }
+
+  /**
+   * @method dfs
+   * @for Graph
+   * @return {BfsResult}
+   */
+  dfs() {
+    let timeDiscovered = {};
+    let timeVisited = {};
+    let currentTime = 0;
+    let acyclic = true;
+    let n = this._vertices.size;
+
+    this.vertices.forEach(v => {
+      if (timeVisited.size < n && !timeDiscovered[v.id]) {
+        timeDiscovered[v.id] = ++currentTime;
+        [currentTime, acyclic] = dfs(this, v, timeDiscovered, timeVisited, acyclic, currentTime);
+      }
+    });
+
+    return new DfsResult([...this.vertices].map(v => v.id), timeDiscovered, timeVisited, acyclic)
+  }
 }
 
+/**
+ * @method dfs
+ * @for Graph
+ * @private
+ * @description DFS method on graphs.
+ *
+ * @param {Graph} graph The graph on which we run DFS.
+ * @param {Vertex} v The vertex from which we start DFS visit.
+ * @param {Object} timeDiscovered Record track of the times when each vertex was first discovered.
+ * @param {Object} timeVisited Record track of the times when each vertix visit was completed.
+ * @param {boolean} acyclic A flag: true if the graph is acyclic.
+ * @param {int} currentTime A counter to keep track of the time of discovery/visit of vertices.
+ *
+ * @return A pair with the updated values for current time and acyclic.
+ */
+function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
+  let popped = {};
+  let stack = [v];
+  let path = [];
+
+  do {
+    const u = stack.pop();
+    path.push(u.id);
+
+    if (popped[u.id]) {
+      // The vertex was already popped once from the stack,
+      // the second time it happens means we have finished visiting its children
+      timeVisited[u.id] = ++currentTime;
+    } else {
+      // First time this is popped from the stack: record that, and push it back, so it will be popped again
+      // after visiting all its children.
+      popped[u.id] = true;
+      stack.push(u);
+
+      // Put all undiscovered children of current vertex on the stack, to be later visited.
+      for (const e of graph.getEdgesFrom(u.id)) {
+        const w = e.destination;
+        if (!timeDiscovered[w.id]) {
+          // First time we discover vertex w: record that and add it to the stack
+          timeDiscovered[w.id] = ++currentTime;
+          stack.push(w);
+        } else {
+          // If a neighbor of current graph was already discovered, then we have a cycle.
+          // if the graph is undirected check that the path is longer than 1 edge
+          if (graph.isDirected() || path[path.length - 1] !== w.id) {
+            acyclic = false;
+          }
+        }
+      };
+    }
+    path.pop();
+  } while (!stack.length === 0);
+
+  return [currentTime, acyclic];
+}
 
 /**
  * @class UndirectedGraph
