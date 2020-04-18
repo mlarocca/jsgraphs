@@ -1,8 +1,6 @@
 import { isDefined } from "../../common/basic.mjs";
 
 class DfsResult {
-  #vertices;
-
   #acyclic;
 
   #timeDiscovered;
@@ -11,18 +9,15 @@ class DfsResult {
 
   /**
    *
-   * @param {Array<String>} vertices A list of vertex' IDs
    * @param timeDiscovered For each vertex (ID) the time the vertex was first discovered.
    * @param timeVisited For each vertex (ID) the time the vertex was completely visited (all its neighbors visited).
    * @param acyclic True iff the graph is acyclic.
    */
-  constructor(vertices, timeDiscovered, timeVisited, acyclic) {
-    this.#vertices = vertices;
+  constructor(timeDiscovered, timeVisited, acyclic) {
     this.#acyclic = acyclic;
-    this.#timeDiscovered = timeDiscovered;
-    this.#timeVisited = timeVisited;
+    this.#timeDiscovered = {...timeDiscovered};
+    this.#timeVisited = {...timeVisited};
 
-    Object.freeze(this.#vertices);
     Object.freeze(this.#timeDiscovered);
     Object.freeze(this.#timeVisited);
   }

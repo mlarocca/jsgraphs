@@ -6,8 +6,8 @@ class BfsResult {
   #predecessor;
 
   constructor(distance, predecessor) {
-    this.#distance = distance;
-    this.#predecessor = predecessor;
+    this.#distance = {...distance};
+    this.#predecessor = {...predecessor};
 
     Object.freeze(this.#distance);
     Object.freeze(this.#predecessor);
