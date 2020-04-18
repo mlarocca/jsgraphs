@@ -613,8 +613,8 @@ function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
           // If a neighbor of current graph was already discovered, then we have a cycle.
           // if the graph is undirected check that the path is longer than 1 edge
           if (!timeVisited[w.id] &&
-               (path.indexOf(w.id) >= 0) &&
-               (graph.isDirected() || path[path.length - 1] !== w.id)) {
+            (graph.isDirected() || path[path.length - 1] !== w.id) &&
+            (path.indexOf(w.id) >= 0)) {
             acyclic = false;
           }
         }
