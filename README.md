@@ -48,7 +48,7 @@ Check out how to configure babel plugins in [webpack.config.js](./webpack.config
 For an introduction to Graph, feel free to take a look at ["Algorithms and Data Structures in Action](https://www.manning.com/books/algorithms-and-data-structures-in-action#toc)
 In particular you can check out online, on Manning's livebook site:
 
-- [Chapter 14](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/chapter-14) for an intro to graph data structure. [In progress...]
+- [Chapter 14](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/chapter-14) for an intro to graph data structure.
 - [Appendix B](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-b) for an intro to Big-O notation.
 - [Appendix C](https://livebook.manning.com/book/algorithms-and-data-structures-in-action/appendix-c) for a summary of core data structures like trees or linked lists.
 
@@ -74,16 +74,20 @@ Here we keep a list of the roadmap for the development of this library. If you h
 ## **Algorithms**
 
 - [x] BFS
-- [ ] DFS
+- [X] DFS
+- [ ] Graph transpose
+- [ ] Symmetric closure
+- [ ] Connected Components
+- [ ] Strongly Connected Components
+- [ ] Topological Sorting
+- [ ] Biconnected Components
 - [ ] Dijkstra's
 - [ ] Bellman-Ford's
 - [ ] A*
 - [ ] Kruskal's
 - [ ] Prim's
-- [ ] Connected Components
-- [ ] Strongly Connected Components
-- [ ] Topological Sorting
 - [ ] Floyd-Warshall's
+- [ ] Transitive Closure
 - [ ] Edmonds-Karp's
 - [ ] Relabel to Front
 

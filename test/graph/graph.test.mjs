@@ -63,7 +63,8 @@ describe('Graph API', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
-      'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesInPath',
+      'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
+      'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'bfs', 'dfs'];
     let attributes = ['vertices', 'edges'];
