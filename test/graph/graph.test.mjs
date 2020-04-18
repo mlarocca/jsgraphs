@@ -1,19 +1,22 @@
-import 'mjs-mocha';
-
 import Edge from '../../src/graph/edge.mjs';
 import Graph from '../../src/graph/graph.mjs';
 import Vertex from '../../src/graph/vertex.mjs';
+
+import BfsResult from '../../src/graph/algo/bfs.mjs';
+import DfsResult from '../../src/graph/algo/dfs.mjs';
+
 import { choose } from '../../src/common/array.mjs';
 import { randomInt } from '../../src/common/numbers.mjs';
 import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
-import chai from "chai";
-import should from "should";
 import { range } from '../../src/common/numbers.mjs';
 import { isObject } from '../../src/common/basic.mjs';
 import { UndirectedGraph } from '../../src/graph/graph.mjs';
-import BfsResult from '../../src/graph/algo/bfs.mjs';
+
+import 'mjs-mocha';
+import chai from "chai";
+import should from "should";
 
 const expect = chai.expect;
 
@@ -603,11 +606,6 @@ describe('Algorithms', () => {
 
   describe('dfs', () => {
     describe('# UndirectedGraph', () => {
-      it('Invalid input should return error', () => {
-        let g = new UndirectedGraph();
-        (() => g.dfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.dfs', 'NotAVertex'));
-      });
-
       it('should compute dfs on a connected graph', () => {
         let g = new UndirectedGraph();
         range(1, 6).forEach(i => g.createVertex(`${i}`));
@@ -621,28 +619,23 @@ describe('Algorithms', () => {
         const dfs = g.dfs('"1"');
 
         isObject(dfs).should.be.true();
-        (dfs instanceof dfsResult).should.be.true();
-
-        Object.keys(dfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        (() => dfs.predecessor['"1"']).should.be.null;
-        dfs.predecessor['"2"'].should.equal('"1"');
-        dfs.predecessor['"3"'].should.equal('"2"');
-        dfs.predecessor['"4"'].should.equal('"2"');
-        dfs.predecessor['"5"'].should.equal('"3"');
+        (dfs instanceof DfsResult).should.be.true();
 
         Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeDiscovered['"1"'].should.equal(0);
-        dfs.timeDiscovered['"2"'].should.equal(1);
-        dfs.timeDiscovered['"3"'].should.equal(2);
-        dfs.timeDiscovered['"4"'].should.equal(3);
-        dfs.timeDiscovered['"5"'].should.equal(5);
+        dfs.timeDiscovered['"1"'].should.equal(1);
+        dfs.timeDiscovered['"2"'].should.equal(2);
+        dfs.timeDiscovered['"3"'].should.equal(3);
+        dfs.timeDiscovered['"4"'].should.equal(4);
+        dfs.timeDiscovered['"5"'].should.equal(6);
 
         Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeVisited['"1"'].should.equal(9);
-        dfs.timeVisited['"2"'].should.equal(8);
-        dfs.timeVisited['"3"'].should.equal(7);
-        dfs.timeVisited['"4"'].should.equal(4);
-        dfs.timeVisited['"5"'].should.equal(6);
+        dfs.timeVisited['"1"'].should.equal(10);
+        dfs.timeVisited['"2"'].should.equal(9);
+        dfs.timeVisited['"3"'].should.equal(8);
+        dfs.timeVisited['"4"'].should.equal(5);
+        dfs.timeVisited['"5"'].should.equal(7);
+
+        dfs.isAcyclic().should.be.false();
       });
 
       it('should compute dfs on a disconnected graph', () => {
@@ -659,43 +652,31 @@ describe('Algorithms', () => {
         const dfs = g.dfs('"1"');
 
         isObject(dfs).should.be.true();
-        (dfs instanceof dfsResult).should.be.true();
-
-        Object.keys(dfs.predecessor).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        (() => dfs.predecessor['"1"']).should.be.null;
-        dfs.predecessor['"2"'].should.equal('"1"');
-        dfs.predecessor['"3"'].should.equal('"1"');
-        dfs.predecessor['"4"'].should.equal('"1"');
-        dfs.predecessor['"5"'].should.equal('"3"');
-        (() => dfs.predecessor['"6"']).should.be.null;
-        (() => dfs.predecessor['"7"']).should.equal(7);
+        (dfs instanceof DfsResult).should.be.true();
 
         Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
-        dfs.timeDiscovered['"1"'].should.equal(0);
-        dfs.timeDiscovered['"2"'].should.equal(1);
-        dfs.timeDiscovered['"3"'].should.equal(1);
-        dfs.timeDiscovered['"4"'].should.equal(1);
-        dfs.timeDiscovered['"5"'].should.equal(2);
-        dfs.timeDiscovered['"6"'].should.equal(Infinity);
-        dfs.timeDiscovered['"7"'].should.equal(Infinity);
+        dfs.timeDiscovered['"1"'].should.equal(1);
+        dfs.timeDiscovered['"2"'].should.equal(2);
+        dfs.timeDiscovered['"3"'].should.equal(3);
+        dfs.timeDiscovered['"4"'].should.equal(4);
+        dfs.timeDiscovered['"5"'].should.equal(6);
+        dfs.timeDiscovered['"6"'].should.equal(11);
+        dfs.timeDiscovered['"7"'].should.equal(12);
 
         Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
-        dfs.timeVisited['"1"'].should.equal(0);
-        dfs.timeVisited['"2"'].should.equal(1);
-        dfs.timeVisited['"3"'].should.equal(1);
-        dfs.timeVisited['"4"'].should.equal(1);
-        dfs.timeVisited['"5"'].should.equal(2);
-        dfs.timeVisited['"6"'].should.equal(Infinity);
-        dfs.timeVisited['"7"'].should.equal(Infinity);
+        dfs.timeVisited['"1"'].should.equal(10);
+        dfs.timeVisited['"2"'].should.equal(9);
+        dfs.timeVisited['"3"'].should.equal(8);
+        dfs.timeVisited['"4"'].should.equal(5);
+        dfs.timeVisited['"5"'].should.equal(7);
+        dfs.timeVisited['"6"'].should.equal(14);
+        dfs.timeVisited['"7"'].should.equal(13);
+
+        dfs.isAcyclic().should.be.false();
       });
     });
 
     describe('# DirectedGraph', () => {
-      it('Invalid input should return error', () => {
-        let g = new Graph();
-        (() => g.dfs('NotAVertex')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.dfs', 'NotAVertex'));
-      });
-
       it('should compute dfs on a connected di-graph', () => {
         let g = new Graph();
         range(1, 6).forEach(i => g.createVertex(`${i}`));
@@ -704,27 +685,27 @@ describe('Algorithms', () => {
         g.createEdge('"2"', '"3"');
         g.createEdge('"2"', '"4"');
         g.createEdge('"3"', '"5"');
-        g.createEdge('"4"', '"1"');
 
         const dfs = g.dfs('"1"');
 
         isObject(dfs).should.be.true();
-        (dfs instanceof dfsResult).should.be.true();
-
+        (dfs instanceof DfsResult).should.be.true();
 
         Object.keys(dfs.timeDiscovered).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeDiscovered['"1"'].should.equal(0);
-        dfs.timeDiscovered['"2"'].should.equal(1);
-        dfs.timeDiscovered['"3"'].should.equal(2);
-        dfs.timeDiscovered['"4"'].should.equal(3);
-        dfs.timeDiscovered['"5"'].should.equal(5);
+        dfs.timeDiscovered['"1"'].should.equal(1);
+        dfs.timeDiscovered['"2"'].should.equal(2);
+        dfs.timeDiscovered['"3"'].should.equal(3);
+        dfs.timeDiscovered['"4"'].should.equal(7);
+        dfs.timeDiscovered['"5"'].should.equal(4);
 
         Object.keys(dfs.timeVisited).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"']);
-        dfs.timeVisited['"1"'].should.equal(9);
-        dfs.timeVisited['"2"'].should.equal(8);
-        dfs.timeVisited['"3"'].should.equal(7);
-        dfs.timeVisited['"4"'].should.equal(4);
-        dfs.timeVisited['"5"'].should.equal(6);
+        dfs.timeVisited['"1"'].should.equal(10);
+        dfs.timeVisited['"2"'].should.equal(9);
+        dfs.timeVisited['"3"'].should.equal(6);
+        dfs.timeVisited['"4"'].should.equal(8);
+        dfs.timeVisited['"5"'].should.equal(5);
+
+        dfs.isAcyclic().should.be.true();
       });
     });
   });

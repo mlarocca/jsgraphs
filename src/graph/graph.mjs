@@ -554,16 +554,16 @@ class Graph {
     let timeVisited = {};
     let currentTime = 0;
     let acyclic = true;
-    let n = this._vertices.size;
+    let n = this.vertices.size;
 
     this.vertices.forEach(v => {
-      if (timeVisited.size < n && !timeDiscovered[v.id]) {
+      if (!timeDiscovered[v.id]) {
         timeDiscovered[v.id] = ++currentTime;
         [currentTime, acyclic] = dfs(this, v, timeDiscovered, timeVisited, acyclic, currentTime);
       }
     });
 
-    return new DfsResult([...this.vertices].map(v => v.id), timeDiscovered, timeVisited, acyclic)
+    return new DfsResult(timeDiscovered, timeVisited, acyclic)
   }
 }
 
@@ -589,36 +589,38 @@ function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
 
   do {
     const u = stack.pop();
-    path.push(u.id);
 
     if (popped[u.id]) {
       // The vertex was already popped once from the stack,
       // the second time it happens means we have finished visiting its children
       timeVisited[u.id] = ++currentTime;
+      path.pop();
     } else {
       // First time this is popped from the stack: record that, and push it back, so it will be popped again
       // after visiting all its children.
       popped[u.id] = true;
       stack.push(u);
+      path.push(u.id);
 
       // Put all undiscovered children of current vertex on the stack, to be later visited.
       for (const e of graph.getEdgesFrom(u.id)) {
         const w = e.destination;
-        if (!timeDiscovered[w.id]) {
+        if (isUndefined(timeDiscovered[w.id])) {
           // First time we discover vertex w: record that and add it to the stack
           timeDiscovered[w.id] = ++currentTime;
           stack.push(w);
         } else {
           // If a neighbor of current graph was already discovered, then we have a cycle.
           // if the graph is undirected check that the path is longer than 1 edge
-          if (graph.isDirected() || path[path.length - 1] !== w.id) {
+          if (!timeVisited[w.id] &&
+               (path.indexOf(w.id) >= 0) &&
+               (graph.isDirected() || path[path.length - 1] !== w.id)) {
             acyclic = false;
           }
         }
       };
     }
-    path.pop();
-  } while (!stack.length === 0);
+  } while (stack.length > 0);
 
   return [currentTime, acyclic];
 }
