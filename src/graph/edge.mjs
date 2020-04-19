@@ -31,6 +31,22 @@ class Edge {
    */
   #label;
 
+  static compareEdges(e1, e2) {
+    if (e1.source.equals(e2.source)) {
+      if (e1.destination.equals(e2.destination)) {
+        if (e1.weight === e2.weight) {
+          return e1.label < e2.label ? -1 : 1;
+        } else {
+          return e1.weight < e2.weight ? -1 : 1;
+        }
+      } else {
+        return e1.destination < e2.destination ? -1 : 1;
+      }
+    } else {
+      return e1.source < e2.source ? -1 : 1;
+    }
+  }
+
   static fromJson(json) {
     return Edge.fromJsonObject(JSON.parse(json));
   }
@@ -124,6 +140,20 @@ class Edge {
 
   hasLabel() {
     return isDefined(this.label);
+  }
+
+  /**
+   * @method transpose
+   * @for Edge
+   *
+   * @description
+   * Return the transposed edge, i.e. an edge with the same endpoints but in the opposite direction.
+   * All other fields remains the same.
+   *
+   * @return {Edge} The transposed edge.
+   */
+  transpose() {
+    return new Edge(this.#destination, this.#source, {weight: this.#weight, label: this.#label});
   }
 
   toJson() {

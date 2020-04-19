@@ -422,9 +422,9 @@ class Graph {
     const n = verticesSequence.length;
     const edges = [];
 
-    for (let i = 0; i < n-1; i++) {
+    for (let i = 0; i < n - 1; i++) {
       const source = vertexId(verticesSequence[i]);
-      const dest = vertexId(verticesSequence[i+1]);
+      const dest = vertexId(verticesSequence[i + 1]);
 
       const e = this.getEdgeBetween(source, dest);
       if (!isDefined(e)) {
@@ -484,8 +484,8 @@ class Graph {
 
   toJsonObject() {
     return {
-      vertices: [...getVertices(this)].map(v => v.toJsonObject()),
-      edges: [...getEdges(this)].map(e => e.toJsonObject())
+      vertices: [...getVertices(this)].sort().map(v => v.toJsonObject()),
+      edges: [...getEdges(this)].sort(Edge.compareEdges).map(e => e.toJsonObject())
     };
   }
 
@@ -495,7 +495,79 @@ class Graph {
 
   // ALGORITHMS
 
+  /**
+   * @method symmetricClosure
+   * @for Graph
+   *
+   * @description
+   * Computes the symmetric closure of this instance.
+   * The symmetric closure of a graph G is a new graph G' that has both edges, (u,v) and (v,u),
+   * whenever graph G has either the edge (u,v) or (v,u) (or both).
+   * Informally, the symmetric closure of the directed graph G is an undirected graph G' with the same edges,
+   * but disregarding their direction.
+   * WARNING: edges in symmetric closure won't retain any of the original labels.
+   * This is because, in case a direct graph has both edges (u,v) and (v,u), but with different labels,
+   * then it wouldn't be possible to have a consistent undirected edge by choosing either label.
+   * Conversely, if both edges are present, we can use the sum of the weights as the weight of the undirected edge.
+   *
+   * @return {Graph} The symmetric closure graph of this instance, as a new graph.
+   */
+  symmetricClosure() {
+    let graph = new UndirectedGraph();
+    for (const v of this.vertices) {
+      graph.addVertex(v);
+    }
+    for (const e of this.edges) {
+      if (!graph.hasEdge(e)) {
+        let weight = e.weight;
+        let eT = this.getEdgeBetween(e.destination, e.source)
+        if (isDefined(eT)) {
+          weight += eT.weight;
+        }
+        // Leverages the nature of undirected graphs: when you add an edge, it also adds its symmetric.
+        graph.createEdge(e.source, e.destination, { weight: weight });
+      }
+    }
+    return graph;
+  }
 
+
+  /**
+   * @method transpose
+   * @for Graph
+   *
+   * @description
+   * Computes the transposed graph of this instance.
+   * The transpose graph G' of a graph G is a new graph that has an edge (u,v) if and only if
+   * G has an edge (v,u).
+   *
+   * @return {Graph} The transposed graph of this instance, as a new graph.
+   */
+  transpose() {
+    let graph = new Graph();
+    for (const v of this.vertices) {
+      graph.addVertex(v);
+    }
+    for (const e of this.edges) {
+      graph.addEdge(e.transpose());
+    }
+    return graph;
+  }
+
+  /**
+   * @method transitiveClosure
+   * @for Graph
+   *
+   * @description
+   * Computes the transitive closure of this graph.
+   * The transitive closure of a Graph G is a new graph G' with an edge (u,v) for each pair
+   * of vertices in G such that there is a path (in G) from u to v.
+   *
+   * @return {Graph} The transitive closure of this instance, as a new graph.
+   */
+  transitiveClosure() {
+    throw new Error("Unimplemented");
+  }
 
   /**
    * @method bfs
@@ -725,6 +797,37 @@ export class UndirectedGraph extends Graph {
       g.addEdge(e.clone());
     }
     return g;
+  }
+
+  // ALGORITHMS
+
+  /**
+   * @method symmetricClosure
+   * @for Graph
+   *
+   * @description
+   * Computes the symmetric closure of this instance.
+   * For an undirected graph, the symmetric closure of a graph is the graph itself
+   *
+   * @return {Graph} The symmetric closure graph of this instance, as a new graph.
+   */
+  symmetricClosure() {
+    return this.clone();
+  }
+
+
+  /**
+   * @method transpose
+   * @for Graph
+   *
+   * @description
+   * Computes the transposed graph of this instance.
+   * For an undirected graph, G and its transpose are the same graph.
+   *
+   * @return {Graph} The transposed graph of this instance, as a new graph.
+   */
+  transpose() {
+    return this.clone();
   }
 }
 

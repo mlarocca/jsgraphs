@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --experimental-modules --es-module-specifier-resolution=node",
     "lint": "jslint --max-warnings 0 --fix --ext .js,.ts src/",
-    "bundle": "npx webpack --config webpack.config"
+    "bundle": "npx webpack --config webpack.config",
+    "server": "npx servor --reload"
   },
   "repository": {
     "type": "git",
