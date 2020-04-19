@@ -37,8 +37,8 @@ describe('Vertex Creation', () => {
       });
 
       it('should throw when label is not convetible to JSON', () => {
-        (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Map()));
-        (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Set()));
+        (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
+        (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
       });
 
       it('should NOT throw with other types', () => {

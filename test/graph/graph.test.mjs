@@ -11,7 +11,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import { range } from '../../src/common/numbers.mjs';
-import { isObject } from '../../src/common/basic.mjs';
+import {  isDefined, isUndefined , isObject } from '../../src/common/basic.mjs';
 import { UndirectedGraph } from '../../src/graph/graph.mjs';
 
 import 'mjs-mocha';
@@ -34,8 +34,7 @@ function createExampleGraph() {
   return g;
 }
 
-function createRandomGraph(minV, maxV, minE, maxE) {
-  let g = new Graph();
+function createRandomGraph(g, minV, maxV, minE, maxE) {
   const numVertices = randomInt(minV, maxV);
   const numEdges = randomInt(minE, maxE);
 
@@ -49,6 +48,16 @@ function createRandomGraph(minV, maxV, minE, maxE) {
     g.createEdge(Vertex.idFromLabel(u), Vertex.idFromLabel(v), { weight: Math.random() });
   }
   return g;
+}
+
+function createRandomDirectedGraph(minV, maxV, minE, maxE) {
+  let g = new Graph();
+  return createRandomGraph(g, minV, maxV, minE, maxE);
+}
+
+function createRandomUndirectedGraph(minV, maxV, minE, maxE) {
+  let g = new UndirectedGraph();
+  return createRandomGraph(g, minV, maxV, minE, maxE);
 }
 
 describe('Graph API', () => {
@@ -69,7 +78,7 @@ describe('Graph API', () => {
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
-      'bfs', 'dfs'];
+      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs'];
     let attributes = ['vertices', 'edges'];
     testAPI(edge, attributes, methods);
   });
@@ -325,7 +334,7 @@ describe('equals()', () => {
     let g1 = createExampleGraph();
     let g2 = createExampleGraph();
     let g3 = createExampleGraph();
-    let g4 = createRandomGraph(6, 7, 2, 10);
+    let g4 = createRandomDirectedGraph(6, 7, 2, 10);
     g1.equals(g2).should.be.true();
     g2.equals(g3).should.be.true();
     g1.equals(g3).should.be.true();
@@ -336,7 +345,7 @@ describe('equals()', () => {
   it('# should abide by symmetric property', () => {
     let g1 = createExampleGraph();
     let g2 = createExampleGraph();
-    let g3 = createRandomGraph(6, 7, 2, 10);
+    let g3 = createRandomDirectedGraph(6, 7, 2, 10);
     g1.equals(g2).should.be.true();
     g2.equals(g1).should.be.true();
     g1.equals(g3).should.be.false();
@@ -390,7 +399,7 @@ describe('toJson()', () => {
 
 describe('clone()', () => {
   it('# should clone the graph correctly', () => {
-    let g = createRandomGraph(8, 11, 3, 15);
+    let g = createRandomDirectedGraph(8, 11, 3, 15);
     g.clone().equals(g).should.be.true();
   });
 
@@ -452,6 +461,94 @@ describe('fromJson()', () => {
 });
 
 describe('Algorithms', () => {
+  describe('symmetricClosure', () => {
+    describe('# DirectedGraph', () => {
+      it('should return the symmetric closure of a graph', () => {
+        const g = createRandomDirectedGraph(5, 10, 10, 20);
+        const gSC = g.symmetricClosure();
+
+        for (const v of g.vertices) {
+          gSC.hasVertex(v).should.be.true();
+        }
+
+        gSC.vertices.length.should.eql(g.vertices.length);
+
+        for (const e of g.edges) {
+          // The original edge s->d should be in gT as well as the transposed edge d->s
+          gSC.hasEdgeBetween(e.destination, e.source).should.be.true();
+          gSC.hasEdgeBetween(e.source, e.destination).should.be.true();
+
+          // optional fields: label should be removed, weight should be the sum of the original edges between the two vertices
+          const eT = g.getEdgeBetween(e.destination, e.source);
+          const eSC = gSC.getEdgeBetween(e.source, e.destination);
+          // If edges where defined in both directions, the undirected weight should be the sum of the weights.
+          const expectedWeight = e.weight + (isDefined(eT) ? eT.weight : 0);
+          eSC.weight.should.eql(expectedWeight);
+          expect(eSC.label).to.be.undefined;
+        }
+      });
+    });
+
+    describe('# UndirectedGraph', () => {
+      it('should return an equivalent graph', () => {
+        const g = createRandomUndirectedGraph(5, 10, 10, 20);
+        const gSC = g.symmetricClosure();
+        g.equals(gSC).should.be.true();
+      });
+
+      it('should return not return an instance to the same graph', () => {
+        const g = createRandomUndirectedGraph(5, 10, 10, 20);
+        const gSC = g.symmetricClosure();
+        g.equals(gSC).should.be.true();
+        g.createVertex('"new vertex"');
+        g.equals(gSC).should.be.false();
+        gSC.hasVertex("new vertex").should.be.false();
+      });
+    });
+  });
+
+  describe('transpose', () => {
+    describe('# DirectedGraph', () => {
+      it('should return the transposed graph', () => {
+        const g = createRandomDirectedGraph(5, 10, 10, 20);
+        const gT = g.transpose();
+
+        for (const v of g.vertices) {
+          gT.hasVertex(v).should.be.true();
+        }
+
+        gT.vertices.length.should.eql(g.vertices.length);
+
+        for (const e of g.edges) {
+          gT.hasEdgeBetween(e.destination, e.source).should.be.true();
+          // The original edge s->d should be in gT iff g also has the transposed edge d->s
+          gT.hasEdgeBetween(e.source, e.destination).should.eql(g.hasEdgeBetween(e.destination, e.source));
+          // All the optional fields should be the same
+          const eT = gT.getEdgeBetween(e.destination, e.source);
+          (e.label === eT.label).should.be.true();
+          (e.weight === eT.weight).should.be.true();
+        }
+      });
+    });
+
+    describe('# UndirectedGraph', () => {
+      it('should return an equivalent graph', () => {
+        const g = createRandomUndirectedGraph(5, 10, 10, 20);
+        const gSC = g.transpose();
+        g.equals(gSC).should.be.true();
+      });
+
+      it('should return not return an instance to the same graph', () => {
+        const g = createRandomUndirectedGraph(5, 10, 10, 20);
+        const gSC = g.transpose();
+        g.equals(gSC).should.be.true();
+        g.createVertex('"new vertex"');
+        g.equals(gSC).should.be.false();
+        gSC.hasVertex("new vertex").should.be.false();
+      });
+    });
+  });
+
   describe('bfs', () => {
     describe('# UndirectedGraph', () => {
       it('Invalid input should return error', () => {
@@ -511,8 +608,8 @@ describe('Algorithms', () => {
         bfs.predecessor['"3"'].should.equal('"1"');
         bfs.predecessor['"4"'].should.equal('"1"');
         bfs.predecessor['"5"'].should.equal('"3"');
-        (() => bfs.predecessor['"6"']).should.be.undefined;
-        (() => bfs.predecessor['"7"']).should.be.undefined;
+        expect(bfs.predecessor['"6"']).to.be.undefined;
+        expect(bfs.predecessor['"7"']).to.be.undefined;
 
         Object.keys(bfs.distance).sort().should.eql(['"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"']);
         bfs.distance['"1"'].should.equal(0);

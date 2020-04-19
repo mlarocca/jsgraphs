@@ -20,13 +20,13 @@ describe('Edge API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    const staticMethods = ['fromJson', 'fromJsonObject'];
+    const staticMethods = ['compareEdges', 'fromJson', 'fromJsonObject'];
     testStaticAPI(Edge, staticMethods);
   });
 
   it('# Object\'s interface should be complete', () => {
     const edge = new Edge(new Vertex(1), new Vertex(2));
-    const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
+    const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'transpose', 'toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
     const attributes = ['source', 'destination', 'weight', 'label', 'escapedLabel', 'id'];
     testAPI(edge, attributes, methods);
   });

@@ -21,22 +21,22 @@ const respondsToToJson = (obj) => {
  * Object's fields are here sorted lexicographically,
  * so that {1:1, 2:2} and {2:2, 1:1} will always be translated to the same string.
  *
- * @param {*} key The key to be stringified.
- * @return {string} The stringified key.
+ * @param {*} val The value to be stringified.
+ * @return {string} The stringified value.
  */
-export function consistentStringify(key) {
-  if (isUndefined(key)) {
+export function consistentStringify(val) {
+  if (isUndefined(val)) {
     return JSON.stringify(null);
-  } else if (!isObject(key)) {
-    return JSON.stringify(key);
-  } else if (Array.isArray(key)) {
-    return JSON.stringify(key.map(k => applyToJson(k)));
-  } else if (respondsToToJson(key)) {
-    return key.toJson();
-  } else if (isPlainObject(key)) {
-    let newKey = {};
-    Object.keys(key).sort().forEach(k => newKey[k] = applyToJson(key[k]));
-    return JSON.stringify(newKey);
+  } else if (!isObject(val)) {
+    return JSON.stringify(val);
+  } else if (Array.isArray(val)) {
+    return JSON.stringify(val.map(k => applyToJson(k)));
+  } else if (respondsToToJson(val)) {
+    return val.toJson();
+  } else if (isPlainObject(val)) {
+    let newVal = {};
+    Object.keys(val).sort().forEach(k => newVal[k] = applyToJson(val[k]));
+    return JSON.stringify(newVal);
   } else {
     // Map, WeakMap, Set and WeakSet are not directly stringifiable.
     throw new Error("Impossible to convert to JSON");

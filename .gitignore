@@ -3,6 +3,5 @@
 *.zip
 node_modules
 html
-package-lock.json
 .idea
 dist

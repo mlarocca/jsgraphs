@@ -247,8 +247,8 @@ class Embedding {
 
   toJsonObject() {
     return {
-      vertices: [...this.vertices].map(v => v.toJson()),
-      edges: [...this.edges].map(e => e.toJson())
+      vertices: [...this.vertices].sort().map(v => v.toJson()),
+      edges: [...this.edges].sort(Edge.compareEdges).map(e => e.toJson())
     };
   }
 
