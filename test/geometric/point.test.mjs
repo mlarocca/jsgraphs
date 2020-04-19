@@ -6,7 +6,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') => `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
@@ -32,8 +32,6 @@ describe('Point API', () => {
 });
 
 describe('Point Creation', () => {
-  var point;
-
   describe('# Parameters', () => {
     it('should throw when no key is passed', () => {
       expect(() => new Point()).to.throw(ERROR_MSG_PARAM_TYPE('constructor', 'coordinates', [undefined], 'sequence of numbers'));
@@ -316,7 +314,7 @@ describe('Static Methods', () => {
       });
 
       it('should throw if the argument is an empty array', () => {
-        expect(() => Point.centroid([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('centroid', 'pointsArray', 1, 'array'));
+        expect(() => Point.centroid([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('centroid', 'pointsArray'));
       });
 
       it('should throw if the points don\'t all have the same dimensionality', () => {
@@ -554,7 +552,7 @@ describe('Methods', () => {
       });
 
       it('should throw if the argument is an empty array', () => {
-        expect(() => point.maxDistance([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('maxDistance', 'pointsArray', 1, 'array'));
+        expect(() => point.maxDistance([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('maxDistance', 'pointsArray'));
       });
 
       it('should throw if the points don\'t all have the same dimensionality', () => {
@@ -593,13 +591,13 @@ describe('Methods', () => {
         let point2 = new Point(1, 2);
         let point3 = new Point(-1, 2);
 
-        let [p, dist] = point.maxDistance([point1, point2, point, point3]);
+        let [p, _] = point.maxDistance([point1, point2, point, point3]);
         p.equals(point1).should.be.true();
 
-        [p, dist] = point.maxDistance([point2, point1, point, point3]);
+        [p, _] = point.maxDistance([point2, point1, point, point3]);
         p.equals(point1).should.be.true();
 
-        [p, dist] = point.maxDistance([point2, point3, point, point1]);
+        [p, _] = point.maxDistance([point2, point3, point, point1]);
         p.equals(point1).should.be.true();
       });
     });
@@ -624,7 +622,7 @@ describe('Methods', () => {
       });
 
       it('should throw if the argument is an empty array', () => {
-        expect(() => point.minDistance([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('minDistance', 'pointsArray', 1, 'array'));
+        expect(() => point.minDistance([])).to.throw(ERROR_MSG_PARAM_EMPTY_ARRAY('minDistance', 'pointsArray'));
       });
 
       it('should throw if the points don\'t all have the same dimensionality', () => {
@@ -674,13 +672,13 @@ describe('Methods', () => {
         let point2 = new Point(1, 2);
         let point3 = new Point(-1, 2);
 
-        let [p, dist] = point1.minDistance([point2, point, point3]);
+        let [p, _] = point1.minDistance([point2, point, point3]);
         p.equals(point2).should.be.true();
 
-        [p, dist] = point1.minDistance([point, point2, point3]);
+        [p, _] = point1.minDistance([point, point2, point3]);
         p.equals(point2).should.be.true();
 
-        [p, dist] = point1.minDistance([point, point3, point2]);
+        [p, _] = point1.minDistance([point, point3, point2]);
         p.equals(point2).should.be.true();
       });
     });

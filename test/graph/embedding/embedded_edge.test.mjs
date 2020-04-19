@@ -1,17 +1,17 @@
-import 'mjs-mocha';
-
 import EmbeddedEdge from '../../../src/graph/embedding/embedded_edge.mjs';
 import EmbeddedVertex from '../../../src/graph/embedding/embedded_vertex.mjs';
+
+import Point2D from '../../../src/geometric/point2d.mjs';
+import Vertex from '../../../src/graph/vertex.mjs';
 
 import { testAPI, testStaticAPI } from '../../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../../src/common/errors.mjs';
 
+import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
-import Point2D from '../../../src/geometric/point2d.mjs';
-import Vertex from '../../../src/graph/vertex.mjs';
+import should from "should";   // lgtm[js/unused-local-variable]
 
-const expect = chai.expect;
+const expect = chai.expect;    // lgtm[js/unused-local-variable]
 
 describe('EmbeddedEdge API', () => {
 

@@ -7,7 +7,7 @@ import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/c
 import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 describe('Vertex API', () => {
@@ -169,10 +169,6 @@ describe('Methods', () => {
     it('# should return a valid json', () => {
       Vertex.isValidLabel(new Vertex('test')).should.be.true();
       vertexLabels.forEach(label => {
-        const source = new Vertex(label);
-        const dest = new Vertex(choose(vertexLabels));
-        const edgeLabel = choose(edgeLabels);
-        const weight = Math.random();
         let v = new Vertex(label, { weight: Math.random() });
         expect(() => JSON.parse(v.toJson())).not.to.throw();
       });

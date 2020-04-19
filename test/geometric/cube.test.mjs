@@ -7,7 +7,7 @@ import { testAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 const ERROR_MSG_PARAM_INVALID_CUBE = (fname, val, dimension, pname = 'cube') =>
@@ -36,7 +36,6 @@ describe('Cube API', () => {
 });
 
 describe('Cube Creation', () => {
-  var cube;
   var p1;
   var p2;
 

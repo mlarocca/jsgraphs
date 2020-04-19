@@ -1,16 +1,16 @@
 import DWayHeap from '../../src/dway_heap/dway_heap.mjs';
 import {testAPI} from '../utils/test_common.mjs';
 
-const should = require('should');
-const chai = require('chai');
+import 'mjs-mocha';
+import chai from "chai";
+import should from "should";   // lgtm[js/unused-local-variable]
+const expect = chai.expect;    // lgtm[js/unused-local-variable]
 
 const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM = (str) => `Illegal argument for DWayHeap constructor: branchFactor ${str}`;
 const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM = (str) => `Illegal argument for DWayHeap constructor: elements ${str}`;
 const ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM = (str) => `Illegal argument for DWayHeap constructor: compare ${str}`;
 const ERROR_MSG_DWAYHEAP_PUSH = (str) => `Illegal argument for push: ${str}`;
 const ERROR_MSG_DWAYHEAP_EMPTY_HEAP = () => `Invalid Status: Empty Heap`;
-const ERROR_MSG_DWAYHEAP_CHECK = () => `Heap Properties Violated`;
-const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY = (str) => `Out of range argument: element ${str} not stored in the heap`;
 const ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API = (str) => `Illegal argument for updatePriority: ${str}`;
 const ERROR_MSG_DWAYHEAP_ELEMENT_POSITION = (str) => `Error: can't find position for elem:  ${str}`;
 
@@ -44,64 +44,64 @@ describe('DWayHeap Creation', () => {
       });
 
       it('should throw with non-integer branching factor', () => {
-        DWayHeap.bind(null, []).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM([]));
-        DWayHeap.bind(null, 'g').should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM('g'));
-        DWayHeap.bind(null, {'1': 2}).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM({'1': 2}));
+        expect(() => new DWayHeap([])).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM([]));
+        expect(() => new DWayHeap('g')).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM('g'));
+        expect(() => new DWayHeap({ '1': 2 })).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM({ '1': 2 }));
       });
 
       it('should throw with branching factor < 2', () => {
-        DWayHeap.bind(null, 1).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(1));
-        DWayHeap.bind(null, 1.5).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(1.5));
-        DWayHeap.bind(null, '1.99').should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM('1.99'));
+        expect(() => new DWayHeap(1)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(1));
+        expect(() => new DWayHeap(1.5)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM(1.5));
+        expect(() => new DWayHeap('1.99')).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_FST_PARAM('1.99'));
       });
 
       it('should NOT throw with branching factor parsable to an int >= 2', () => {
-        DWayHeap.bind({}, 3).should.not.throw();
-        DWayHeap.bind({}, '2').should.not.throw();
+        expect(() => new DWayHeap(3)).not.to.throw();
+        expect(() => new DWayHeap('2')).not.to.throw();
       });
     });
 
     describe('# 2nd argument (optional)', () => {
 
       it('should throw when it\'s not an array', () => {
-        DWayHeap.bind(null, 2, 4).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM(4));
-        DWayHeap.bind(null, 4, '4').should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM('4'));
-        DWayHeap.bind(null, 3, {'4': 4}).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM({'4': 4}));
+        expect(() => new DWayHeap(2, 4)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM(4));
+        expect(() => new DWayHeap(4, '4')).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM('4'));
+        expect(() => new DWayHeap(3, { '4': 4 })).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM({ '4': 4 }));
       });
 
       it('should NOT throw with isEmpty arrays', () => {
-        DWayHeap.bind({}, 2, []).should.not.throw();
+        expect(() => new DWayHeap(2, [])).not.to.throw();
       });
 
       it('should throw for null', () => {
-        DWayHeap.bind(null, 2, null).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM(null));
+        expect(() => new DWayHeap(2, null)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_SND_PARAM(null));
       });
     });
 
     describe('# 3rd argument (optional)', () => {
 
       it('should throw with null', () => {
-        DWayHeap.bind({}, 2, [], null).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(null));
+        expect(() => new DWayHeap(2, [], null)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(null));
       });
 
       it('should throw if it\'s not a function', () => {
-        DWayHeap.bind(null, 3, [], 'r').should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM('r'));
-        DWayHeap.bind(null, 3, [], 'r').should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM('r'));
-        DWayHeap.bind(null, 3, [], 5).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(5));
-        DWayHeap.bind(null, 3, [], {'5': 5}).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM({'5': 5}));
+        expect(() => new DWayHeap(3, [], 'r')).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM('r'));
+        expect(() => new DWayHeap(3, [], 'r')).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM('r'));
+        expect(() => new DWayHeap(3, [], 5)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(5));
+        expect(() => new DWayHeap(3, [], { '5': 5 })).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM({ '5': 5 }));
       });
 
       it('should throw if compare function contains length !== 2', () => {
         let f = () => undefined;
-        DWayHeap.bind(null, 2, [], f).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
+        expect(() => new DWayHeap(2, [], f)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
         f = (a) => undefined;
-        DWayHeap.bind(null, 2, [], f).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
+        expect(() => new DWayHeap(2, [], f)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
         f = (a, b, c) => 1;
-        DWayHeap.bind(null, 2, [], f).should.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
+        expect(() => new DWayHeap(2, [], f)).to.throw(ERROR_MSG_DWAYHEAP_CONSTRUCTOR_TRD_PARAM(f));
       });
 
       it('should NOT throw if compare function contains length == 2', () => {
-        DWayHeap.bind({}, 2, [], (a, b) => null).should.not.throw();
+        expect(() => new DWayHeap(2, [], (a, b) => null)).not.to.throw();
       });
     });
   });
@@ -206,18 +206,18 @@ describe('Methods', () => {
 
     it('# should throw when called with illegal arguments', () => {
       heaps.forEach(function (h) {
-        h.push.bind(h).should.throw(ERROR_MSG_DWAYHEAP_PUSH());
-        h.push.bind(h, null).should.throw(ERROR_MSG_DWAYHEAP_PUSH(null));
+        expect(() => h.push()).to.throw(ERROR_MSG_DWAYHEAP_PUSH());
+        expect(() => h.push(null)).to.throw(ERROR_MSG_DWAYHEAP_PUSH(null));
       });
     });
 
     it('# should insert values correctly', () => {
       heaps.forEach(function (h) {
-        h.push.bind(h, Math.random()).should.not.throw();
-        h.push.bind(h, '1').should.not.throw();
-        h.push.bind(h, false).should.not.throw();
-        h.push.bind(h, [Math.random()]).should.not.throw();
-        h.push.bind(h, {'x': Math.random()}).should.not.throw();
+        expect(() => h.push(Math.random())).not.to.throw();
+        expect(() => h.push('1')).not.to.throw();
+        expect(() => h.push(false)).not.to.throw();
+        expect(() => h.push([Math.random()])).not.to.throw();
+        expect(() => h.push({ 'x': Math.random() })).not.to.throw();
       });
     });
 
@@ -241,15 +241,15 @@ describe('Methods', () => {
       ];
 
       heaps.forEach(function (h) {
-        [2, '3', [4], {6: '6'}].forEach(function (elem) {
-          h.push.bind(h, elem).should.not.throw();
+        [2, '3', [4], { 6: '6' }].forEach(function (elem) {
+          expect(() => h.push(elem)).not.to.throw();
         });
       });
 
       heaps.forEach(function (h) {
         var i;
         for (i = 0; i < 100; i++) {
-          h.push.bind(h, Math.random()).should.not.throw();
+          expect(() => h.push(Math.random())).not.to.throw();
         }
       });
     });
@@ -270,7 +270,7 @@ describe('Methods', () => {
 
     it('# should throw when heap is empty', () => {
       heaps.forEach(function (h) {
-        h.peek.bind(h).should.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
+        expect(() => h.peek()).to.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
       });
     });
 
@@ -298,22 +298,22 @@ describe('Methods', () => {
 
     it('# should work correctly with compare functions', () => {
       var functions = [
-          function (x, y) {
-            return x - y;
-          },
-          function (x, y) {
-            return y - x;
-          },
-          function (x, y) {
-            return x < y ? -1 : (x === y ? 0 : 1);
-          },
-          function (x, y) {
-            return x - y;
-          },
-          function (x, y) {
-            return x > y ? -1 : (x === y ? 0 : 1);
-          }
-        ],
+        function (x, y) {
+          return x - y;
+        },
+        function (x, y) {
+          return y - x;
+        },
+        function (x, y) {
+          return x < y ? -1 : (x === y ? 0 : 1);
+        },
+        function (x, y) {
+          return x - y;
+        },
+        function (x, y) {
+          return x > y ? -1 : (x === y ? 0 : 1);
+        }
+      ],
         heaps = [
           new DWayHeap(2, undefined, functions[0]),
           new DWayHeap(3, undefined, functions[1]),
@@ -321,7 +321,7 @@ describe('Methods', () => {
           new DWayHeap(5, undefined, functions[3]),
           new DWayHeap(6, undefined, functions[4])
         ],
-        keys = [2, '3', [4], {6: '6'}],
+        keys = [2, '3', [4], { 6: '6' }],
         counter = 0;
 
       heaps.forEach(function (h) {
@@ -357,13 +357,13 @@ describe('Methods', () => {
 
     it('# should throw only when heap is empty', () => {
       heaps.forEach(function (h) {
-        h.top.bind(h).should.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
+        expect(() => h.top()).to.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP());
       });
 
       heaps.forEach(function (h) {
         h.push(Math.random());
-        h.top.bind(h).should.not.throw(); //First time the heap is not empty...
-        h.top.bind(h).should.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP()); //..but second time it should better be
+        expect(() => h.top()).not.to.throw(); //First time the heap is not empty...
+        expect(() => h.top()).to.throw(ERROR_MSG_DWAYHEAP_EMPTY_HEAP()); //..but second time it should better be
       });
     });
 
@@ -396,22 +396,22 @@ describe('Methods', () => {
 
     it('# should work correctly with compare functions', () => {
       var functions = [
-          function (x, y) {
-            return x - y;
-          },
-          function (x, y) {
-            return y - x;
-          },
-          function (x, y) {
-            return x < y ? -1 : (x === y ? 0 : 1);
-          },
-          function (x, y) {
-            return x - y;
-          },
-          function (x, y) {
-            return x > y ? -1 : (x === y ? 0 : 1);
-          }
-        ],
+        function (x, y) {
+          return x - y;
+        },
+        function (x, y) {
+          return y - x;
+        },
+        function (x, y) {
+          return x < y ? -1 : (x === y ? 0 : 1);
+        },
+        function (x, y) {
+          return x - y;
+        },
+        function (x, y) {
+          return x > y ? -1 : (x === y ? 0 : 1);
+        }
+      ],
         heaps = [
           new DWayHeap(2, undefined, functions[0]),
           new DWayHeap(3, undefined, functions[1]),
@@ -419,7 +419,7 @@ describe('Methods', () => {
           new DWayHeap(5, undefined, functions[3]),
           new DWayHeap(6, undefined, functions[4])
         ],
-        keys = [2, '3', [4], {6: '6'}],
+        keys = [2, '3', [4], { 6: '6' }],
         counter = 0;
 
       heaps.forEach(function (h) {
@@ -455,10 +455,10 @@ describe('Methods', () => {
 
     it('# should NOT throw when the argument is undefined or null or a function', () => {
       heaps.forEach(function (h) {
-        h.contains.bind(h).should.not.throw();
-        h.contains.bind(h, null).should.not.throw();
-        h.contains.bind(h, function () {
-        }).should.not.throw();
+        expect(() => h.contains()).not.to.throw();
+        expect(() => h.contains(null)).not.to.throw();
+        expect(() => h.contains(function () {
+        })).not.to.throw();
       });
     });
 
@@ -518,23 +518,23 @@ describe('Methods', () => {
 
     it('# should throw when one of the arguments is undefined or null or a function', () => {
       heaps.forEach(function (h) {
-        h.updatePriority.bind(h).should.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION());
-        h.updatePriority.bind(h, null).should.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(null));
-        h.updatePriority.bind(h, () => {
-        }).should.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(() => {
+        expect(() => h.updatePriority()).to.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION());
+        expect(() => h.updatePriority(null)).to.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(null));
+        expect(() => h.updatePriority(() => {
+        })).to.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(() => {
         }));
         h.push(1);
-        h.updatePriority.bind(h, 1).should.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API());
-        h.updatePriority.bind(h, 1, null).should.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API(null));
-        h.updatePriority.bind(h, 1, function () {
-        }).should.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API(function () {
+        expect(() => h.updatePriority(1)).to.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API());
+        expect(() => h.updatePriority(1, null)).to.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API(null));
+        expect(() => h.updatePriority(1, function () {
+        })).to.throw(ERROR_MSG_DWAYHEAP_UPDATE_PRIORITY_API(function () {
         }));
       });
     });
 
     it('# should throw when the element is not in the heap', () => {
       heaps.forEach(function (h) {
-        h.updatePriority.bind(h, 5, 2).should.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(5));
+        expect(() => h.updatePriority(5, 2)).to.throw(ERROR_MSG_DWAYHEAP_ELEMENT_POSITION(5));
       });
     });
 
@@ -548,7 +548,7 @@ describe('Methods', () => {
         new DWayHeap(6, [7, 6, 5, 4, 3, 2, 1])
       ];
       heaps.forEach(function (h) {
-        h.updatePriority.bind(h, 4, Math.random()).should.not.throw();
+        expect(() => h.updatePriority(4, Math.random())).not.to.throw();
       });
     });
 
@@ -562,7 +562,7 @@ describe('Methods', () => {
       ];
       heaps.forEach(function (h) {
         var hKeys;
-        h.updatePriority.bind(h, [4, 6, 1][Math.floor(Math.random() * 3)], Math.random()).should.not.throw();
+        expect(() => h.updatePriority([4, 6, 1][Math.floor(Math.random() * 3)], Math.random())).not.to.throw();
         hKeys = h.sorted();
         hKeys.should.be.an.Array();
         hKeys.should.eql(hKeys.sort());
