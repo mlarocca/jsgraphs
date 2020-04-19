@@ -9,7 +9,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../src/common/errors.mjs';
 
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 
 const expect = chai.expect;
 
@@ -185,7 +185,7 @@ describe('Attributes', () => {
       let v;
       do {
         v = choose(destinations);
-      } while (v.equals(u))
+      } while (v.equals(u));
       let label = "random label";
 
       const e1 = new Edge(u, v, { weight: Math.random(), label: label });

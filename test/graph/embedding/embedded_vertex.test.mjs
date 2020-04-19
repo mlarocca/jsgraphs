@@ -1,5 +1,3 @@
-import 'mjs-mocha';
-
 import EmbeddedVertex from '../../../src/graph/embedding/embedded_vertex.mjs';
 
 import Point from '../../../src/geometric/point.mjs';
@@ -8,10 +6,11 @@ import Point2D from '../../../src/geometric/point2d.mjs';
 import { testAPI, testStaticAPI } from '../../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../../src/common/errors.mjs';
 
+import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 
-const expect = chai.expect;
+const expect = chai.expect;    // lgtm[js/unused-local-variable]
 
 describe('EmbeddedVertex API', () => {
   it('# Class should have a constructor method', function () {
@@ -41,8 +40,8 @@ describe('EmbeddedVertex Creation', () => {
       });
 
       it('should throw when label is not convetible to JSON', () => {
-        (() => new EmbeddedVertex(new Map(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Map()));
-        (() => new EmbeddedVertex(new Set(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', 'label', new Set()));
+        (() => new EmbeddedVertex(new Map(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
+        (() => new EmbeddedVertex(new Set(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
       });
 
       it('should NOT throw with other types', () => {

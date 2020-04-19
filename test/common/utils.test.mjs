@@ -7,7 +7,7 @@ import * as strings from '../../src/common/strings.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 describe('consistentStringify()', () => {

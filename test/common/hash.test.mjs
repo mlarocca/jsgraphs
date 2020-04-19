@@ -2,7 +2,7 @@ import { fnv1Hash32, murmurHash32 } from '../../src/common/hash.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 const ERROR_MSG_HASH_KEY_TYPE = (fname, val) => `Illegal parameter for ${fname}: key = ${val} must be a String`;

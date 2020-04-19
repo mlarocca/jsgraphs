@@ -5,7 +5,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') => `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
@@ -31,8 +31,6 @@ describe('Point2D API', () => {
 });
 
 describe('Point2D Creation', () => {
-  var point;
-
   describe('# Parameters', () => {
     it('should throw when no key is passed', () => {
       expect(() => new Point2D()).to.throw(ERROR_MSG_PARAM_TYPE('constructor', 'coordinates', [undefined, undefined], 'sequence of numbers'));

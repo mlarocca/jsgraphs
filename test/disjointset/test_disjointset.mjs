@@ -6,7 +6,7 @@ import { testAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";
+import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
 const ERROR_MSG_UNION_FIND_CONSTRUCTOR_ILLEGAL_ARGUMENT = (val, klassName) => `Illegal argument for ${klassName} constructor: ${val}`;

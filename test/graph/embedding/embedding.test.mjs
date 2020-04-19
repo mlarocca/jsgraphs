@@ -1,23 +1,25 @@
-import 'mjs-mocha';
-
 import Embedding from '../../../src/graph/embedding/embedding.mjs';
 
-import Graph from '../../../src/graph/graph.mjs';
-
-import { testAPI, testStaticAPI } from '../../utils/test_common.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../../src/common/errors.mjs';
-
-import chai from "chai";
-import should from "should";
-import { range } from '../../../src/common/numbers.mjs';
-import Point2D from '../../../src/geometric/point2d.mjs';
 import EmbeddedVertex from '../../../src/graph/embedding/embedded_vertex.mjs';
 import EmbeddedEdge from '../../../src/graph/embedding/embedded_edge.mjs';
+
+import Graph from '../../../src/graph/graph.mjs';
 import Vertex from '../../../src/graph/vertex.mjs';
-import Point from '../../../src/geometric/point.mjs';
 import Edge from '../../../src/graph/edge.mjs';
 
-const expect = chai.expect;
+import Point2D from '../../../src/geometric/point2d.mjs';
+import Point from '../../../src/geometric/point.mjs';
+
+import { testAPI, testStaticAPI } from '../../utils/test_common.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../../src/common/errors.mjs';
+
+
+import { range } from '../../../src/common/numbers.mjs';
+
+import 'mjs-mocha';
+import chai from "chai";
+import should from "should";   // lgtm[js/unused-local-variable]
+const expect = chai.expect;    // lgtm[js/unused-local-variable]
 
 describe('Embedding API', () => {
 
@@ -106,9 +108,9 @@ describe('Methods', () => {
     const emb = new Embedding([u, v], [e]);
 
     it('should throw when vertex is not in the graph (embedding)', () => {
-      (() => emb.setVertexPosition(null)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', null));
-      (() => emb.setVertexPosition(undefined)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', undefined));
-      (() => emb.setVertexPosition('not there')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'vertex', 'not there'));
+      (() => emb.setVertexPosition(null)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', null));
+      (() => emb.setVertexPosition(undefined)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', undefined));
+      (() => emb.setVertexPosition('not there')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Embedding.setVertexPosition', 'not there'));
     });
 
     it('should throw when position is not a valid Point2D', () => {
@@ -137,9 +139,9 @@ describe('Methods', () => {
     const emb = new Embedding([u, v], [e]);
 
     it('should throw when vertex is not in the graph (embedding)', () => {
-      (() => emb.setEdgeControlPoint(null)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', null));
-      (() => emb.setEdgeControlPoint(undefined)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', undefined));
-      (() => emb.setEdgeControlPoint('not there')).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'edge', 'not there'));
+      (() => emb.setEdgeControlPoint(null)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', null));
+      (() => emb.setEdgeControlPoint(undefined)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', undefined));
+      (() => emb.setEdgeControlPoint('not there')).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Embedding.setEdgeControlPoint', 'not there'));
     });
 
     it('should throw when arcControlDistance is not a valid number', () => {
@@ -266,8 +268,6 @@ describe('Methods', () => {
     });
 
     it('# should allow passing arc\'s control point for some or all edges', () => {
-      const p = new Point2D(1,2);
-      const q = new Point2D(2,1);
       let emb = Embedding.forGraph(g, {edgeArcControlDistances: {[e2.id]: -91, [e3.id]: 0.101}});
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
