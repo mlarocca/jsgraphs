@@ -692,7 +692,8 @@ class Graph {
   /**
    * @method dfs
    * @for Graph
-   * @return {BfsResult}
+   *
+   * @return {DfsResult}
    */
   dfs() {
     let timeDiscovered = {};
@@ -708,6 +709,22 @@ class Graph {
     });
 
     return new DfsResult(timeDiscovered, timeVisited, acyclic)
+  }
+
+  /**
+   * @method connectedComponents
+   * @for Graph
+   *
+   * @description
+   * Computes the connected components of a graph. A connected component is a set of vertices CC such that from
+   * each vertex u belonging CC there is a path in the symmetric closure of this graph to every other vertex v belonging
+   * to CC.
+   *
+   * @return {Set<Set<String>>} A collection of the connected components in the graph: each cc being returned as a set
+   *                            of the indices of the vertices in it.
+   */
+  connectedComponents() {
+    return this.symmetricClosure.connectedComponents();
   }
 }
 
@@ -886,6 +903,36 @@ export class UndirectedGraph extends Graph {
   // ALGORITHMS
 
   /**
+   * @method connectedComponents
+   * @for UndirectedGraph
+   *
+   * @description
+   * Computes the connected components of a graph. A connected component is a set of vertices CC such that from
+   * each vertex u belonging CC there is a path in the graph to every other vertex v belonging to CC.
+   *
+   * @return {Set<Set<String>>} A collection of the connected components in the graph: each cc being returned as a set
+   *                            of the indices of the vertices in it.
+   */
+  connectedComponents() {
+    let timeDiscovered = {};
+    let currentTime = 0;
+    let connectedComponents = new Set();
+
+    this.vertices.forEach(v => {
+      if (!timeDiscovered[v.id]) {
+        let timeVisited = {};
+        let acyclic = true;
+        timeDiscovered[v.id] = ++currentTime;
+        [currentTime, acyclic] = dfs(this, v, timeDiscovered, timeVisited, acyclic, currentTime);
+        // we reset timeVisited at each run of dfs, so the only vertices with an entry are the ones in this CC.
+        connectedComponents.add(new Set(Object.keys(timeVisited)));
+      }
+    });
+
+    return connectedComponents;
+  }
+
+  /**
    * @method isConnected
    * @for UndirectedGraph
    *
@@ -897,8 +944,7 @@ export class UndirectedGraph extends Graph {
    * @return {boolean} True iff the graph is connected.
    */
   isConnected() {
-    // TODO
-    return true;
+    return this.connectedComponents().size === 1;
   }
 
   /**

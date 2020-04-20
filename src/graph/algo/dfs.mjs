@@ -34,14 +34,6 @@ class DfsResult {
     return this.#acyclic;
   }
 
-  /**
-   *
-   * @param {String} targetId The ID of the final vertex in the path to be reconstructed.
-   */
-  connectedComponents() {
-    throw new Error("unimplemented");
-  }
-
   topologicalSort() {
     throw new Error("unimplemented");
   }
