@@ -535,7 +535,10 @@ class Graph {
    * such that vertices in A are only connected to vertices in B: there is no edge (u,v) such that u is in A and v in B,
    * or vice versa.
    *
-   * @return {[boolean, Set<String>, Set<String>} True iff the graph is bipartite.
+   * @return {[boolean, Set<String>, Set<String>]} The first entry is true iff the graph is bipartite.
+   *                                               The two partitions are null if the graph is not bipartite,
+   *                                               otherwise they are two Sets with the indices of the vertices
+   *                                               in the partition.
    */
   isBipartite() {
     // The symmetric closure of a directed graph is certainly an undirected graph.
@@ -571,7 +574,8 @@ class Graph {
     const [bipartite, partition1, partition2] = this.isBipartite();
 
     const m = this.simpleEdges.length;
-    return bipartite && m === partition1.length * partition2.length;
+    // In directed graphs there are 2 edges between each pair of vertices across the partitions
+    return bipartite && m === 2 * partition1.size * partition2.size;
   }
 
   /**
@@ -724,7 +728,7 @@ class Graph {
    *                            of the indices of the vertices in it.
    */
   connectedComponents() {
-    return this.symmetricClosure.connectedComponents();
+    return this.symmetricClosure().connectedComponents();
   }
 }
 
@@ -956,7 +960,10 @@ export class UndirectedGraph extends Graph {
    * such that vertices in A are only connected to vertices in B: there is no edge (u,v) such that u is in A and v in B,
    * or vice versa.
    *
-   * @return {[boolean, Set<String>, Set<String>} True iff the graph is bipartite.
+   * @return {[boolean, Set<String>, Set<String>]} The first entry is true iff the graph is bipartite.
+   *                                               The two partitions are null if the graph is not bipartite,
+   *                                               otherwise they are two Sets with the indices of the vertices
+   *                                               in the partition.
    */
   isBipartite() {
     // Only connected graphs with at least 2 vertices can be bipartite
@@ -1000,7 +1007,7 @@ export class UndirectedGraph extends Graph {
       }
     }
 
-    return [true,  new Set(partition1), new Set(partition2)];
+    return [true, new Set(partition1), new Set(partition2)];
   }
 
   /**
@@ -1034,7 +1041,7 @@ export class UndirectedGraph extends Graph {
 
     const m = this.simpleEdges.length;
     // Only half of the directed edges are returned in an undirected graph
-    return bipartite && m === partition1.length * partition2.length / 2;
+    return bipartite && m === partition1.size * partition2.size;
   }
 
   /**

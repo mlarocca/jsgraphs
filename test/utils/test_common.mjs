@@ -27,3 +27,17 @@ export function testStaticAPI(klass, expectedMethods) {
   let allStaticMethods = new Set(Object.getOwnPropertyNames(klass).filter(prop => typeof klass[prop] === "function"));
   expect(allStaticMethods).to.eql(new Set(expectedMethods));
 }
+
+export function assertSetEquality(collection1, collection2) {
+  expect([...setDifference(new Set(collection1), new Set(collection2))]).to.be.eql([]);
+}
+
+export function assertDeepSetEquality(collection, expected) {
+  (collection instanceof Set).should.be.true();
+  collection.size.should.eql(expected.length);
+
+  for (const cc in collection) {
+    (cc instanceof Set).should.be.true();
+    expected.some(eCC => assertSetEquality(cc, eCC)).should.be.true();
+  }
+}
