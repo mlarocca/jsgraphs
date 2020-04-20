@@ -75,9 +75,9 @@ Here we keep a list of the roadmap for the development of this library. If you h
 
 - [x] BFS
 - [X] DFS
-- [ ] Graph transpose
-- [ ] Symmetric closure
-- [ ] Connected Components
+- [X] Graph transpose
+- [X] Symmetric closure
+- [X] Connected Components
 - [ ] Strongly Connected Components
 - [ ] Topological Sorting
 - [ ] Biconnected Components
@@ -95,6 +95,9 @@ Here we keep a list of the roadmap for the development of this library. If you h
 
 - [ ] Custom label/weights separator
 - [ ] Edge.setLabel
+- [ ] DFS returns all cycles found
+- [ ] Add options to display/hide vertex name/label
+- [ ] Union of 2 disjoint graphs
 
 ### **Generators**
 
