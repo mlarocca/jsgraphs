@@ -939,9 +939,9 @@ export class UndirectedGraph extends Graph {
     this.vertices.forEach(v => {
       if (!timeDiscovered[v.id]) {
         let timeVisited = {};
-        let acyclic = true;
+        let acyclic = true;  // lgtm [js/useless-assignment-to-local]
         timeDiscovered[v.id] = ++currentTime;
-        [currentTime, acyclic] = dfs(this, v, timeDiscovered, timeVisited, acyclic, currentTime);  // lgtm [js/useless-assignment-to-local]
+        [currentTime, acyclic] = dfs(this, v, timeDiscovered, timeVisited, acyclic, currentTime);
         // we reset timeVisited at each run of dfs, so the only vertices with an entry are the ones in this CC.
         connectedComponents.add(new Set(Object.keys(timeVisited)));
       }
