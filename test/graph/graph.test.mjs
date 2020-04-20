@@ -78,7 +78,7 @@ describe('Graph API', () => {
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
-      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs'];
+      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents'];
     let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
   });
