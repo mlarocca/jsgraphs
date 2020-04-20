@@ -523,7 +523,20 @@ class Graph {
    * @return {boolean} True iff the graph is connected.
    */
   isConnected() {
-    return this.symmetricClosure.isConnected();
+    return this.symmetricClosure().isConnected();
+  }
+
+  /**
+   * @method isAcyclic
+   * @for Graph
+   * @description
+   * Check if a graph is acyclic, or if it has a cycle.
+   *
+   * @return {boolean} True iff the graph is acyclic.
+   */
+  isAcyclic() {
+    const dfsResult = this.dfs();
+    return dfsResult.isAcyclic();
   }
 
   /**
@@ -777,9 +790,10 @@ function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
         } else {
           // If a neighbor of current graph was already discovered, then we have a cycle.
           // if the graph is undirected check that the path is longer than 1 edge
-          if (!timeVisited[w.id] &&
-            (graph.isDirected() || path[path.length - 1] !== w.id) &&
-            (path.indexOf(w.id) >= 0)) {
+          if (e.isLoop() ||
+                !timeVisited[w.id] &&
+                  (graph.isDirected() || path[path.length - 1] !== w.id) &&
+                  (path.indexOf(w.id) >= 0)) {
             acyclic = false;
           }
         }

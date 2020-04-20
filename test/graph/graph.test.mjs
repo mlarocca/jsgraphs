@@ -78,7 +78,7 @@ describe('Graph API', () => {
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
-      'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
+      'isAcyclic', 'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
       'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents'];
     let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
@@ -1000,7 +1000,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"4"', '"1"');
 
-        const dfs = g.dfs('"1"');
+        const dfs = g.dfs();
 
         isObject(dfs).should.be.true();
         (dfs instanceof DfsResult).should.be.true();
@@ -1033,7 +1033,7 @@ describe('Algorithms', () => {
         g.createEdge('"4"', '"1"');
         g.createEdge('"6"', '"7"');
 
-        const dfs = g.dfs('"1"');
+        const dfs = g.dfs();
 
         isObject(dfs).should.be.true();
         (dfs instanceof DfsResult).should.be.true();
@@ -1070,7 +1070,7 @@ describe('Algorithms', () => {
         g.createEdge('"2"', '"4"');
         g.createEdge('"3"', '"5"');
 
-        const dfs = g.dfs('"1"');
+        const dfs = g.dfs();
 
         isObject(dfs).should.be.true();
         (dfs instanceof DfsResult).should.be.true();
@@ -1106,7 +1106,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"4"', '"1"');
 
-        const ccs = g.connectedComponents('"1"');
+        const ccs = g.connectedComponents();
         let expectSet = [new Set(['1', '2', '3', '4', '5'])];
 
         assertDeepSetEquality(ccs, expectSet);
@@ -1123,7 +1123,7 @@ describe('Algorithms', () => {
         g.createEdge('"4"', '"1"');
         g.createEdge('"6"', '"7"');
 
-        const ccs = g.connectedComponents('"1"');
+        const ccs = g.connectedComponents();
         let expectSet = [new Set(['1', '2', '3', '4', '5']), new Set(['6', '7'])];
 
         assertDeepSetEquality(ccs, expectSet);
@@ -1140,10 +1140,194 @@ describe('Algorithms', () => {
         g.createEdge('"2"', '"4"');
         g.createEdge('"3"', '"5"');
 
-        const ccs = g.connectedComponents('"1"');
+        const ccs = g.connectedComponents();
         let expectSet = [new Set(['1', '2', '3', '4', '5'])];
 
         assertDeepSetEquality(ccs, expectSet);
+      });
+
+      it('should compute connectedComponents on a disconnected graph', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const ccs = g.connectedComponents();
+        let expectSet = [new Set(['1', '2', '3', '4', '5']), new Set(['6', '7'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+    });
+  });
+
+  describe('isConnected', () => {
+    describe('# UndirectedGraph', () => {
+      it('should return true on a connected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        g.isConnected().should.be.true();
+      });
+
+      it('should return false on a disconnected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        g.isConnected().should.be.false();
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should return true on a connected di-graph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+
+        g.isConnected().should.be.true();
+      });
+
+      it('should return false on a disconnected di-graph', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        g.isConnected().should.be.false();
+      });
+    });
+
+  });
+
+  describe('isAcyclic', () => {
+    describe('# UndirectedGraph', () => {
+      it('should return false if the graph has a cycle', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        g.isAcyclic().should.be.false();
+      });
+
+      it('should return false on a disconnected graph with a cycle', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        g.isAcyclic().should.be.false();
+      });
+
+      it('should return true on a disconnected graph without any cycle', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"6"', '"7"');
+
+        g.isAcyclic().should.be.false();
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should return false on a di-graph with a cycle', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"3"', '"1"');
+
+        g.isAcyclic().should.be.false();
+
+        g = new Graph();
+        range(1, 4).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"3"', '"1"');
+
+        g.isAcyclic().should.be.false();
+      });
+
+      it('should return false on a disconnected di-graph with a cycle', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"5"', '"6"');
+        g.createEdge('"6"', '"7"');
+        g.createEdge('"7"', '"5"');
+
+        g.isAcyclic().should.be.false();
+      });
+
+      it('should return false on a di-graph with a loop', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"2"', '"2"');
+
+        g.isAcyclic().should.be.false();
+      });
+
+      it('should return true on a di-graph without a cycle', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+
+        g.isAcyclic().should.be.true();
       });
     });
   });
