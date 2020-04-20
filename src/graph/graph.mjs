@@ -511,6 +511,38 @@ class Graph {
   // ALGORITHMS
 
   /**
+   * @method isConnected
+   * @for Graph
+   *
+   * @description
+   * Check if the graph is connected, i.e., for a directed graph, if its symmetric closure has a single
+   * connected component comprising all vertices.
+   * A connected component is a set CC of vertices in an indirected graph such that from each vertex in CC you can
+   * reach all other vertices in CC.
+   *
+   * @return {boolean} True iff the graph is connected.
+   */
+  isConnected() {
+    return this.symmetricClosure.isConnected();
+  }
+
+  /**
+   * @method isBipartite
+   * @for Graph
+   *
+   * @description
+   * Check if a graph is a bipartite graph, i.e. vertices can be partitioned into two non-empty sets, say A and B,
+   * such that vertices in A are only connected to vertices in B: there is no edge (u,v) such that u is in A and v in B,
+   * or vice versa.
+   *
+   * @return {[boolean, Set<String>, Set<String>} True iff the graph is bipartite.
+   */
+  isBipartite() {
+    // The symmetric closure of a directed graph is certainly an undirected graph.
+    return this.symmetricClosure().isBipartite();
+  }
+
+  /**
    * @method isComplete
    * @for Graph
    *
@@ -523,6 +555,23 @@ class Graph {
     const n = this.vertices.length;
     const m = this.simpleEdges.length;
     return m === n * (n - 1);
+  }
+
+  /**
+   * @method isCompleteBipartite
+   * @for Graph
+   *
+   * @description
+   * Check if a graph is a complete bipartite graph, i.e. the graph is bipartite and
+   * every vertex on the first partition is adjacent to all, and just, the vertices in the other partition.
+   *
+   * @return {boolean} True iff the graph is complete bipartite.
+   */
+  isCompleteBipartite() {
+    const [bipartite, partition1, partition2] = this.isBipartite();
+
+    const m = this.simpleEdges.length;
+    return bipartite && m === partition1.length * partition2.length;
   }
 
   /**
@@ -836,7 +885,79 @@ export class UndirectedGraph extends Graph {
 
   // ALGORITHMS
 
-    /**
+  /**
+   * @method isConnected
+   * @for UndirectedGraph
+   *
+   * @description
+   * Check if the graph is connected, i.e. if there is a single connected component comprising all vertices.
+   * A connected component is a set CC of vertices in an indirected graph such that from each vertex in CC you can
+   * reach all other vertices in CC.
+   *
+   * @return {boolean} True iff the graph is connected.
+   */
+  isConnected() {
+    // TODO
+    return true;
+  }
+
+  /**
+   * @method isBipartite
+   * @for UndirectedGraph
+   *
+   * @description
+   * Check if a graph is a bipartite graph, i.e. vertices can be partitioned into two non-empty sets, say A and B,
+   * such that vertices in A are only connected to vertices in B: there is no edge (u,v) such that u is in A and v in B,
+   * or vice versa.
+   *
+   * @return {[boolean, Set<String>, Set<String>} True iff the graph is bipartite.
+   */
+  isBipartite() {
+    // Only connected graphs with at least 2 vertices can be bipartite
+    if (this.vertices.length < 2 || !this.isConnected()) {
+      return [false, null, null];
+    }
+
+    // If a graph is connected, then it's not empty
+    const s = getVertices(this).next().value;
+
+    let colors = {};
+    colors[s.id] = true;
+
+    let queue = [s];
+
+    while (queue.length > 0) {
+      const u = queue.pop(0);
+      const c = colors[u.id];
+
+      for (const e of u.outgoingEdges()) {
+        const v = e.destination;
+        if (isUndefined(colors[v.id])) {
+          // Assign the opposite color to the edge's destination
+          colors[v.id] = !c;
+          queue.push(v);
+        } else if (colors[v.id] === c) {
+          // If the destination was assigned the same color as the source, the graph is not bipartite
+          return [false, null, null];
+        }
+      }
+    }
+
+    // Now we know it's bipartite: reconstruct partitions
+    let partition1 = [];
+    let partition2 = [];
+    for (const v of getVertices(this)) {
+      if (colors[v.id]) {
+        partition1.push(v.id);
+      } else {
+        partition2.push(v.id);
+      }
+    }
+
+    return [true,  new Set(partition1), new Set(partition2)];
+  }
+
+  /**
    * @method isComplete
    * @for UndirectedGraph
    *
@@ -850,6 +971,24 @@ export class UndirectedGraph extends Graph {
     const m = this.simpleEdges.length;
     // Only half of the directed edges are returned in an undirected graph
     return m === n * (n - 1) / 2;
+  }
+
+  /**
+   * @method isCompleteBipartite
+   * @for UndirectedGraph
+   *
+   * @description
+   * Check if a graph is a complete bipartite graph, i.e. the graph is bipartite and
+   * every vertex on the first partition is adjacent to all, and just, the vertices in the other partition.
+   *
+   * @return {boolean} True iff the graph is complete bipartite.
+   */
+  isCompleteBipartite() {
+    const [bipartite, partition1, partition2] = this.isBipartite();
+
+    const m = this.simpleEdges.length;
+    // Only half of the directed edges are returned in an undirected graph
+    return bipartite && m === partition1.length * partition2.length / 2;
   }
 
   /**

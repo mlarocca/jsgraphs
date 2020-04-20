@@ -77,7 +77,7 @@ describe('Graph API', () => {
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
-      'isComplete',
+      'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
       'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs'];
     let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
@@ -397,54 +397,6 @@ describe('toJson()', () => {
   });
 });
 
-describe('isComplete()', () => {
-  describe('DirectedGraph', () => {
-    it('# should return true for complete graphs', () => {
-      const g = Graph.completeGraph(randomInt(4, 10));
-      g.isComplete().should.be.true();
-    });
-
-    it('# should return true even if the complete graph has loops', () => {
-      const g = Graph.completeGraph(randomInt(4, 10));
-      g.createEdge('1', '1');
-      g.createEdge('3', '3');
-      g.isComplete().should.be.true();
-    });
-
-    it('# should return false for other graphs', () => {
-      let g = createRandomDirectedGraph(8, 11, 3, 15);
-      // we are sure it's not going to be complete because #edges << #vertices^2
-      g.isComplete().should.be.false();
-      g = Graph.completeGraph(randomInt(4, 10));
-      g.createVertex('a');
-      g.isComplete().should.be.false();
-    });
-  });
-
-  describe('UndirectedGraph()', () => {
-    it('# should return true for complete graphs', () => {
-      const g = UndirectedGraph.completeGraph(randomInt(4, 10));
-      g.isComplete().should.be.true();
-    });
-
-    it('# should return true even if the complete graph has loops', () => {
-      const g = UndirectedGraph.completeGraph(randomInt(4, 10));
-      g.createEdge('1', '1');
-      g.createEdge('3', '3');
-      g.isComplete().should.be.true();
-    });
-
-    it('# should return false for other graphs', () => {
-      let g = createRandomUndirectedGraph(8, 11, 3, 15);
-      // we are sure it's not going to be complete because #edges << #vertices^2
-      g.isComplete().should.be.false();
-      g = UndirectedGraph.completeGraph(randomInt(4, 10));
-      g.createVertex('a');
-      g.isComplete().should.be.false();
-    });
-  });
-});
-
 describe('clone()', () => {
   it('# should clone the graph correctly', () => {
     let g = createRandomDirectedGraph(8, 11, 3, 15);
@@ -509,6 +461,194 @@ describe('fromJson()', () => {
 });
 
 describe('Algorithms', () => {
+  describe('isBipartite()', () => {
+    describe('DirectedGraph', () => {
+      it('# should return true for bipartite graphs', () => {
+        let g = Graph.completeBipartiteGraph(randomInt(3, 30), randomInt(3, 30));
+        let [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.true();
+
+        g = new Graph();
+        g.createVertex(1);
+        g.createVertex(2);
+        g.createVertex(3);
+        g.createEdge('1', '2');
+        g.createEdge('2', '1');
+        g.createEdge('3', '1');
+
+        [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.true();
+
+        p1.should.eql(new Set(['1']));
+        p2.should.eql(new Set(['2', '3']));
+      });
+
+      it('# should return false if the graph has less than 2 vertices', () => {
+        const g = new Graph();
+        let [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+
+        g.createVertex('a');
+        [bipartite, p1, p2] = g.isBipartite();
+
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false if the graph has loops', () => {
+        const g = Graph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+        const [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false for disconnected graphs', () => {
+        const g = Graph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 10));
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        g.createVertex('a');
+
+        const [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false for other graphs', () => {
+        const g = createRandomDirectedGraph(8, 11, 3, 15);
+        g.createEdge('1', '2');
+        g.createEdge('1', '3');
+        g.createEdge('2', '3');
+
+        const [bipartite, p1, p2] = g.isBipartite();
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+    });
+
+    describe('UndirectedGraph()', () => {
+      it('# should return true for complete graphs', () => {
+        let g = UndirectedGraph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 30));
+        let [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.true();
+
+        g = new UndirectedGraph();
+        g.createVertex(1);
+        g.createVertex(2);
+        g.createVertex(3);
+        g.createEdge('1', '2');
+        g.createEdge('3', '1');
+
+        [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.true();
+
+        p1.should.eql(new Set(['1']));
+        p2.should.eql(new Set(['2', '3']));
+      });
+
+      it('# should return false if the graph has less than 2 vertices', () => {
+        const g = new UndirectedGraph();
+        let [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+
+        g.createVertex('a');
+        [bipartite, p1, p2] = g.isBipartite();
+
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false if the graph has loops', () => {
+        let g = UndirectedGraph.completeBipartiteGraph(randomInt(4, 10), randomInt(4, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+
+        const [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false for disconnected graphs', () => {
+        const g = UndirectedGraph.completeBipartiteGraph(randomInt(4, 10), randomInt(4, 10));
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        g.createVertex('a');
+
+        const [bipartite, p1, p2] = g.isBipartite();
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+
+      it('# should return false for other graphs', () => {
+        const g = createRandomUndirectedGraph(8, 11, 3, 15);
+        g.createEdge('1', '2');
+        g.createEdge('1', '3');
+        g.createEdge('2', '3');
+
+        const [bipartite, p1, p2] = g.isBipartite();
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        bipartite.should.be.false();
+        expect(p1).to.eql(null);
+        expect(p2).to.eql(null);
+      });
+    });
+  });
+
+  describe('isComplete()', () => {
+    describe('DirectedGraph', () => {
+      it('# should return true for complete graphs', () => {
+        const g = Graph.completeGraph(randomInt(4, 10));
+        g.isComplete().should.be.true();
+      });
+
+      it('# should return true even if the complete graph has loops', () => {
+        const g = Graph.completeGraph(randomInt(4, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+        g.isComplete().should.be.true();
+      });
+
+      it('# should return false for other graphs', () => {
+        let g = createRandomDirectedGraph(8, 11, 3, 15);
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        g.isComplete().should.be.false();
+        g = Graph.completeGraph(randomInt(4, 10));
+        g.createVertex('a');
+        g.isComplete().should.be.false();
+      });
+    });
+
+    describe('UndirectedGraph()', () => {
+      it('# should return true for complete graphs', () => {
+        const g = UndirectedGraph.completeGraph(randomInt(4, 10));
+        g.isComplete().should.be.true();
+      });
+
+      it('# should return true even if the complete graph has loops', () => {
+        const g = UndirectedGraph.completeGraph(randomInt(4, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+        g.isComplete().should.be.true();
+      });
+
+      it('# should return false for other graphs', () => {
+        let g = createRandomUndirectedGraph(8, 11, 3, 15);
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        g.isComplete().should.be.false();
+        g = UndirectedGraph.completeGraph(randomInt(4, 10));
+        g.createVertex('a');
+        g.isComplete().should.be.false();
+      });
+    });
+  });
+
   describe('symmetricClosure', () => {
     describe('# DirectedGraph', () => {
       it('should return the symmetric closure of a graph', () => {
