@@ -11,7 +11,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import { range } from '../../src/common/numbers.mjs';
-import {  isDefined, isObject } from '../../src/common/basic.mjs';
+import { isDefined, isObject } from '../../src/common/basic.mjs';
 import { UndirectedGraph } from '../../src/graph/graph.mjs';
 
 import 'mjs-mocha';
@@ -61,7 +61,6 @@ function createRandomUndirectedGraph(minV, maxV, minE, maxE) {
 }
 
 describe('Graph API', () => {
-
   it('# Class should have a constructor method', () => {
     Graph.should.be.a.constructor();
   });
@@ -78,8 +77,9 @@ describe('Graph API', () => {
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
+      'isComplete',
       'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs'];
-    let attributes = ['vertices', 'edges'];
+    let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
   });
 });
@@ -394,6 +394,54 @@ describe('toJson()', () => {
           { source: { label: "abc", weight: 1 }, destination: { label: 1, weight: 1 }, label: "label", weight: -10000000000000 },
           { source: { label: 3.1415, weight: 1 }, destination: { label: { what: -3 }, weight: 1 }, weight: 33 }]
       });
+  });
+});
+
+describe('isComplete()', () => {
+  describe('DirectedGraph', () => {
+    it('# should return true for complete graphs', () => {
+      const g = Graph.completeGraph(randomInt(4, 10));
+      g.isComplete().should.be.true();
+    });
+
+    it('# should return true even if the complete graph has loops', () => {
+      const g = Graph.completeGraph(randomInt(4, 10));
+      g.createEdge('1', '1');
+      g.createEdge('3', '3');
+      g.isComplete().should.be.true();
+    });
+
+    it('# should return false for other graphs', () => {
+      let g = createRandomDirectedGraph(8, 11, 3, 15);
+      // we are sure it's not going to be complete because #edges << #vertices^2
+      g.isComplete().should.be.false();
+      g = Graph.completeGraph(randomInt(4, 10));
+      g.createVertex('a');
+      g.isComplete().should.be.false();
+    });
+  });
+
+  describe('UndirectedGraph()', () => {
+    it('# should return true for complete graphs', () => {
+      const g = UndirectedGraph.completeGraph(randomInt(4, 10));
+      g.isComplete().should.be.true();
+    });
+
+    it('# should return true even if the complete graph has loops', () => {
+      const g = UndirectedGraph.completeGraph(randomInt(4, 10));
+      g.createEdge('1', '1');
+      g.createEdge('3', '3');
+      g.isComplete().should.be.true();
+    });
+
+    it('# should return false for other graphs', () => {
+      let g = createRandomUndirectedGraph(8, 11, 3, 15);
+      // we are sure it's not going to be complete because #edges << #vertices^2
+      g.isComplete().should.be.false();
+      g = UndirectedGraph.completeGraph(randomInt(4, 10));
+      g.createVertex('a');
+      g.isComplete().should.be.false();
+    });
   });
 });
 

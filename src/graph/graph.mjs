@@ -263,6 +263,21 @@ class Graph {
   }
 
   /**
+   * @method simpleEdges
+   * @getter
+   * @for Graph
+   *
+   * @description
+   * Returns a list of all edges in the graph, except loops.
+   *
+   * @return {Array<Edge>} A list of the simple edges of the graph.
+   */
+  get simpleEdges() {
+    // We can just check IDs, because they are unique in a graph.
+    return [...getEdges(this)].filter(e => e.source.id !== e.destination.id);
+  }
+
+  /**
    * @name isDirected
    * @for Graph
    * @description
@@ -494,6 +509,21 @@ class Graph {
   }
 
   // ALGORITHMS
+
+  /**
+   * @method isComplete
+   * @for Graph
+   *
+   * @description
+   * Check if a graph is a complete graph, i.e. every vertex is adjacent to all the other vertices.
+   *
+   * @return {boolean} True iff the graph is complete.
+   */
+  isComplete() {
+    const n = this.vertices.length;
+    const m = this.simpleEdges.length;
+    return m === n * (n - 1);
+  }
 
   /**
    * @method symmetricClosure
@@ -739,6 +769,11 @@ export class UndirectedGraph extends Graph {
     return [...getEdges(this)].filter(e => e.source.id <= e.destination.id);
   }
 
+  get simpleEdges() {
+    // For directed graphs, we only want one of the two directed edges back...
+    return [...getEdges(this)].filter(e => e.source.id < e.destination.id);
+  }
+
   /**
    * @override
    */
@@ -801,9 +836,25 @@ export class UndirectedGraph extends Graph {
 
   // ALGORITHMS
 
+    /**
+   * @method isComplete
+   * @for UndirectedGraph
+   *
+   * @description
+   * Check if a graph is a complete graph, i.e. every vertex is adjacent to all the other vertices.
+   *
+   * @return {boolean} True iff the graph is complete.
+   */
+  isComplete() {
+    const n = this.vertices.length;
+    const m = this.simpleEdges.length;
+    // Only half of the directed edges are returned in an undirected graph
+    return m === n * (n - 1) / 2;
+  }
+
   /**
    * @method symmetricClosure
-   * @for Graph
+   * @for UndirectedGraph
    *
    * @description
    * Computes the symmetric closure of this instance.
@@ -815,10 +866,9 @@ export class UndirectedGraph extends Graph {
     return this.clone();
   }
 
-
   /**
    * @method transpose
-   * @for Graph
+   * @for UndirectedGraph
    *
    * @description
    * Computes the transposed graph of this instance.
