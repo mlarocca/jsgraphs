@@ -17,6 +17,7 @@ import { UndirectedGraph } from '../../src/graph/graph.mjs';
 import 'mjs-mocha';
 import chai from "chai";
 import should from "should";   // lgtm[js/unused-local-variable]
+import { assertDeepSetEquality } from '../utils/test_common.mjs';
 
 const expect = chai.expect;
 
@@ -532,7 +533,7 @@ describe('Algorithms', () => {
     });
 
     describe('UndirectedGraph()', () => {
-      it('# should return true for complete graphs', () => {
+      it('# should return true for bipartite graphs', () => {
         let g = UndirectedGraph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 30));
         let [bipartite, p1, p2] = g.isBipartite();
         bipartite.should.be.true();
@@ -645,6 +646,104 @@ describe('Algorithms', () => {
         g = UndirectedGraph.completeGraph(randomInt(4, 10));
         g.createVertex('a');
         g.isComplete().should.be.false();
+      });
+    });
+  });
+
+  describe('isCompleteBipartite()', () => {
+    describe('DirectedGraph', () => {
+      it('# should return true for bipartite complete graphs', () => {
+        const g = Graph.completeBipartiteGraph(randomInt(3, 30), randomInt(3, 30));
+        g.isCompleteBipartite().should.be.true();
+      });
+
+      it('# should return false if the graph has less than 2 vertices', () => {
+        const g = new Graph();
+        g.isCompleteBipartite().should.be.false();
+
+        g.createVertex('a');
+
+        g.isCompleteBipartite().should.be.false();
+      });
+
+      it('# should return false if the graph has loops', () => {
+        const g = Graph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+        g.isCompleteBipartite().should.be.false();
+      });
+
+      it('# should return false for other graphs', () => {
+        let g = createRandomDirectedGraph(8, 11, 3, 15);
+        g.createEdge('1', '2');
+        g.createEdge('1', '3');
+        g.createEdge('2', '3');
+
+        // we are sure it's not going to be complete because #edges << #vertices^2
+        g.isCompleteBipartite().should.be.false();
+
+        g = new Graph();
+        g.createVertex(1);
+        g.createVertex(2);
+        g.createVertex(3);
+        g.createEdge('1', '2');
+        g.createEdge('2', '1');
+        g.createEdge('3', '1');
+
+
+        g.isCompleteBipartite().should.be.false();
+      });
+    });
+
+    describe('UndirectedGraph()', () => {
+      it('# should return true for bipartite complete graphs', () => {
+        let g = UndirectedGraph.completeBipartiteGraph(randomInt(3, 10), randomInt(3, 30));
+        g.isCompleteBipartite().should.be.true();
+
+        g = new UndirectedGraph();
+        g.createVertex(1);
+        g.createVertex(2);
+        g.createVertex(3);
+        g.createEdge('1', '2');
+        g.createEdge('3', '1');
+
+        g.isCompleteBipartite().should.be.true();
+      });
+
+      it('# should return false if the graph has less than 2 vertices', () => {
+        const g = new UndirectedGraph();
+        g.isCompleteBipartite().should.be.false();
+
+        g.createVertex('a');
+        g.isCompleteBipartite().should.be.false();
+      });
+
+      it('# should return false if the graph has loops', () => {
+        let g = UndirectedGraph.completeBipartiteGraph(randomInt(4, 10), randomInt(4, 10));
+        g.createEdge('1', '1');
+        g.createEdge('3', '3');
+
+        g.isCompleteBipartite().should.be.false();
+      });
+
+      it('# should return false for other graphs', () => {
+        let g = createRandomUndirectedGraph(8, 11, 3, 15);
+        g.createEdge('1', '2');
+        g.createEdge('1', '3');
+        g.createEdge('2', '3');
+
+        // we are sure it's not going to be complete because #edges << n * m
+        g.isCompleteBipartite().should.be.false();
+
+        g = new UndirectedGraph();
+        g.createVertex(1);
+        g.createVertex(2);
+        g.createVertex(3);
+        g.createEdge('1', '2');
+        g.createEdge('3', '1');
+        g.createEdge('3', '2');
+
+        g.isCompleteBipartite().should.be.false();
       });
     });
   });
@@ -991,6 +1090,60 @@ describe('Algorithms', () => {
         dfs.timeVisited['"5"'].should.equal(5);
 
         dfs.isAcyclic().should.be.true();
+      });
+    });
+  });
+
+  describe('connectedComponents', () => {
+    describe('# UndirectedGraph', () => {
+      it('should compute connectedComponents on a connected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const ccs = g.connectedComponents('"1"');
+        let expectSet = [new Set(['1', '2', '3', '4', '5'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+
+      it('should compute connectedComponents on a disconnected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const ccs = g.connectedComponents('"1"');
+        let expectSet = [new Set(['1', '2', '3', '4', '5']), new Set(['6', '7'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should compute connectedComponents on a connected di-graph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+
+        const ccs = g.connectedComponents('"1"');
+        let expectSet = [new Set(['1', '2', '3', '4', '5'])];
+
+        assertDeepSetEquality(ccs, expectSet);
       });
     });
   });
