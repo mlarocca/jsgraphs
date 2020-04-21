@@ -56,8 +56,8 @@ class MutableVertex extends Vertex {
    * @returns {Array}
    */
   *outgoingEdges() {
-    for (let edgesArray of this.#adjacencyMap.values()) {
-      let n = edgesArray.length;
+    for (const edgesArray of this.#adjacencyMap.values()) {
+      const n = edgesArray.length;
       if (n > 0) {
         yield edgesArray[n - 1];
       }
@@ -66,7 +66,7 @@ class MutableVertex extends Vertex {
 
   outDegree() {
     let n = 0;
-    for (let edgesArray of this.#adjacencyMap.values()) {
+    for (const edgesArray of this.#adjacencyMap.values()) {
       if (edgesArray.length > 0) {
         ++n;
       }
@@ -84,8 +84,8 @@ class MutableVertex extends Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
-    let edges = this.#adjacencyMap.get(v.id) ?? [];
-    let n = edges.length;
+    const edges = this.#adjacencyMap.get(v.id) ?? [];
+    const n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
 
@@ -100,7 +100,7 @@ class MutableVertex extends Vertex {
     if (!(v instanceof MutableVertex)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
     }
-    let edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
+    const edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
     this.addEdge(edge);
     return edge;
   }
@@ -293,7 +293,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
     }
 
-    let v = new MutableVertex(label, { weight: weight });
+    const v = new MutableVertex(label, { weight: weight });
 
     let vcs = _vertices.get(this);
     vcs.set(v.id, v);
@@ -320,7 +320,7 @@ class Graph {
   }
 
   hasVertex(vertex) {
-    let v = getGraphVertex(this, vertex);
+    const v = getGraphVertex(this, vertex);
     return isDefined(v) && (v instanceof MutableVertex);
   }
 
@@ -334,12 +334,12 @@ class Graph {
    * @returns {*}
    */
   getVertexOutDegree(vertex) {
-    let v = getGraphVertex(this, vertex);
-    return vertex?.outDegree();
+    const v = getGraphVertex(this, vertex);
+    return v?.outDegree();
   }
 
   getVertexWeight(vertex) {
-    let v = getGraphVertex(this, vertex);
+    const v = getGraphVertex(this, vertex);
     return v?.weight;
   }
 
@@ -363,8 +363,8 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.createEdge', destination));
     }
 
-    let u = getGraphVertex(this, source);
-    let v = getGraphVertex(this, destination);
+    const u = getGraphVertex(this, source);
+    const v = getGraphVertex(this, destination);
     return u.addEdgeTo(v, { edgeWeight: weight, edgeLabel: label }).id;
   }
 
@@ -380,8 +380,8 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
     }
 
-    let u = getGraphVertex(this, edge.source);
-    let v = getGraphVertex(this, edge.destination);
+    const u = getGraphVertex(this, edge.source);
+    const v = getGraphVertex(this, edge.destination);
     return u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label }).id;
   }
 
@@ -394,7 +394,7 @@ class Graph {
   }
 
   hasEdgeBetween(source, destination) {
-    let e = getGraphEdge(this, source, destination);
+    const e = getGraphEdge(this, source, destination);
     return isDefined(e) && (e instanceof Edge);
   }
 
@@ -414,7 +414,7 @@ class Graph {
   }
 
   *getEdgesFrom(vertex) {
-    let u = getGraphVertex(this, vertex);
+    const u = getGraphVertex(this, vertex);
     if (isUndefined(u)) {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getEdgesFrom', vertex));
     }
@@ -454,7 +454,7 @@ class Graph {
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
     }
-    let e = this.getEdge(edge);
+    const e = this.getEdge(edge);
     if (isDefined(e)) {
       e.weight = weight;
     } else {
@@ -468,7 +468,7 @@ class Graph {
    * @param {*} destinationLabel
    */
   getEdgeWeight(sourceLabel, destinationLabel) {
-    let e = getGraphEdge(this, sourceLabel, destinationLabel);
+    const e = getGraphEdge(this, sourceLabel, destinationLabel);
     return e?.weight;
   }
 
@@ -478,16 +478,16 @@ class Graph {
    * @param {*} destinationLabel
    */
   getEdgeLabel(sourceLabel, destinationLabel) {
-    let e = getGraphEdge(this, sourceLabel, destinationLabel);
+    const e = getGraphEdge(this, sourceLabel, destinationLabel);
     return e?.label;
   }
 
   clone() {
-    let g = new Graph();
-    for (let v of getVertices(this)) {
+    const g = new Graph();
+    for (const v of getVertices(this)) {
       g.addVertex(v.clone());
     }
-    for (let e of getEdges(this)) {
+    for (const e of getEdges(this)) {
       g.addEdge(e.clone());
     }
     return g;
@@ -630,9 +630,8 @@ class Graph {
     }
     for (const e of this.edges) {
       if (!graph.hasEdge(e)) {
-        let weight = e.weight;
-        let eT = this.getEdgeBetween(e.destination, e.source)
-        weight += eT?.weight ?? 0;
+        const eT = this.getEdgeBetween(e.destination, e.source)
+        let weight = e.weight + (eT?.weight ?? 0);
         // Leverages the nature of undirected graphs: when you add an edge, it also adds its symmetric.
         graph.createEdge(e.source, e.destination, { weight: weight });
       }
@@ -961,9 +960,9 @@ export class UndirectedGraph extends Graph {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.addEdge', edge.destination));
     }
 
-    let u = getGraphVertex(this, edge.source);
-    let v = getGraphVertex(this, edge.destination);
-    let e = u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
+    const u = getGraphVertex(this, edge.source);
+    const v = getGraphVertex(this, edge.destination);
+    const e = u.addEdgeTo(v, { edgeWeight: edge.weight, edgeLabel: edge.label });
     if (!e.isLoop()) {
       v.addEdgeTo(u, { edgeWeight: edge.weight, edgeLabel: edge.label });
     }
@@ -972,10 +971,10 @@ export class UndirectedGraph extends Graph {
 
   clone() {
     let g = new UndirectedGraph();
-    for (let v of getVertices(this)) {
+    for (const v of getVertices(this)) {
       g.addVertex(v.clone());
     }
-    for (let e of getEdges(this)) {
+    for (const e of getEdges(this)) {
       g.addEdge(e.clone());
     }
     return g;
@@ -1172,10 +1171,8 @@ export class UndirectedGraph extends Graph {
  * @param {MutableVertex|any} vertex
  */
 function getGraphVertex(graph, vertex) {
-  let id = vertexId(vertex);
-
   let vcs = _vertices.get(graph);
-  return vcs.get(id);
+  return vcs?.get(vertexId(vertex));
 }
 
 /**
@@ -1188,15 +1185,12 @@ function getGraphVertex(graph, vertex) {
  */
 function getGraphEdge(graph, source, destination) {
   let u = getGraphVertex(graph, source);
-  if (isUndefined(u)) {
-    return undefined;
-  }
-
   let v = getGraphVertex(graph, destination);
+
   if (isUndefined(v)) {
     return undefined;
   }
-  return u.edgeTo(v);
+  return u?.edgeTo(v);
 }
 
 /**
@@ -1215,7 +1209,7 @@ function* getVertices(graph) {
  * @param {*} graph
  */
 function* getEdges(graph) {
-  for (let v of getVertices(graph)) {
+  for (const v of getVertices(graph)) {
     yield* v.outgoingEdges();
   }
 }
