@@ -1344,7 +1344,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"4"', '"1"');
 
-        expect(g.topologicalSort()).to.be.null();
+        expect(g.topologicalSort()).to.eql(null);
       });
     });
 
@@ -1359,7 +1359,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"3"', '"1"');
 
-        expect(g.topologicalSort()).to.be.null();
+        expect(g.topologicalSort()).to.eql(null);
 
         g = new Graph();
         range(1, 4).forEach(i => g.createVertex(`${i}`));
@@ -1367,7 +1367,7 @@ describe('Algorithms', () => {
         g.createEdge('"1"', '"3"');
         g.createEdge('"3"', '"1"');
 
-        expect(g.topologicalSort()).to.be.null();
+        expect(g.topologicalSort()).to.eql(null);
       });
 
       it('should return null on a disconnected di-graph with a cycle', () => {
@@ -1382,7 +1382,7 @@ describe('Algorithms', () => {
         g.createEdge('"6"', '"7"');
         g.createEdge('"7"', '"5"');
 
-        expect(g.topologicalSort()).to.be.null();
+        expect(g.topologicalSort()).to.eql(null);
       });
 
       it('should return null on a di-graph with a loop', () => {
@@ -1395,7 +1395,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"2"', '"2"');
 
-        expect(g.topologicalSort()).to.be.null();
+        expect(g.topologicalSort()).to.eql(null);
       });
 
       it('should return a topological ordering on a disconnected di-graph with a cycle', () => {
@@ -1420,7 +1420,7 @@ describe('Algorithms', () => {
         g.createEdge('"2"', '"4"');
         g.createEdge('"3"', '"5"');
 
-        g.topologicalSort().should.eql(['"1"', '"3"', '"5"', '"2"', '"4"']);
+        g.topologicalSort().should.eql(['"1"', '"2"', '"4"', '"3"', '"5"']);
       });
     });
   });
