@@ -743,6 +743,20 @@ class Graph {
   connectedComponents() {
     return this.symmetricClosure().connectedComponents();
   }
+
+  /**
+   * @method topologicalSort
+   * @for Graph
+   *
+   * @description
+   * Return one of the possible topological orderings of vertices, if the graph is a DAG (direct, acyclic graph).
+   * If the graph is not acyclic, returns null.
+   *
+   * @return {null|Array<String>} If a topological ordering is defined, returns a list of vertex' IDs. Otherwise, null.
+   */
+  topologicalSort() {
+    return this.dfs().topologicalSort();
+  }
 }
 
 /**
@@ -791,9 +805,9 @@ function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
           // If a neighbor of current graph was already discovered, then we have a cycle.
           // if the graph is undirected check that the path is longer than 1 edge
           if (e.isLoop() ||
-                !timeVisited[w.id] &&
-                  (graph.isDirected() || path[path.length - 1] !== w.id) &&
-                  (path.indexOf(w.id) >= 0)) {
+            !timeVisited[w.id] &&
+            (graph.isDirected() || path[path.length - 1] !== w.id) &&
+            (path.indexOf(w.id) >= 0)) {
             acyclic = false;
           }
         }
@@ -1084,6 +1098,11 @@ export class UndirectedGraph extends Graph {
    */
   transpose() {
     return this.clone();
+  }
+
+  topologicalSort() {
+    // Undirect graphs can't have a topological ordering
+    return null;
   }
 }
 
