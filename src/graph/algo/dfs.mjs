@@ -34,12 +34,16 @@ class DfsResult {
     return this.#acyclic;
   }
 
-  topologicalSort() {
-    if (this.isAcyclic()) {
-      return Object.keys(this.#timeDiscovered).sort((a, b) => this.#timeVisited[b] - this.#timeVisited[a]);
-    } else {
-      return null;
-    }
+  /**
+   * @method verticesByVisitOrder
+   * @for DfsResult
+   *
+   * @description
+   * Computes an ordering of the vertices in the graph, based on the time their DFS-visit ended (last-visited-first).
+   * If and only if the graph is DAG, this is a valid topological ordering.
+   */
+  verticesByVisitOrder() {
+    return Object.keys(this.#timeDiscovered).sort((a, b) => this.#timeVisited[b] - this.#timeVisited[a]);
   }
 }
 

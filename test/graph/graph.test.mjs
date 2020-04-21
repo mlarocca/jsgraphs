@@ -7,17 +7,17 @@ import DfsResult from '../../src/graph/algo/dfs.mjs';
 
 import { choose } from '../../src/common/array.mjs';
 import { randomInt } from '../../src/common/numbers.mjs';
-import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import { range } from '../../src/common/numbers.mjs';
 import { isDefined, isObject } from '../../src/common/basic.mjs';
 import { UndirectedGraph } from '../../src/graph/graph.mjs';
 
+import { assertDeepSetEquality, testAPI, testStaticAPI } from '../utils/test_common.mjs';
+
 import 'mjs-mocha';
 import chai from "chai";
 import should from "should";   // lgtm[js/unused-local-variable]
-import { assertDeepSetEquality } from '../utils/test_common.mjs';
 
 const expect = chai.expect;
 
@@ -78,8 +78,9 @@ describe('Graph API', () => {
       'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
-      'isAcyclic', 'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
-      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents', 'topologicalSort'];
+      'isAcyclic', 'isConnected', 'isStronglyConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
+      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents',
+      'topologicalOrdering', 'stronglyConnectedComponents'];
     let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
   });
@@ -1107,7 +1108,7 @@ describe('Algorithms', () => {
         g.createEdge('"4"', '"1"');
 
         const ccs = g.connectedComponents();
-        let expectSet = [new Set(['1', '2', '3', '4', '5'])];
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"'])];
 
         assertDeepSetEquality(ccs, expectSet);
       });
@@ -1124,7 +1125,7 @@ describe('Algorithms', () => {
         g.createEdge('"6"', '"7"');
 
         const ccs = g.connectedComponents();
-        let expectSet = [new Set(['1', '2', '3', '4', '5']), new Set(['6', '7'])];
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"']), new Set(['"6"', '"7"'])];
 
         assertDeepSetEquality(ccs, expectSet);
       });
@@ -1141,7 +1142,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
 
         const ccs = g.connectedComponents();
-        let expectSet = [new Set(['1', '2', '3', '4', '5'])];
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"'])];
 
         assertDeepSetEquality(ccs, expectSet);
       });
@@ -1158,8 +1159,7 @@ describe('Algorithms', () => {
         g.createEdge('"6"', '"7"');
 
         const ccs = g.connectedComponents();
-        let expectSet = [new Set(['1', '2', '3', '4', '5']), new Set(['6', '7'])];
-
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"']), new Set(['"6"', '"7"'])];
         assertDeepSetEquality(ccs, expectSet);
       });
     });
@@ -1332,7 +1332,7 @@ describe('Algorithms', () => {
     });
   });
 
-  describe('topologicalSort', () => {
+  describe('topologicalOrdering', () => {
     describe('# UndirectedGraph', () => {
       it('should return null', () => {
         let g = new UndirectedGraph();
@@ -1344,7 +1344,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"4"', '"1"');
 
-        expect(g.topologicalSort()).to.eql(null);
+        expect(g.topologicalOrdering()).to.eql(null);
       });
     });
 
@@ -1359,7 +1359,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"3"', '"1"');
 
-        expect(g.topologicalSort()).to.eql(null);
+        expect(g.topologicalOrdering()).to.eql(null);
 
         g = new Graph();
         range(1, 4).forEach(i => g.createVertex(`${i}`));
@@ -1367,7 +1367,7 @@ describe('Algorithms', () => {
         g.createEdge('"1"', '"3"');
         g.createEdge('"3"', '"1"');
 
-        expect(g.topologicalSort()).to.eql(null);
+        expect(g.topologicalOrdering()).to.eql(null);
       });
 
       it('should return null on a disconnected di-graph with a cycle', () => {
@@ -1382,7 +1382,7 @@ describe('Algorithms', () => {
         g.createEdge('"6"', '"7"');
         g.createEdge('"7"', '"5"');
 
-        expect(g.topologicalSort()).to.eql(null);
+        expect(g.topologicalOrdering()).to.eql(null);
       });
 
       it('should return null on a di-graph with a loop', () => {
@@ -1395,7 +1395,7 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
         g.createEdge('"2"', '"2"');
 
-        expect(g.topologicalSort()).to.eql(null);
+        expect(g.topologicalOrdering()).to.eql(null);
       });
 
       it('should return a topological ordering on a disconnected di-graph with a cycle', () => {
@@ -1408,7 +1408,7 @@ describe('Algorithms', () => {
         g.createEdge('"5"', '"6"');
         g.createEdge('"6"', '"7"');
 
-        g.topologicalSort().should.eql(['"5"', '"6"', '"7"', '"1"', '"2"', '"4"', '"3"']);
+        g.topologicalOrdering().should.eql(['"5"', '"6"', '"7"', '"1"', '"2"', '"4"', '"3"']);
       });
 
       it('should return a topological ordering on a connected di-graph without a cycle', () => {
@@ -1420,7 +1420,99 @@ describe('Algorithms', () => {
         g.createEdge('"2"', '"4"');
         g.createEdge('"3"', '"5"');
 
-        g.topologicalSort().should.eql(['"1"', '"2"', '"4"', '"3"', '"5"']);
+        g.topologicalOrdering().should.eql(['"1"', '"2"', '"4"', '"3"', '"5"']);
+      });
+    });
+  });
+
+  describe('stronglyConnectedComponents', () => {
+    describe('# UndirectedGraph', () => {
+      it('should compute stronglyConnectedComponents on a connected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        const ccs = g.stronglyConnectedComponents();
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+
+      it('should compute stronglyConnectedComponents on a disconnected graph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const ccs = g.stronglyConnectedComponents();
+        let expectSet = [new Set(['"1"', '"2"', '"3"', '"4"', '"5"']), new Set(['"6"', '"7"'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should compute stronglyConnectedComponents on a connected di-graph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"3"', '"1"');
+
+        let ccs = g.stronglyConnectedComponents();
+        let expectSet = [new Set(['"1"', '"2"', '"3"']), new Set(['"4"']), new Set(['"5"'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+
+        g = new Graph();
+        range(1, 10).forEach(i => g.createVertex(String.fromCharCode(96 + i)));
+
+        g.createEdge('"a"', '"e"');
+        g.createEdge('"b"', '"c"');
+        g.createEdge('"c"', '"d"');
+        g.createEdge('"d"', '"b"');
+        g.createEdge('"d"', '"e"');
+        g.createEdge('"e"', '"f"');
+        g.createEdge('"f"', '"a"');
+        g.createEdge('"f"', '"i"');
+        g.createEdge('"g"', '"h"');
+        g.createEdge('"h"', '"i"');
+        g.createEdge('"i"', '"g"');
+
+        ccs = g.stronglyConnectedComponents();
+        expectSet = [new Set(['"a"', '"e"', '"f"']), new Set(['"b"', '"c"', '"d"']), new Set(['"g"', '"h"', '"i"'])];
+
+        assertDeepSetEquality(ccs, expectSet);
+      });
+
+      it('should compute stronglyConnectedComponents on a disconnected graph', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        const ccs = g.stronglyConnectedComponents();
+        let expectSet = [new Set(['"1"', '"2"', '"4"']), new Set(['"3"']), new Set(['"5"']), new Set(['"6"']), new Set(['"7"'])];
+
+        assertDeepSetEquality(ccs, expectSet);
       });
     });
   });

@@ -1,4 +1,5 @@
-import {setDifference} from '../../src/common/set.mjs';
+import { isDefined } from '../../src/common/basic.mjs';
+import { setDifference } from '../../src/common/set.mjs';
 
 import chai from "chai";
 const expect = chai.expect;
@@ -32,12 +33,27 @@ export function assertSetEquality(collection1, collection2) {
   expect([...setDifference(new Set(collection1), new Set(collection2))]).to.be.eql([]);
 }
 
+function size(collection) {
+  if (!isDefined(collection)) {
+    return 0;
+  } else if (isDefined(collection.size)) {
+    return collection.size;
+  } else if (isDefined(collection.length)) {
+    return collection.length;
+  } else {
+    return 0;
+  }
+}
 export function assertDeepSetEquality(collection, expected) {
-  (collection instanceof Set).should.be.true();
-  collection.size.should.eql(expected.length);
+  try {
+    (collection instanceof Set).should.be.true();
+    size(collection).should.eql(size(expected));
 
-  for (const cc in collection) {
-    (cc instanceof Set).should.be.true();
-    expected.some(eCC => assertSetEquality(cc, eCC)).should.be.true();
+    for (const cc of collection) {
+      (cc instanceof Set).should.be.true();
+      [...expected].some(eCC => setDifference(cc, new Set(eCC)).size === 0).should.be.true();
+    }
+  } catch (e) {
+    collection.should.eql(expected);
   }
 }
