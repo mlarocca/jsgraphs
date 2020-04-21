@@ -807,8 +807,6 @@ class Graph {
     });
 
     return stronglyConnectedComponents;
-
-
   }
 }
 
