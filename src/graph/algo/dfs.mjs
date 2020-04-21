@@ -35,7 +35,11 @@ class DfsResult {
   }
 
   topologicalSort() {
-    throw new Error("unimplemented");
+    if (this.isAcyclic()) {
+      return Object.keys(this.#timeDiscovered).sort((a, b) => this.#timeVisited[b] - this.#timeVisited[a]);
+    } else {
+      return null;
+    }
   }
 }
 

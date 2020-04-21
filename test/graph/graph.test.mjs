@@ -79,7 +79,7 @@ describe('Graph API', () => {
       'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'isAcyclic', 'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
-      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents'];
+      'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents', 'topologicalSort'];
     let attributes = ['vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
   });
@@ -1328,6 +1328,99 @@ describe('Algorithms', () => {
         g.createEdge('"3"', '"5"');
 
         g.isAcyclic().should.be.true();
+      });
+    });
+  });
+
+  describe('topologicalSort', () => {
+    describe('# UndirectedGraph', () => {
+      it('should return null', () => {
+        let g = new UndirectedGraph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+
+        expect(g.topologicalSort()).to.be.null();
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should return null on a di-graph with cycles', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"3"', '"1"');
+
+        expect(g.topologicalSort()).to.be.null();
+
+        g = new Graph();
+        range(1, 4).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"3"', '"1"');
+
+        expect(g.topologicalSort()).to.be.null();
+      });
+
+      it('should return null on a disconnected di-graph with a cycle', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"5"', '"6"');
+        g.createEdge('"6"', '"7"');
+        g.createEdge('"7"', '"5"');
+
+        expect(g.topologicalSort()).to.be.null();
+      });
+
+      it('should return null on a di-graph with a loop', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"2"', '"2"');
+
+        expect(g.topologicalSort()).to.be.null();
+      });
+
+      it('should return a topological ordering on a disconnected di-graph with a cycle', () => {
+        let g = new Graph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"5"', '"6"');
+        g.createEdge('"6"', '"7"');
+
+        g.topologicalSort().should.eql(['"5"', '"6"', '"7"', '"1"', '"2"', '"4"', '"3"']);
+      });
+
+      it('should return a topological ordering on a connected di-graph without a cycle', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+
+        g.topologicalSort().should.eql(['"1"', '"3"', '"5"', '"2"', '"4"']);
       });
     });
   });
