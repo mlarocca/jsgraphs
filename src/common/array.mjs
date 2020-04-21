@@ -52,7 +52,7 @@ export function variance(values) {
  * Finds the min value in a numeric array.
  *
  * @param {Array} values A non-empty array of numbers.
- * @param {function?} key A function mapping elements to keys.
+ * @param {?function} key A function mapping elements to keys.
  * @returns {value: number, index: number} A pair with the min value in the array and its index.
  */
 export function arrayMin(values, { key = identity } = {}) {
@@ -84,7 +84,7 @@ export function arrayMin(values, { key = identity } = {}) {
  * Finds the max value in a numeric array.
  *
  * @param {Array} values A non-empty array of numbers.
- * @param {function?} key A function mapping elements to keys.
+ * @param {?function} key A function mapping elements to keys.
  * @returns {value: number, index: number} A pair with the max value in the array and its index.
  */
 export function arrayMax(values, { key = identity } = {}) {

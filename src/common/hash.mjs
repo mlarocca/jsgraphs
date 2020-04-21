@@ -14,10 +14,10 @@ const ERROR_MSG_HASH_SEED = (fname, val) => `Illegal parameter for ${fname}: see
  * @description
  * Computes the Murur hash (32 bits) of an ASCII string key.
  *
- * @param {!String} key An ASCII string whose hash needs to be computed
- * @param {?Number} seed Optionally, a seed can be passed. It can be any positive or negative integer, within the range
+ * @param {!string} key An ASCII string whose hash needs to be computed
+ * @param {?number} seed Optionally, a seed can be passed. It can be any positive or negative integer, within the range
  *        of safe integers
- * @returns {Number} The murmur hash for `key`, given `seed`.
+ * @returns {number} The murmur hash for `key`, given `seed`.
  * @throws {TypeError(ERROR_MSG_HASH_KEY_TYPE)} If key is not a string.
  * @throws {TypeError(ERROR_MSG_HASH_KEY_EMPTY)} If key is empty.
  * @throws {TypeError(ERROR_MSG_HASH_SEED)} If seed is not a Number.

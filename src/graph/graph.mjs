@@ -84,7 +84,7 @@ class MutableVertex extends Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
     }
 
-    let edges = this.#adjacencyMap.has(v.id) ? this.#adjacencyMap.get(v.id) : [];
+    let edges = this.#adjacencyMap.get(v.id) ?? [];
     let n = edges.length;
     return n > 0 ? edges[n - 1] : undefined;
   }
@@ -335,12 +335,12 @@ class Graph {
    */
   getVertexOutDegree(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? vertex.outDegree() : undefined;
+    return vertex?.outDegree();
   }
 
   getVertexWeight(vertex) {
     let v = getGraphVertex(this, vertex);
-    return isDefined(v) ? v.weight : undefined;
+    return v?.weight;
   }
 
   setVertexWeight(vertex, weight) {
@@ -469,7 +469,7 @@ class Graph {
    */
   getEdgeWeight(sourceLabel, destinationLabel) {
     let e = getGraphEdge(this, sourceLabel, destinationLabel);
-    return isDefined(e) ? e.weight : undefined;
+    return e?.weight;
   }
 
   /**
@@ -479,7 +479,7 @@ class Graph {
    */
   getEdgeLabel(sourceLabel, destinationLabel) {
     let e = getGraphEdge(this, sourceLabel, destinationLabel);
-    return isDefined(e) ? e.label : undefined;
+    return e?.label;
   }
 
   clone() {
@@ -632,9 +632,7 @@ class Graph {
       if (!graph.hasEdge(e)) {
         let weight = e.weight;
         let eT = this.getEdgeBetween(e.destination, e.source)
-        if (isDefined(eT)) {
-          weight += eT.weight;
-        }
+        weight += eT?.weight ?? 0;
         // Leverages the nature of undirected graphs: when you add an edge, it also adds its symmetric.
         graph.createEdge(e.source, e.destination, { weight: weight });
       }

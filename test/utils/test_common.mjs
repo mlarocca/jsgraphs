@@ -36,14 +36,11 @@ export function assertSetEquality(collection1, collection2) {
 function size(collection) {
   if (!isDefined(collection)) {
     return 0;
-  } else if (isDefined(collection.size)) {
-    return collection.size;
-  } else if (isDefined(collection.length)) {
-    return collection.length;
   } else {
-    return 0;
+    return collection?.size ?? collection?.length ?? 0;
   }
 }
+
 export function assertDeepSetEquality(collection, expected) {
   try {
     (collection instanceof Set).should.be.true();
