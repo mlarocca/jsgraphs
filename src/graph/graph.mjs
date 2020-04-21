@@ -517,13 +517,28 @@ class Graph {
    * @description
    * Check if the graph is connected, i.e., for a directed graph, if its symmetric closure has a single
    * connected component comprising all vertices.
-   * A connected component is a set CC of vertices in an indirected graph such that from each vertex in CC you can
+   * A connected component is a set CC of vertices in an undirected graph such that from each vertex in CC you can
    * reach all other vertices in CC.
    *
    * @return {boolean} True iff the graph is connected.
    */
   isConnected() {
     return this.symmetricClosure().isConnected();
+  }
+
+  /**
+   * @method isStronglyConnected
+   * @for UndirectedGraph
+   *
+   * @description
+   * Check if the graph is connected, i.e. if there is a single strongly connected component comprising all vertices.
+   * A strongly connected component is a set CC of vertices in a directed graph such that from each vertex in CC you can
+   * reach all other vertices in CC. In undirected graphs, connected components are also strongly connected components.
+   *
+   * @return {boolean} True iff the graph is connected.
+   */
+  isStronglyConnected() {
+    return this.stronglyConnectedComponents().size === 1;
   }
 
   /**
@@ -745,7 +760,7 @@ class Graph {
   }
 
   /**
-   * @method topologicalSort
+   * @method topologicalOrdering
    * @for Graph
    *
    * @description
@@ -754,8 +769,46 @@ class Graph {
    *
    * @return {null|Array<String>} If a topological ordering is defined, returns a list of vertex' IDs. Otherwise, null.
    */
-  topologicalSort() {
-    return this.dfs().topologicalSort();
+  topologicalOrdering() {
+    const dfs = this.dfs();
+    if (dfs.isAcyclic()) {
+      return dfs.verticesByVisitOrder();
+    } else {
+      // Topological ordering is defined only for
+      return null;
+    }
+  }
+
+  /**
+   * @method stronglyConnectedComponents
+   * @for Graph
+   *
+   * @description
+   * Computes the strongly connected components of a graph. A connected component for a directed graph is a set of vertices
+   * SCC such that from each vertex u belonging CC there is a path in this graph to every other vertex v belonging to CC.
+   * So that, for each couple of vertices u, v, v is reachable from u and, vice versa, u is reachable from v.
+   */
+  stronglyConnectedComponents() {
+    // Implements Kosaraju's algorithm
+    const ordering = this.transpose().dfs().verticesByVisitOrder();
+    let timeDiscovered = {};
+    let currentTime = 0;
+    let stronglyConnectedComponents = new Set();
+
+    ordering.forEach(vID => {
+      if (!timeDiscovered[vID]) {
+        let timeVisited = {};
+        let acyclic = true;  // lgtm [js/useless-assignment-to-local]
+        timeDiscovered[vID] = ++currentTime;
+        [currentTime, acyclic] = dfs(this, this.getVertex(vID), timeDiscovered, timeVisited, acyclic, currentTime);
+        // we reset timeVisited at each run of dfs, so the only vertices with an entry are the ones in this CC.
+        stronglyConnectedComponents.add(new Set(Object.keys(timeVisited)));
+      }
+    });
+
+    return stronglyConnectedComponents;
+
+
   }
 }
 
@@ -970,7 +1023,7 @@ export class UndirectedGraph extends Graph {
    *
    * @description
    * Check if the graph is connected, i.e. if there is a single connected component comprising all vertices.
-   * A connected component is a set CC of vertices in an indirected graph such that from each vertex in CC you can
+   * A connected component is a set CC of vertices in an undirected graph such that from each vertex in CC you can
    * reach all other vertices in CC.
    *
    * @return {boolean} True iff the graph is connected.
@@ -1100,9 +1153,14 @@ export class UndirectedGraph extends Graph {
     return this.clone();
   }
 
-  topologicalSort() {
+  topologicalOrdering() {
     // Undirect graphs can't have a topological ordering
     return null;
+  }
+
+  stronglyConnectedComponents() {
+    // For an undirected graph, each connected component is also a strongly connected component.
+    return this.connectedComponents();
   }
 }
 

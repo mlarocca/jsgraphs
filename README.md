@@ -78,8 +78,8 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [X] Graph transpose
 - [X] Symmetric closure
 - [X] Connected Components
-- [ ] Strongly Connected Components
-- [ ] Topological Sorting
+- [X] Strongly Connected Components
+- [X] Topological Sorting
 - [ ] Biconnected Components
 - [ ] Dijkstra's
 - [ ] Bellman-Ford's
