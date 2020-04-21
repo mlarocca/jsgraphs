@@ -10,7 +10,7 @@ import { randomInt } from '../../src/common/numbers.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import { range } from '../../src/common/numbers.mjs';
-import { isDefined, isObject } from '../../src/common/basic.mjs';
+import { isObject } from '../../src/common/basic.mjs';
 import { UndirectedGraph } from '../../src/graph/graph.mjs';
 
 import { assertDeepSetEquality, testAPI, testStaticAPI } from '../utils/test_common.mjs';
@@ -770,7 +770,7 @@ describe('Algorithms', () => {
           const eT = g.getEdgeBetween(e.destination, e.source);
           const eSC = gSC.getEdgeBetween(e.source, e.destination);
           // If edges where defined in both directions, the undirected weight should be the sum of the weights.
-          const expectedWeight = e.weight + (isDefined(eT) ? eT.weight : 0);
+          const expectedWeight = e.weight + (eT?.weight ?? 0);
           eSC.weight.should.eql(expectedWeight);
           expect(eSC.label).to.be.undefined;
         }
