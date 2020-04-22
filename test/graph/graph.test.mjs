@@ -85,6 +85,51 @@ describe('Graph API', () => {
   });
 });
 
+describe('id', () => {
+  it('# should be different if graphs have different vertices', () => {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, { weight: Math.random() });
+    });
+
+    g.id
+  });
+
+  it('# should be different if graphs have different edges', () => {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, { weight: Math.random() });
+    });
+
+    labels.forEach(label => {
+      g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
+    });
+  });
+
+  it('# should be the same if graphs are the same', () => {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, { weight: Math.random() });
+    });
+
+    labels.forEach(label => {
+      g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
+    });
+  });
+
+  it('# should throw on duplicates', () => {
+    let g = new Graph();
+    labels.forEach(label => {
+      g.createVertex(label, { weight: Math.random() });
+    });
+    // Try to add each label once more
+    labels.forEach(label => {
+      expect(() => g.createVertex(label, { weight: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+    });
+  });
+});
+
+
 describe('createVertex()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
   it('# should add all valid label types', () => {
