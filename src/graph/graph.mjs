@@ -10,6 +10,7 @@ import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERT
 import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
+import { size } from '../common/basic.mjs';
 
 
 const _vertices = new WeakMap();
@@ -164,11 +165,11 @@ function replaceEdgeTo(adj, destination, newEdge = null) {
  * Hypergraphs are not available yet, so for both directed and undirected graphs,
  * parallel edges are forbidden, although loops are not.
  * After creating each graph instance, a number of algorithms can be run on it:
- *   - DFS (ToDo)
- *   - BFS (ToDo)
+ *   - DFS
+ *   - BFS
  *   - Kruskal and Prim's algorithms (on undirected graphs) (ToDo)
- *   - Connected components computation (ToDo)
- *   - Strongly connected components computation (directed graphs) (ToDo)
+ *   - Connected components
+ *   - Strongly connected components
  *   - Dijkstra's (ToDo)
  *   - Bellman-Ford's (ToDo)
  *   - Floyd-Warshall's (ToDo)
@@ -252,6 +253,16 @@ class Graph {
   }
 
   /**
+   * @property id
+   * @getter
+   * @description
+   * A unique ID, uniquely identifying graphs (based on vertices' and edges' IDs, not optional properties)
+   */
+  get id() {
+    return `${this.vertices.map(v => `{${v.id}}`).sort().join('')}|${this.edges.map(e => e.id).sort().join('')}`;
+  }
+
+  /**
    *
    */
   get vertices() {
@@ -263,7 +274,7 @@ class Graph {
   }
 
   /**
-   * @method simpleEdges
+   * @property simpleEdges
    * @getter
    * @for Graph
    *
@@ -286,6 +297,10 @@ class Graph {
    */
   isDirected() {
     return true;
+  }
+
+  isEmpty() {
+    return this.vertices.length === 0;
   }
 
   createVertex(label, { weight } = {}) {
@@ -480,6 +495,36 @@ class Graph {
   getEdgeLabel(sourceLabel, destinationLabel) {
     const e = getGraphEdge(this, sourceLabel, destinationLabel);
     return e?.label;
+  }
+
+  /**
+   * @method inducedSubGraph
+   * @for Graph
+   *
+   * @description
+   * Computes the induced
+   */
+  inducedSubGraph(vertices) {
+    if (!isDefined(vertices) || size(vertices) === 0) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', vertices));
+    }
+    vertices = new Set(vertices);
+
+    let g = new Graph();
+    vertices.forEach(u => {
+      const v = this.getVertex(u);
+      if (!isDefined(v)) {
+        throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.inducedSubGraph', u));
+      }
+      g.addVertex(v);
+    });
+
+    this.edges.forEach(e => {
+      if (vertices.has(e.source.id) && vertices.has(e.destination.id)) {
+        g.addEdge(e);
+      }
+    });
+    return g;
   }
 
   clone() {
@@ -910,11 +955,19 @@ export class UndirectedGraph extends Graph {
     return g;
   }
 
+  /**
+   * Return all edges in the graph. Since in undirected graphs the direction of an edge doesn't count,
+   * it deliberately order vertices such that for edge (u,v) u <= v.
+   */
   get edges() {
     // For directed graphs, we only want one of the two directed edges back...
     return [...getEdges(this)].filter(e => e.source.id <= e.destination.id);
   }
 
+  /**
+   * Return all edges in the graph, except loops. Since in undirected graphs the direction of an edge doesn't count,
+   * it deliberately order vertices such that for edge (u,v) u < v.
+   */
   get simpleEdges() {
     // For directed graphs, we only want one of the two directed edges back...
     return [...getEdges(this)].filter(e => e.source.id < e.destination.id);

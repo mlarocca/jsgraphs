@@ -91,6 +91,23 @@ export function isBoolean(maybeBoolean) {
 }
 
 /**
+ * @name size
+ * @description
+ * Computes the number of elements in a collection (be it an array, a set or a string).
+ *
+ * @param {*} collection Any object that has either a `length` or `size` property.
+ * @return {number} The number of element in the collection. Returns 0 for null and undefined, or if the object
+ *                  doesn't have either .size or .length property.
+ */
+export function size(collection) {
+  if (!isDefined(collection)) {
+    return 0;
+  } else {
+    return collection?.size ?? collection?.length ?? 0;
+  }
+}
+
+/**
  * Identity function.
  * @param {*} _ Anything.
  * @return {*} The function's argument.
