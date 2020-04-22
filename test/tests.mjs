@@ -16,3 +16,5 @@ import './graph/graph.test.mjs';
 import './graph/embedding/embedded_vertex.test.mjs';
 import './graph/embedding/embedded_edge.test.mjs';
 import './graph/embedding/embedding.test.mjs';
+
+import './graph/algo/planarity/kuratowski.test.mjs';

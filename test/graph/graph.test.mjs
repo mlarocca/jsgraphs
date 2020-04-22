@@ -74,14 +74,13 @@ describe('Graph API', () => {
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
     let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
-      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree',
-      'setVertexWeight', 'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween',
-      'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
+      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree', 'setVertexWeight',
+      'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'isAcyclic', 'isConnected', 'isStronglyConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
       'symmetricClosure', 'transpose', 'transitiveClosure', 'bfs', 'dfs', 'connectedComponents',
-      'topologicalOrdering', 'stronglyConnectedComponents'];
-    let attributes = ['vertices', 'edges', 'simpleEdges'];
+      'topologicalOrdering', 'stronglyConnectedComponents', 'inducedSubGraph'];
+    let attributes = ['id', 'vertices', 'edges', 'simpleEdges'];
     testAPI(edge, attributes, methods);
   });
 });

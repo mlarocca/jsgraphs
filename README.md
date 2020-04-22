@@ -81,23 +81,27 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [X] Strongly Connected Components
 - [X] Topological Sorting
 - [ ] Biconnected Components
-- [ ] Dijkstra's
-- [ ] Bellman-Ford's
-- [ ] A*
+- [ ] [Dijkstra's](https://github.com/mlarocca/jsgraphs/issues/16)
+- [ ] [Bellman-Ford's](https://github.com/mlarocca/jsgraphs/issues/17)
+- [ ] [A*](https://github.com/mlarocca/jsgraphs/issues/18)
 - [ ] Kruskal's
 - [ ] Prim's
 - [ ] Floyd-Warshall's
 - [ ] Transitive Closure
 - [ ] Edmonds-Karp's
 - [ ] Relabel to Front
+- [ ] Planarity Testing (naive)
+- [ ] Planarity Testing (linear-time)
 
 ## **Features**
 
 - [ ] Custom label/weights separator
-- [ ] Edge.setLabel
-- [ ] DFS returns all cycles found
+- [ ] [Edge.setLabel](https://github.com/mlarocca/jsgraphs/issues/23)
+- [ ] [removeVertex()](https://github.com/mlarocca/jsgraphs/issues/20)
+- [ ] [removeEdge()](https://github.com/mlarocca/jsgraphs/issues/21)
 - [ ] Add options to display/hide vertex name/label
 - [ ] Union of 2 disjoint graphs
+- [ ] DFS returns all cycles found
 
 ### **Generators**
 

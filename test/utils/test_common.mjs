@@ -1,4 +1,4 @@
-import { isDefined } from '../../src/common/basic.mjs';
+import { size } from '../../src/common/basic.mjs';
 import { setDifference } from '../../src/common/set.mjs';
 
 import chai from "chai";
@@ -31,14 +31,6 @@ export function testStaticAPI(klass, expectedMethods) {
 
 export function assertSetEquality(collection1, collection2) {
   expect([...setDifference(new Set(collection1), new Set(collection2))]).to.be.eql([]);
-}
-
-function size(collection) {
-  if (!isDefined(collection)) {
-    return 0;
-  } else {
-    return collection?.size ?? collection?.length ?? 0;
-  }
 }
 
 export function assertDeepSetEquality(collection, expected) {
