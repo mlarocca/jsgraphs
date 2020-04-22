@@ -85,50 +85,63 @@ describe('Graph API', () => {
   });
 });
 
-// describe('id', () => {
-//   it('# should be different if graphs have different vertices', () => {
-//     let g = new Graph();
-//     labels.forEach(label => {
-//       g.createVertex(label, { weight: Math.random() });
-//     });
+describe('id', () => {
+  it('# should be different if graphs have different vertices', () => {
+    let g1 = new Graph();
+    let g2 = new Graph();
+    g1.createVertex('a');
+    g2.createVertex('a');
 
-//     g.id
-//   });
+    g1.id.should.eql(g2.id);
 
-//   it('# should be different if graphs have different edges', () => {
-//     let g = new Graph();
-//     labels.forEach(label => {
-//       g.createVertex(label, { weight: Math.random() });
-//     });
+    g1.createVertex('b');
+    g2.createVertex('c');
 
-//     labels.forEach(label => {
-//       g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
-//     });
-//   });
+    g1.id.should.not.eql(g2.id);
+  });
 
-//   it('# should be the same if graphs are the same', () => {
-//     let g = new Graph();
-//     labels.forEach(label => {
-//       g.createVertex(label, { weight: Math.random() });
-//     });
+  it('# should be different if graphs have different edges', () => {
+    let g1 = new Graph();
+    let g2 = new Graph();
+    g1.createVertex('a');
+    g2.createVertex('a');
+    g1.createVertex('b');
+    g2.createVertex('b');
+    g1.createVertex('c');
+    g2.createVertex('c');
 
-//     labels.forEach(label => {
-//       g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
-//     });
-//   });
+    g1.id.should.eql(g2.id);
 
-//   it('# should throw on duplicates', () => {
-//     let g = new Graph();
-//     labels.forEach(label => {
-//       g.createVertex(label, { weight: Math.random() });
-//     });
-//     // Try to add each label once more
-//     labels.forEach(label => {
-//       expect(() => g.createVertex(label, { weight: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
-//     });
-//   });
-// });
+    g1.createEdge('"a"', '"b"');
+    g2.createEdge('"b"', '"a"');
+    g1.id.should.not.eql(g2.id);
 
+    g1.createEdge('"b"', '"a"');
+    g2.createEdge('"a"', '"b"');
+    g1.id.should.eql(g2.id);
+
+    g1.createEdge('"a"', '"a"');
+    g1.id.should.not.eql(g2.id);
+
+    g2.createEdge('"a"', '"a"');
+    g1.id.should.eql(g2.id);
+
+    g1.createEdge('"a"', '"c"');
+    g1.id.should.not.eql(g2.id);
+
+    g2.createEdge('"c"', '"c"');
+    g1.id.should.not.eql(g2.id);
+  });
+
+  it('# should be the same if graphs are the same', () => {
+    let g = createRandomDirectedGraph(5, 10, 15, 20);
+
+    g.id.should.eql(g.clone().id);
+
+    g = createRandomUndirectedGraph(5, 10, 15, 20);
+    g.id.should.eql(g.clone().id);
+  });
+});
 
 describe('createVertex()', () => {
   const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
