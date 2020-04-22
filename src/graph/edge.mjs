@@ -170,7 +170,7 @@ class Edge {
   }
 
   toString() {
-    return `Edge: ${this.toJson()}`;
+    return `${this.#source.toString()} -> ${this.#destination.toString()}`;
   }
 
   equals(e) {

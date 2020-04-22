@@ -73,7 +73,7 @@ describe('Graph API', () => {
 
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
-    let methods = ['constructor', 'toJson', 'toJsonObject', 'equals', 'clone', 'isDirected',
+    let methods = ['constructor', 'equals', 'clone', 'isDirected', 'isEmpty', 'toString', 'toJson', 'toJsonObject',
       'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree', 'setVertexWeight',
       'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
@@ -85,49 +85,49 @@ describe('Graph API', () => {
   });
 });
 
-describe('id', () => {
-  it('# should be different if graphs have different vertices', () => {
-    let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
-    });
+// describe('id', () => {
+//   it('# should be different if graphs have different vertices', () => {
+//     let g = new Graph();
+//     labels.forEach(label => {
+//       g.createVertex(label, { weight: Math.random() });
+//     });
 
-    g.id
-  });
+//     g.id
+//   });
 
-  it('# should be different if graphs have different edges', () => {
-    let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
-    });
+//   it('# should be different if graphs have different edges', () => {
+//     let g = new Graph();
+//     labels.forEach(label => {
+//       g.createVertex(label, { weight: Math.random() });
+//     });
 
-    labels.forEach(label => {
-      g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
-    });
-  });
+//     labels.forEach(label => {
+//       g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
+//     });
+//   });
 
-  it('# should be the same if graphs are the same', () => {
-    let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
-    });
+//   it('# should be the same if graphs are the same', () => {
+//     let g = new Graph();
+//     labels.forEach(label => {
+//       g.createVertex(label, { weight: Math.random() });
+//     });
 
-    labels.forEach(label => {
-      g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
-    });
-  });
+//     labels.forEach(label => {
+//       g.hasVertex(Vertex.idFromLabel(label)).should.be.true();
+//     });
+//   });
 
-  it('# should throw on duplicates', () => {
-    let g = new Graph();
-    labels.forEach(label => {
-      g.createVertex(label, { weight: Math.random() });
-    });
-    // Try to add each label once more
-    labels.forEach(label => {
-      expect(() => g.createVertex(label, { weight: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
-    });
-  });
-});
+//   it('# should throw on duplicates', () => {
+//     let g = new Graph();
+//     labels.forEach(label => {
+//       g.createVertex(label, { weight: Math.random() });
+//     });
+//     // Try to add each label once more
+//     labels.forEach(label => {
+//       expect(() => g.createVertex(label, { weight: Math.random() })).to.throw(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+//     });
+//   });
+// });
 
 
 describe('createVertex()', () => {

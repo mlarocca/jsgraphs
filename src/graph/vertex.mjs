@@ -106,7 +106,7 @@ class Vertex {
   }
 
   toString() {
-    return `Vertex: ${this.toJson()}`;
+    return `[${this.id}]`;
   }
 
   /**
