@@ -131,7 +131,7 @@ class MutableVertex extends Vertex {
    * @override
    */
   toString() {
-    return `GVertex: ${this.toJson()}`;
+    return `/[${this.id}]/`;
   }
 }
 
@@ -536,6 +536,13 @@ class Graph {
       g.addEdge(e.clone());
     }
     return g;
+  }
+
+  /**
+   * @override
+   */
+  toString() {
+    return [...this.edges].map(e => e.toString()).sort().join(', ');
   }
 
   toJson() {
