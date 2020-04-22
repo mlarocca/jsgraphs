@@ -1573,4 +1573,102 @@ describe('Algorithms', () => {
       });
     });
   });
+
+  describe('inducedSubGraph', () => {
+    it('should throw if the argument is not a non-empty collection', () => {
+      const g = new Graph();
+
+      (() => g.inducedSubGraph()).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', undefined));
+      (() => g.inducedSubGraph(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', null));
+      (() => g.inducedSubGraph(1)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', 1));
+      (() => g.inducedSubGraph([])).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', []));
+      (() => g.inducedSubGraph(new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', new Set()));
+    });
+
+    it('should throw if the some of the vertices passed are nto in the graph', () => {
+      let g = new Graph();
+      range(1, 6).forEach(i => g.createVertex(`${i}`));
+      g.createEdge('"1"', '"2"');
+      g.createEdge('"1"', '"3"');
+      g.createEdge('"2"', '"3"');
+      g.createEdge('"2"', '"4"');
+      g.createEdge('"3"', '"5"');
+      g.createEdge('"4"', '"1"');
+
+      (() => g.inducedSubGraph(['a', '"1"'])).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.inducedSubGraph', 'a'));
+      (() => g.inducedSubGraph(['1'])).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.inducedSubGraph', '1'));
+    });
+
+    describe('# UndirectedGraph', () => {
+      it('should compute the induced subgraph', () => {
+        let g = new UndirectedGraph();
+        range(1, 8).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+        g.createEdge('"4"', '"1"');
+        g.createEdge('"6"', '"7"');
+
+        let gI = g.inducedSubGraph(['"1"', '"2"']);
+        // Vertices
+        gI.vertices.length.should.eql(2);
+        gI.hasVertex('"1"').should.be.true();
+        gI.hasVertex('"2"').should.be.true();
+        gI.hasVertex('"3"').should.be.false();
+        // Edges
+        gI.edges.length.should.eql(1);
+        gI.hasEdgeBetween('"1"', '"2"').should.be.true();
+        gI.hasEdgeBetween('"2"', '"1"').should.be.true();
+
+        gI = g.inducedSubGraph(new Set(['"1"', '"3"', '"4"', '"5"']));
+        // Vertices
+        gI.vertices.length.should.eql(4);
+        gI.hasVertex('"1"').should.be.true();
+        gI.hasVertex('"2"').should.be.false();
+        gI.hasVertex('"3"').should.be.true();
+        gI.hasVertex('"4"').should.be.true();
+        gI.hasVertex('"5"').should.be.true();
+        gI.hasVertex('"6"').should.be.false();
+        // Edges
+        gI.edges.length.should.eql(3);
+        gI.hasEdgeBetween('"1"', '"2"').should.be.false();
+        gI.hasEdgeBetween('"2"', '"1"').should.be.false();
+        gI.hasEdgeBetween('"1"', '"3"').should.be.true();
+        gI.hasEdgeBetween('"3"', '"1"').should.be.true();
+        gI.hasEdgeBetween('"1"', '"4"').should.be.true();
+        gI.hasEdgeBetween('"4"', '"1"').should.be.true();
+        gI.hasEdgeBetween('"3"', '"5"').should.be.true();
+        gI.hasEdgeBetween('"5"', '"3"').should.be.true();
+      });
+    });
+
+    describe('# DirectedGraph', () => {
+      it('should compute the induced subgraph', () => {
+        let g = new Graph();
+        range(1, 6).forEach(i => g.createVertex(`${i}`));
+        g.createEdge('"1"', '"2"');
+        g.createEdge('"1"', '"3"');
+        g.createEdge('"2"', '"3"');
+        g.createEdge('"2"', '"4"');
+        g.createEdge('"3"', '"5"');
+
+        let gI = g.inducedSubGraph(new Set(['"1"', '"2"', '"4"']));
+        // Vertices
+        gI.vertices.length.should.eql(3);
+        gI.hasVertex('"1"').should.be.true();
+        gI.hasVertex('"2"').should.be.true();
+        gI.hasVertex('"3"').should.be.false();
+        gI.hasVertex('"4"').should.be.true();
+        gI.hasVertex('"5"').should.be.false();
+        // Edges
+        gI.edges.length.should.eql(2);
+        gI.hasEdgeBetween('"1"', '"2"').should.be.true();
+        gI.hasEdgeBetween('"2"', '"1"').should.be.false();
+        gI.hasEdgeBetween('"2"', '"4"').should.be.true();
+        gI.hasEdgeBetween('"4"', '"2"').should.be.false();
+      });
+    });
+  });
 });

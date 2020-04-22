@@ -131,7 +131,8 @@ class MutableVertex extends Vertex {
    * @override
    */
   toString() {
-    return `/[${this.id}]/`;
+    // Use a different bracket to make it possible to distinguish this from regular vertices
+    return `{${this.id}}`;
   }
 }
 
@@ -176,7 +177,6 @@ function replaceEdgeTo(adj, destination, newEdge = null) {
  *   - ...
  */
 class Graph {
-
   /**
    * @method fromJson
    * @for Graph.class
@@ -502,29 +502,16 @@ class Graph {
    * @for Graph
    *
    * @description
-   * Computes the induced
+   * Computes the induced subgraph of this graph, given a subset of its vertices.
+   * The induced subgraph of a graph G is a new graph, with only a subset of its vertices; only the edges in G
+   * that are adjacent to vertices in the subgraph are included.
+   * @param {Set<Vertex|String>|Array<Vertex|String>} vertices A non-empty subset of this graph's vertices.
+   *
+   * @return {Graph} The subgraph induced by vertices.
    */
+
   inducedSubGraph(vertices) {
-    if (!isDefined(vertices) || size(vertices) === 0) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', vertices));
-    }
-    vertices = new Set(vertices);
-
-    let g = new Graph();
-    vertices.forEach(u => {
-      const v = this.getVertex(u);
-      if (!isDefined(v)) {
-        throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.inducedSubGraph', u));
-      }
-      g.addVertex(v);
-    });
-
-    this.edges.forEach(e => {
-      if (vertices.has(e.source.id) && vertices.has(e.destination.id)) {
-        g.addEdge(e);
-      }
-    });
-    return g;
+    return inducedSubGraph(this, vertices);
   }
 
   clone() {
@@ -859,64 +846,6 @@ class Graph {
   }
 }
 
-/**
- * @method dfs
- * @for Graph
- * @private
- * @description DFS method on graphs.
- *
- * @param {Graph} graph The graph on which we run DFS.
- * @param {Vertex} v The vertex from which we start DFS visit.
- * @param {Object} timeDiscovered Record track of the times when each vertex was first discovered.
- * @param {Object} timeVisited Record track of the times when each vertix visit was completed.
- * @param {boolean} acyclic A flag: true if the graph is acyclic.
- * @param {int} currentTime A counter to keep track of the time of discovery/visit of vertices.
- *
- * @return A pair with the updated values for current time and acyclic.
- */
-function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
-  let popped = {};
-  let stack = [v];
-  let path = [];
-
-  do {
-    const u = stack.pop();
-
-    if (popped[u.id]) {
-      // The vertex was already popped once from the stack,
-      // the second time it happens means we have finished visiting its children
-      timeVisited[u.id] = ++currentTime;
-      path.pop();
-    } else {
-      // First time this is popped from the stack: record that, and push it back, so it will be popped again
-      // after visiting all its children.
-      popped[u.id] = true;
-      stack.push(u);
-      path.push(u.id);
-
-      // Put all undiscovered children of current vertex on the stack, to be later visited.
-      for (const e of graph.getEdgesFrom(u.id)) {
-        const w = e.destination;
-        if (isUndefined(timeDiscovered[w.id])) {
-          // First time we discover vertex w: record that and add it to the stack
-          timeDiscovered[w.id] = ++currentTime;
-          stack.push(w);
-        } else {
-          // If a neighbor of current graph was already discovered, then we have a cycle.
-          // if the graph is undirected check that the path is longer than 1 edge
-          if (e.isLoop() ||
-            !timeVisited[w.id] &&
-            (graph.isDirected() || path[path.length - 1] !== w.id) &&
-            (path.indexOf(w.id) >= 0)) {
-            acyclic = false;
-          }
-        }
-      };
-    }
-  } while (stack.length > 0);
-
-  return [currentTime, acyclic];
-}
 
 /**
  * @class UndirectedGraph
@@ -1296,6 +1225,102 @@ function edgeId(edge) {
   } else {
     return edge;
   }
+}
+
+
+/**
+ * @method dfs
+ * @for Graph
+ * @private
+ * @description DFS method on graphs.
+ *
+ * @param {Graph} graph The graph on which we run DFS.
+ * @param {Vertex} v The vertex from which we start DFS visit.
+ * @param {Object} timeDiscovered Record track of the times when each vertex was first discovered.
+ * @param {Object} timeVisited Record track of the times when each vertix visit was completed.
+ * @param {boolean} acyclic A flag: true if the graph is acyclic.
+ * @param {int} currentTime A counter to keep track of the time of discovery/visit of vertices.
+ *
+ * @return A pair with the updated values for current time and acyclic.
+ */
+function dfs(graph, v, timeDiscovered, timeVisited, acyclic, currentTime) {
+  let popped = {};
+  let stack = [v];
+  let path = [];
+
+  do {
+    const u = stack.pop();
+
+    if (popped[u.id]) {
+      // The vertex was already popped once from the stack,
+      // the second time it happens means we have finished visiting its children
+      timeVisited[u.id] = ++currentTime;
+      path.pop();
+    } else {
+      // First time this is popped from the stack: record that, and push it back, so it will be popped again
+      // after visiting all its children.
+      popped[u.id] = true;
+      stack.push(u);
+      path.push(u.id);
+
+      // Put all undiscovered children of current vertex on the stack, to be later visited.
+      for (const e of graph.getEdgesFrom(u.id)) {
+        const w = e.destination;
+        if (isUndefined(timeDiscovered[w.id])) {
+          // First time we discover vertex w: record that and add it to the stack
+          timeDiscovered[w.id] = ++currentTime;
+          stack.push(w);
+        } else {
+          // If a neighbor of current graph was already discovered, then we have a cycle.
+          // if the graph is undirected check that the path is longer than 1 edge
+          if (e.isLoop() ||
+            !timeVisited[w.id] &&
+            (graph.isDirected() || path[path.length - 1] !== w.id) &&
+            (path.indexOf(w.id) >= 0)) {
+            acyclic = false;
+          }
+        }
+      };
+    }
+  } while (stack.length > 0);
+
+  return [currentTime, acyclic];
+}
+
+/**
+ * @method inducedSubGraph
+ * @for Graph
+ * @private
+ *
+ * @param {Graph} graph The original graph
+ * @param {Collection<Vertex|String>} vertices
+ */
+function inducedSubGraph(graph, vertices) {
+  if (!isDefined(vertices) || size(vertices) === 0) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('Graph.inducedSubGraph', 'vertices', vertices));
+  }
+
+  let subGraph = graph.isDirected() ? new Graph() : new UndirectedGraph();
+
+  if (!(vertices instanceof Set)) {
+    // Make sure it's a set
+    vertices = new Set(vertices);
+  }
+
+  vertices.forEach(u => {
+    const v = graph.getVertex(u);
+    if (!isDefined(v)) {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.inducedSubGraph', u));
+    }
+    subGraph.addVertex(v);
+  });
+
+  graph.edges.forEach(e => {
+    if (vertices.has(e.source.id) && vertices.has(e.destination.id)) {
+      subGraph.addEdge(e);
+    }
+  });
+  return subGraph;
 }
 
 export default Graph;

@@ -75,18 +75,34 @@ describe('Kuratowski\' planarity test', () => {
     isPlanar(g).should.be.true();
   });
 
-  it('# should return false for a non-planar graph', () => {
+  it('# should return false for a non-planar graph including K5', () => {
     let g = UndirectedGraph.completeGraph(5);
     isPlanar(g).should.be.false();
     g.createVertex('a');
     isPlanar(g).should.be.false();
     g.createEdge('"a"', '1');
-    isPlanar(g).should.be.false();
     g.createEdge('"a"', '3');
     isPlanar(g).should.be.false();
 
     g.createVertex('b');
+    g.createEdge('"a"', '"b"');
     isPlanar(g).should.be.false();
+  });
+
+  it('# should return false for a non-planar graph including K3_3', () => {
+    let g = UndirectedGraph.completeBipartiteGraph(3,3);
+    isPlanar(g).should.be.false();
+    // Try to make it not bipartite
+    g.createEdge('1', '2');
+    isPlanar(g).should.be.false();
+
+    g.createVertex('a');
+    isPlanar(g).should.be.false();
+    g.createEdge('"a"', '1');
+    g.createEdge('"a"', '2');
+    isPlanar(g).should.be.false();
+
+    g.createVertex('b');
     g.createEdge('"a"', '"b"');
     isPlanar(g).should.be.false();
   });
