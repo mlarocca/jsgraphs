@@ -1,4 +1,8 @@
 # **JsGraphs**
+
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/context:javascript)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/alerts/)
+
 A lightweight library to model graphs, run graphs' algorithms, and display them on screen.
 
 You can use this library to create arbitrary graphs and run [**algorithms**](./readme/tutorial.md#graph-algorithms) and transformations on it, or just use it for [**visualization**](./readme/tutorial.md#embedding), importing graphs or even embeddings created in other languages/platforms and serialized using _JSON_.
@@ -90,7 +94,7 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [ ] Transitive Closure
 - [ ] Edmonds-Karp's
 - [ ] Relabel to Front
-- [ ] Planarity Testing (naive)
+- [X] Planarity Testing (naive)
 - [ ] Planarity Testing (linear-time)
 
 ## **Features**
