@@ -1600,7 +1600,7 @@ describe('Algorithms', () => {
     });
 
     describe('# UndirectedGraph', () => {
-      it('should compute the induced subgraph', () => {
+      it('should compute the induced sub-graph', () => {
         let g = new UndirectedGraph();
         range(1, 8).forEach(i => g.createVertex(`${i}`));
         g.createEdge('"1"', '"2"');
@@ -1645,7 +1645,7 @@ describe('Algorithms', () => {
     });
 
     describe('# DirectedGraph', () => {
-      it('should compute the induced subgraph', () => {
+      it('should compute the induced sub-graph', () => {
         let g = new Graph();
         range(1, 6).forEach(i => g.createVertex(`${i}`));
         g.createEdge('"1"', '"2"');

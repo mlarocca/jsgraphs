@@ -89,7 +89,7 @@ describe('Kuratowski\' planarity test', () => {
     isPlanar(g).should.be.false();
   });
 
-  it('# should return false for a non-planar graph including K3_3', () => {
+  it('# should return false for a non-planar graph including K3_3',   () => {
     let g = UndirectedGraph.completeBipartiteGraph(3,3);
     isPlanar(g).should.be.false();
     // Try to make it not bipartite

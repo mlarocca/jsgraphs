@@ -57,6 +57,11 @@ export const isPlanar = (() => {
       }
     }
 
+    function bipartiteIsComplete(graph, p1Size, p2Size) {
+      const m = (graph.isDirected() ? 2 : 1) * graph.simpleEdges.length;
+      return m === p1Size * p2Size;
+    }
+
     /**
      * Checks if a connected component is planar
      * @param {Graph} graph A connected, undirected graph.
@@ -86,7 +91,7 @@ export const isPlanar = (() => {
       if (n >= 6) {
         const [bipartite, p1, p2] = graph.isBipartite();
         if (bipartite && p1.size >= 3 && p2.size >= 3) {
-          if (graph.isCompleteBipartite()) {
+          if (bipartiteIsComplete(graph, p1.size, p2.size)) {
             return setCache(graphCas, false);
           }
         }
@@ -94,7 +99,7 @@ export const isPlanar = (() => {
 
       // Now we need to build the recursion
       for (const v of graph.vertices) {
-        // Create an induced subgraph with all vertices except the selected one
+        // Create an induced sub-graph with all vertices except the selected one
         let vSet = new Set(graph.vertices);
         vSet.delete(v);
         const g = graph.inducedSubGraph(vSet);
@@ -105,7 +110,7 @@ export const isPlanar = (() => {
       }
 
       for (const e of graph.simpleEdges) {
-        // Create a spanning subgraph with all edges except selected
+        // Create a spanning sub-graph with all edges except selected
         // Exclude both the edge and its reverse
         let g = new UndirectedGraph();
         graph.vertices.forEach(v => g.addVertex(v));

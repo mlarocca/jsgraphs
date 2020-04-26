@@ -502,12 +502,12 @@ class Graph {
    * @for Graph
    *
    * @description
-   * Computes the induced subgraph of this graph, given a subset of its vertices.
-   * The induced subgraph of a graph G is a new graph, with only a subset of its vertices; only the edges in G
-   * that are adjacent to vertices in the subgraph are included.
+   * Computes the induced sub-graph of this graph, given a subset of its vertices.
+   * The induced sub-graph of a graph G is a new graph, with only a subset of its vertices; only the edges in G
+   * that are adjacent to vertices in the sub-graph are included.
    * @param {Set<Vertex|String>|Array<Vertex|String>} vertices A non-empty subset of this graph's vertices.
    *
-   * @return {Graph} The subgraph induced by vertices.
+   * @return {Graph} The sub-graph induced by vertices.
    */
 
   inducedSubGraph(vertices) {
