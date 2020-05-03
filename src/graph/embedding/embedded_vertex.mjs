@@ -23,12 +23,12 @@ class EmbeddedVertex extends Vertex {
   /**
    * @static
    */
-  static fromJsonObject({ label, position, weight = null }) {
-    return new EmbeddedVertex(label, Point2D.fromJson(position), { weight: weight });
+  static fromJsonObject({ name, position, weight = null }) {
+    return new EmbeddedVertex(name, Point2D.fromJson(position), { weight: weight });
   }
 
-  constructor(label, vertexPosition, { weight } = {}) {
-    super(label, { weight: weight });
+  constructor(name, vertexPosition, { weight } = {}) {
+    super(name, { weight: weight });
     if (!(vertexPosition instanceof Point2D) || vertexPosition.dimensionality < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexPosition', vertexPosition));
     }
@@ -55,12 +55,12 @@ class EmbeddedVertex extends Vertex {
   }
 
   clone() {
-    return new EmbeddedVertex(this.label, this.position, { weight: this.weight });
+    return new EmbeddedVertex(this.name, this.position, { weight: this.weight });
   }
 
   toJsonObject() {
     return {
-      label: this.label,
+      name: this.name,
       weight: this.weight,
       position: this._center.toJson()
     };
@@ -75,7 +75,7 @@ class EmbeddedVertex extends Vertex {
     return `
     <g class="vertex ${cssClasses.join(' ')}" transform="translate(${Math.round(x)},${Math.round(y)})">
       <circle cx="0" cy="0" r="${Math.round(this.radius())}" />
-      <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.escapedLabel}</text>
+      <text x="0" y="0" text-anchor="middle" dominant-baseline="central">${this.escapedName}</text>
     </g>`;
   }
 }

@@ -40,7 +40,7 @@ describe('Edge Creation', () => {
         (() => new Edge(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', undefined));
       });
 
-      it('should throw when label is not a Vertex', () => {
+      it('should throw when source is not a Vertex', () => {
         (() => new Edge(1)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', 1));
         (() => new Edge('0')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', '0'));
         (() => new Edge(new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'source', new Set()));
@@ -56,7 +56,7 @@ describe('Edge Creation', () => {
       });
 
 
-      it('should throw when label is not a Vertex', () => {
+      it('should throw when destination is not a Vertex', () => {
         (() => new Edge(v, 11)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', 11));
         (() => new Edge(v, '007')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', '007'));
         (() => new Edge(v, new Set())).should.throw(ERROR_MSG_INVALID_ARGUMENT('Edge()', 'destination', new Set()));
@@ -128,7 +128,7 @@ describe('Edge Creation', () => {
 });
 
 describe('Attributes', () => {
-  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }].map(label => new Vertex(label));
+  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }].map(name => new Vertex(name));
 
   describe('source', () => {
     it('# should return the correct value for source', () => {
@@ -204,7 +204,7 @@ describe('Attributes', () => {
 describe('Methods', () => {
   const u = new Vertex({ 1: 'u' });
   const v = new Vertex([false]);
-  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'].map(label => new Vertex(label));
+  const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'].map(name => new Vertex(name));
   const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
   const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
 
@@ -241,7 +241,7 @@ describe('Methods', () => {
   });
 
   describe('isLoop()', () => {
-    const sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }].map(label => new Vertex(label));
+    const sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }].map(name => new Vertex(name));
     it('# should return true if source and destination are the same value (and reference)', () => {
       sources.forEach(s => {
         const e = new Edge(s, s);
@@ -419,8 +419,8 @@ describe('Methods', () => {
       const e = new Edge(new Vertex(0), new Vertex('1', { weight: 2 }), { label: 'label', weight: -0.1e14 });
       JSON.parse(e.toJson()).should.eql(
         {
-          source: { label: 0, weight: 1 },
-          destination: { label: "1", weight: 2 },
+          source: { name: 0, weight: 1 },
+          destination: { name: "1", weight: 2 },
           weight: -10000000000000,
           label: "label"
         });
@@ -432,7 +432,7 @@ describe('Methods', () => {
       const label = "undefined label"
       const weight = 1.1e4;
       const e = new Edge(source, dest, { label: label, weight: weight });
-      e.toJson().should.eql('{"destination":{"label":[1,2,3,[4,5,6]],"weight":1},"label":"undefined label","source":{"label":{"a":1,"b":[{"c":"cLab"},4]},"weight":1},"weight":11000}');
+      e.toJson().should.eql('{"destination":{"name":[1,2,3,[4,5,6]],"weight":1},"label":"undefined label","source":{"name":{"a":1,"b":[{"c":"cLab"},4]},"weight":1},"weight":11000}');
     });
   });
 

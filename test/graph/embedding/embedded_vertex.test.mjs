@@ -34,12 +34,12 @@ describe('EmbeddedVertex Creation', () => {
   describe('# Parameters', () => {
     const point = new Point2D(1, 2);
     describe('# 1st argument (mandatory)', () => {
-      it('should throw when label is null or undefined', () => {
-        (() => new EmbeddedVertex(null, point)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', null));
-        (() => new EmbeddedVertex(undefined, point)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', undefined));
+      it('should throw when name is null or undefined', () => {
+        (() => new EmbeddedVertex(null, point)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', null));
+        (() => new EmbeddedVertex(undefined, point)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', undefined));
       });
 
-      it('should throw when label is not convetible to JSON', () => {
+      it('should throw when name is not convetible to JSON', () => {
         (() => new EmbeddedVertex(new Map(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
         (() => new EmbeddedVertex(new Set(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
       });
@@ -127,7 +127,7 @@ describe('Methods', () => {
 
     it('# should stringify the fields consistently', () => {
       JSON.parse(v.toJson()).should.eql(
-        { label: 'test', position: '[2,0]', weight: 1.5 }
+        { name: 'test', position: '[2,0]', weight: 1.5 }
       );
     });
   });

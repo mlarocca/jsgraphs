@@ -16,14 +16,14 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject', 'isValidLabel', 'idFromLabel'];
+    let staticMethods = ['fromJson', 'fromJsonObject', 'isValidName', 'idFromName'];
     testStaticAPI(Vertex, staticMethods);
   });
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
     let methods = ['constructor', 'equals', 'toJson', 'toJsonObject', 'toString', 'clone'];
-    let attributes = ['label', 'escapedLabel',  'id', 'weight'];
+    let attributes = ['name', 'escapedName',  'escapedLabel','id', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });
@@ -31,12 +31,12 @@ describe('Vertex API', () => {
 describe('Vertex Creation', () => {
   describe('# Parameters', () => {
     describe('# 1st argument (mandatory)', () => {
-      it('should throw when label is null or undefined', () => {
-        (() => new Vertex(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', null));
-        (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', undefined));
+      it('should throw when name is null or undefined', () => {
+        (() => new Vertex(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', null));
+        (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', undefined));
       });
 
-      it('should throw when label is not convetible to JSON', () => {
+      it('should throw when name is not convetible to JSON', () => {
         (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
         (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
       });
@@ -79,13 +79,13 @@ describe('Vertex Creation', () => {
 
 
 describe('Attributes', () => {
-  const labels = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
+  const names = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
 
-  describe('label', () => {
-    it('# should return the correct value for label', () => {
-      labels.forEach(label => {
-        let v = new Vertex(label, 1);
-        v.label.should.eql(label);
+  describe('name', () => {
+    it('# should return the correct value for name', () => {
+      names.forEach(name => {
+        let v = new Vertex(name, 1);
+        v.name.should.eql(name);
       });
     });
   });
@@ -94,7 +94,7 @@ describe('Attributes', () => {
     const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
     it('# should return the correct weight', () => {
       weights.forEach(s => {
-        let v = new Vertex(choose(labels), { weight: s });
+        let v = new Vertex(choose(names), { weight: s });
         v.weight.should.eql(Number.parseFloat(s));
       });
     });
@@ -102,43 +102,43 @@ describe('Attributes', () => {
 });
 
 describe('Methods', () => {
-  const vertexLabels = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
-  const edgeLabels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
+  const vertexNames = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
+  const edgeNames = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
 
   describe('equals()', () => {
     it('# should return true if two edges are equals in all their fields', () => {
-      vertexLabels.forEach(label => {
+      vertexNames.forEach(name => {
         const weight = Math.random()
-        let v1 = new Vertex(label, { weight: weight });
-        let v2 = new Vertex(label, { weight: weight });
+        let v1 = new Vertex(name, { weight: weight });
+        let v2 = new Vertex(name, { weight: weight });
         v1.equals(v2).should.be.true();
       });
     });
 
     it('# should return false if the argument is not a Vertex', () => {
-      vertexLabels.forEach(label => {
+      vertexNames.forEach(name => {
         const weight = Math.random();
-        let v1 = new Vertex(label, { weight: weight });
-        v1.equals(choose(vertexLabels)).should.be.eql(false);
+        let v1 = new Vertex(name, { weight: weight });
+        v1.equals(choose(vertexNames)).should.be.eql(false);
       });
     });
 
-    it('# should return false if label is different', () => {
-      vertexLabels.forEach(label => {
-        const label2 = choose(vertexLabels);
+    it('# should return false if name is different', () => {
+      vertexNames.forEach(name => {
+        const name2 = choose(vertexNames);
         const weight = Math.random();
-        let v1 = new Vertex(label, { weight: weight });
-        let v2 = new Vertex(label2, { weight: weight });
-        v1.equals(v2).should.be.eql(Vertex.idFromLabel(label) === Vertex.idFromLabel(label2));
+        let v1 = new Vertex(name, { weight: weight });
+        let v2 = new Vertex(name2, { weight: weight });
+        v1.equals(v2).should.be.eql(Vertex.idFromName(name) === Vertex.idFromName(name2));
       });
     });
 
     it('# should return false if weight is different', () => {
-      vertexLabels.forEach(label => {
+      vertexNames.forEach(name => {
         const weight1 = Math.random();
         const weight2 = Math.random();
-        let v1 = new Vertex(label, { weight: weight1 });
-        let v2 = new Vertex(label, { weight: weight2 });
+        let v1 = new Vertex(name, { weight: weight1 });
+        let v2 = new Vertex(name, { weight: weight2 });
         v1.equals(v2).should.be.eql(weight1 === weight2);
       });
     });
@@ -146,8 +146,8 @@ describe('Methods', () => {
 
   describe('clone()', () => {
     it('# should clone the vertex fields', () => {
-      vertexLabels.forEach(label => {
-        let v = new Vertex(label);
+      vertexNames.forEach(name => {
+        let v = new Vertex(name);
         v.clone().id.should.eql(v.id);
         v.clone().equals(v).should.be.true();
       });
@@ -156,33 +156,33 @@ describe('Methods', () => {
     it('# changing the cloned instance should not affect the original', () => {
       let v = new Vertex({ 'test': 1 }, { weight: -3 });
       let w = v.clone();
-      v.label.should.eql(w.label);
+      v.name.should.eql(w.name);
       v.weight.should.eql(w.weight);
       v.equals(w).should.be.true();
       v.weight = 2;
-      v.label.should.eql(w.label);
+      v.name.should.eql(w.name);
       v.equals(w).should.be.not.true();
     });
   });
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
-      Vertex.isValidLabel(new Vertex('test')).should.be.true();
-      vertexLabels.forEach(label => {
-        let v = new Vertex(label, { weight: Math.random() });
+      Vertex.isValidName(new Vertex('test')).should.be.true();
+      vertexNames.forEach(name => {
+        let v = new Vertex(name, { weight: Math.random() });
         expect(() => JSON.parse(v.toJson())).not.to.throw();
       });
     });
 
     it('# should stringify the fields consistently and deep-stringify all the fields', () => {
       let v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: 3.14 });
-      v.toJson().should.eql('{"label":{"test":["abc",1,3]},"weight":3.14}');
+      v.toJson().should.eql('{"name":{"test":["abc",1,3]},"weight":3.14}');
     });
   });
 
   describe('fromJson()', () => {
     it('# applyed to the result of toJson, it should match source vertex', () => {
-      vertexLabels.forEach(source => {
+      vertexNames.forEach(source => {
         let v = new Vertex(source, { weight: Math.random() });
         Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
       });
