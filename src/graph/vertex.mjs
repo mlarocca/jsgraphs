@@ -1,6 +1,6 @@
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
-import { consistentStringify, isJsonStringifiable } from '../common/strings.mjs';
+import { consistentStringify, isJsonStringifiable, isString } from '../common/strings.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
 
 import rfdc from 'rfdc';
@@ -16,16 +16,37 @@ const deepClone = rfdc({ proto: true, circles: false });
 class Vertex {
   /**
    * @private
+   * {*}
    */
   #name;
 
   /**
    * @private
+   * {number}
    */
   #weight;
 
+  /**
+   * {string}
+   * @private
+   */
+  #label
+
+  /**
+   * {*}
+   */
+  #data
+
   static isValidName(name) {
     return isJsonStringifiable(name);
+  }
+
+  static isValidData(data) {
+    return isJsonStringifiable(data);
+  }
+
+  static isValidLabel(label) {
+    return isString(label);
   }
 
   static idFromName(name) {
@@ -36,8 +57,8 @@ class Vertex {
     return Vertex.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({ name, weight = DEFAULT_VERTEX_WEIGHT }) {
-    return new Vertex(name, { weight: weight });
+  static fromJsonObject({ name, weight = DEFAULT_VERTEX_WEIGHT, label, data }) {
+    return new Vertex(name, { weight: weight, label: label, data: data });
   }
 
   /**
@@ -52,7 +73,7 @@ class Vertex {
    * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, or weight is not
    *                     (parseable to) a number.
    */
-  constructor(name, { weight = DEFAULT_VERTEX_WEIGHT } = {}) {
+  constructor(name, { label, data, weight = DEFAULT_VERTEX_WEIGHT } = {}) {
     if (!isDefined(name)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', name));
     }
@@ -62,10 +83,18 @@ class Vertex {
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));
     }
+    if (isDefined(label) && !Vertex.isValidLabel(label)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
+    }
+    if (isDefined(data) && !Vertex.isValidData(data)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'data', data));
+    }
 
     // Deep clone name
     this.#name = deepClone(name);
     this.#weight = toNumber(weight);
+    this.#label = label;
+    this.#data = data;
   }
 
   get name() {
@@ -76,13 +105,6 @@ class Vertex {
    * HTML-escaped string for name
    */
   get escapedName() {
-    return escape(this.#name.toString());
-  }
-
-  /**
-   * HTML-escaped string from name
-   */
-  get escapedLabel() {
     return escape(this.#name.toString());
   }
 
@@ -101,15 +123,59 @@ class Vertex {
     return this.#weight = toNumber(weight);
   }
 
+  get label() {
+    return this.#label;
+  }
+
+  /**
+   * HTML-escaped string from label
+   */
+  get escapedLabel() {
+    return escape(this.#label);
+  }
+
+  set label(label) {
+    if (isDefined(label) && !Vertex.isValidLabel(label)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.label=', 'label', label));
+    }
+    this.#label = label;
+  }
+
+  get data() {
+    return this.#data;
+  }
+
+  set data(data) {
+    if (isDefined(data) && !Vertex.isValidData(data)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex.data=', 'data', data));
+    }
+    this.#data = data;
+  }
+
+  hasLabel() {
+    return isDefined(this.#label);
+  }
+
+  hasData() {
+    return isDefined(this.#data);
+  }
+
   toJson() {
     return consistentStringify(this.toJsonObject());
   }
 
   toJsonObject() {
-    return {
+    let json = {
       name: this.name,
       weight: this.weight
     };
+    if (this.hasLabel()) {
+      json['label'] = this.#label;
+    }
+    if (this.hasData()) {
+      json['data'] = this.#data;
+    }
+    return json;
   }
 
   toString() {
@@ -131,7 +197,7 @@ class Vertex {
    *
    */
   clone() {
-    return new Vertex(this.name, { weight: this.weight });
+    return new Vertex(this.name, { weight: this.weight, data: this.data, label: this.label});
   }
 }
 

@@ -487,7 +487,7 @@ describe('fromJsonObject()', () => {
   const v1 = g.createVertex('abc');
   const v2 = g.createVertex(1);
   const v3 = g.createVertex(3.1415);
-  const v4 = g.createVertex({ 'what': -3 });
+  const v4 = g.createVertex({ 'what': -3 }, {weight: 3, label: 'v', data: { 'what': -3 }});
 
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });

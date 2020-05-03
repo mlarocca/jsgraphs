@@ -27,11 +27,17 @@ Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of 
 ```javascript
 import Vertex from '/src/graph/vertex.mjs';
 
-const v = new Vertex('vertex name', {weight: 3});
 const u = new Vertex('u');
+const v = new Vertex('vertex name', {weight: 3, label: 'I am a label', data: [1, 2, 3]});
 ```
 
-Vertices in _JsGraphs_ are immutable, hence `u` and `v` above are real consts. On creation, you must add a name for the vertex, and optionally a weight: the default weight for a vertex is 1, and generally you don't have to worry about this weight, but some graph applications can use it.
+A vertex' name is forever, it can never be changed: it uniquely identify a vertex, and in fact a vertex' ID is computed from its name.
+
+On creation, you must add a name for the vertex, and optionally you can include:
+
+- A weight: the default weight for a vertex is 1, and generally you don't have to worry about this weight, but some graph applications can use it.
+- A label: an optional string that can be changed over time and used to convey non-identifying, mutable info about the vertex.
+- Data: this is the most generic field for a vertex, it can include any serializable object, even another graph: this way, for instance, it's possible to create meta-graphs (graphs where each vertex is another graph) and run specific algorithms where whenever a vertex is visited, the graph it holds is also traversed (one example could be the graph of strongly connected components: breaking G into its SCCs, and then representing it with a new meta-graph, the SCC graph, whose vertices hold the actual components).
 
 A vertex's name doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson` method.
 
@@ -49,6 +55,8 @@ Vertex.isValidName(new Map());   // false
 Vertex.isValidName(new Set());   // false
 Vertex.isValidName(() => true));   // false, functions can't be serialized to JSON
 ```
+
+Likewise, there are methods `Vertex.isValidLabel` and `Vertex.isValidData`.
 
 Existing vertices can be added to graphs: notice that it's NOT possible to add two vertices with the same name to the same graph.
 
