@@ -190,7 +190,7 @@ describe('Methods', () => {
 
   describe('fromJson()', () => {
     const point = new Point2D(-0.1, 2.5);
-    const u = new EmbeddedVertex(['u'], point);
+    const u = new EmbeddedVertex(['u'], point, {weight: 4.3, label: 'test v label', data: ['1', 2, 3]});
     const v = new EmbeddedVertex({ name: ['v'] }, point);
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
 

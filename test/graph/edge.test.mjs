@@ -443,7 +443,7 @@ describe('Methods', () => {
     });
 
     it('# should deep-parse all the fields', () => {
-      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] });
+      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] }, {weight: 2, label: 'v label', data: { a: 1, b: [{ c: 'cLab' }, 4] }});
       const dest = new Vertex([1, 2, 3, [4, 5, 6]]);
       const label = "label";
       const weight = 1.1e4;

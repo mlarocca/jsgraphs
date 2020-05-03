@@ -23,12 +23,12 @@ class EmbeddedVertex extends Vertex {
   /**
    * @static
    */
-  static fromJsonObject({ name, position, weight = null }) {
-    return new EmbeddedVertex(name, Point2D.fromJson(position), { weight: weight });
+  static fromJsonObject({ name, position, weight = null, label, data }) {
+    return new EmbeddedVertex(name, Point2D.fromJson(position), { weight: weight, label: label, data: data });
   }
 
-  constructor(name, vertexPosition, { weight } = {}) {
-    super(name, { weight: weight });
+  constructor(name, vertexPosition, { weight, label, data } = {}) {
+    super(name, { weight: weight, label: label, data: data });
     if (!(vertexPosition instanceof Point2D) || vertexPosition.dimensionality < 2) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedVertex()', 'vertexPosition', vertexPosition));
     }
@@ -55,15 +55,13 @@ class EmbeddedVertex extends Vertex {
   }
 
   clone() {
-    return new EmbeddedVertex(this.name, this.position, { weight: this.weight });
+    return new EmbeddedVertex(this.name, this.position, { weight: this.weight, label: this.label, data: this.data });
   }
 
   toJsonObject() {
-    return {
-      name: this.name,
-      weight: this.weight,
-      position: this._center.toJson()
-    };
+    let json = super.toJsonObject();
+    json['position'] = this._center.toJson();
+    return json;
   }
 
   toString() {

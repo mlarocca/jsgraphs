@@ -16,14 +16,14 @@ describe('Vertex API', () => {
   });
 
   it('# Class should have a static fromJson method', function () {
-    let staticMethods = ['fromJson', 'fromJsonObject', 'isValidName', 'idFromName'];
+    let staticMethods = ['fromJson', 'fromJsonObject', 'isValidName', 'isValidLabel', 'isValidData', 'idFromName'];
     testStaticAPI(Vertex, staticMethods);
   });
 
   it('# Object\'s interface should be complete', () => {
     let vertex = new Vertex(1);
-    let methods = ['constructor', 'equals', 'toJson', 'toJsonObject', 'toString', 'clone'];
-    let attributes = ['name', 'escapedName',  'escapedLabel','id', 'weight'];
+    let methods = ['constructor', 'hasLabel', 'hasData', 'equals', 'toJson', 'toJsonObject', 'toString', 'clone'];
+    let attributes = ['name', 'id', 'label', 'data', 'escapedName', 'escapedLabel', 'weight'];
     testAPI(vertex, attributes, methods);
   });
 });
@@ -84,7 +84,7 @@ describe('Attributes', () => {
   describe('name', () => {
     it('# should return the correct value for name', () => {
       names.forEach(name => {
-        let v = new Vertex(name, 1);
+        const v = new Vertex(name);
         v.name.should.eql(name);
       });
     });
@@ -96,6 +96,57 @@ describe('Attributes', () => {
       weights.forEach(s => {
         let v = new Vertex(choose(names), { weight: s });
         v.weight.should.eql(Number.parseFloat(s));
+      });
+    });
+  });
+
+  describe('label', () => {
+    it('# should be undefined when not set', () => {
+      const v = new Vertex('v', {weight: 2, data: ['data']});
+      v.hasLabel().should.be.false();
+      expect(v.label).to.be.undefined;
+    });
+
+    it('# should return the correct value for data when defined', () => {
+      ['a', 'test label', 'unicode ☺'].forEach(label => {
+        const v = new Vertex('v', {label: label});
+        v.hasLabel().should.be.true();
+        v.label.should.eql(label);
+      });
+    });
+
+    it('# should be set correctly', () => {
+      const v = new Vertex('v');
+      v.hasLabel().should.be.false();
+      expect(v.label).to.be.undefined;
+      v.label = 'test';
+      v.label.should.eql('test');
+    });
+  });
+
+  describe('data', () => {
+    it('# should be undefined when not set', () => {
+      const v = new Vertex('v', {weight: 2, label: 'lab'});
+      v.hasData().should.be.false();
+      expect(v.data).to.be.undefined;
+    });
+
+    it('# should return the correct value for data when defined', () => {
+      names.forEach(data => {
+        let v = new Vertex('v', {data: data});
+        v.hasData().should.be.true();
+        v.data.should.eql(data);
+      });
+    });
+
+    it('# should be set correctly', () => {
+      const v = new Vertex('v');
+      v.hasData().should.be.false();
+      expect(v.data).to.be.undefined;
+      names.forEach(data => {
+        v.data = data;
+        v.hasData().should.be.true();
+        v.data.should.eql(data);
       });
     });
   });
@@ -177,6 +228,8 @@ describe('Methods', () => {
     it('# should stringify the fields consistently and deep-stringify all the fields', () => {
       let v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: 3.14 });
       v.toJson().should.eql('{"name":{"test":["abc",1,3]},"weight":3.14}');
+      v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: -3.14, data: ['123', 'a'], label: "test" });
+      JSON.parse(v.toJson()).should.eql({ "name": { "test": ["abc", 1, 3] }, "weight": -3.14, label: "test", data: ['123', 'a'] });
     });
   });
 
@@ -189,7 +242,7 @@ describe('Methods', () => {
     });
 
     it('# should parse the fields consistently and deep-parse all the fields', () => {
-      let v = new Vertex('abc', { weight: 3.14 });
+      let v = new Vertex('abc', { weight: 3.14, data: ['123', { 'a': [1, 2, 3], 'b': { 1: 1 } }], label: "test" });
       Vertex.fromJsonObject(JSON.parse(v.toJson())).should.eql(v);
     });
   });
