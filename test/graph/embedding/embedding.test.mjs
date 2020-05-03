@@ -227,16 +227,16 @@ describe('Methods', () => {
       let emb = Embedding.forGraph(g);
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
-        eV.label.should.eql(vertex.label);
+        eV.name.should.eql(vertex.name);
         eV.weight.should.eql(vertex.weight);
         eV.position.constructor.should.eql(Point2D);
       });
 
       [e1, e2, e3, e4].forEach(e => {
         const eE = emb.getEdge(e.id);
-        eE.source.label.should.eql(e.source.label);
-        eE.destination.label.should.eql(e.destination.label);
-        (eE.label === e.label).should.be.true();
+        eE.source.name.should.eql(e.source.name);
+        eE.destination.name.should.eql(e.destination.name);
+        (eE.name === e.name).should.be.true();
         eE.weight.should.eql(e.weight);
       });
     });
@@ -247,16 +247,16 @@ describe('Methods', () => {
       let emb = Embedding.forGraph(g, {vertexCoordinates: {[u.id]: p, [w.id]: q}});
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
-        eV.label.should.eql(vertex.label);
+        eV.name.should.eql(vertex.name);
         eV.weight.should.eql(vertex.weight);
         eV.position.constructor.should.eql(Point2D);
       });
 
       [e1, e2, e3, e4].forEach(e => {
         const eE = emb.getEdge(e.id);
-        eE.source.label.should.eql(e.source.label);
-        eE.destination.label.should.eql(e.destination.label);
-        (eE.label === e.label).should.be.true();
+        eE.source.name.should.eql(e.source.name);
+        eE.destination.name.should.eql(e.destination.name);
+        (eE.name === e.name).should.be.true();
         eE.weight.should.eql(e.weight);
       });
 
@@ -271,16 +271,16 @@ describe('Methods', () => {
       let emb = Embedding.forGraph(g, {edgeArcControlDistances: {[e2.id]: -91, [e3.id]: 0.101}});
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
-        eV.label.should.eql(vertex.label);
+        eV.name.should.eql(vertex.name);
         eV.weight.should.eql(vertex.weight);
         eV.position.constructor.should.eql(Point2D);
       });
 
       [e1, e2, e3, e4].forEach(e => {
         const eE = emb.getEdge(e.id);
-        eE.source.label.should.eql(e.source.label);
-        eE.destination.label.should.eql(e.destination.label);
-        (eE.label === e.label).should.be.true();
+        eE.source.name.should.eql(e.source.name);
+        eE.destination.name.should.eql(e.destination.name);
+        (eE.name === e.name).should.be.true();
         eE.weight.should.eql(e.weight);
       });
 
@@ -328,21 +328,21 @@ describe('Methods', () => {
       const vF = graph.createVertex('F', { weight: 2 });
       const vG = graph.createVertex('G', { weight: 2 });
 
-      graph.createEdge(Vertex.idFromLabel('Start'), vA, { label: 'design', weight: 2 });
+      graph.createEdge(Vertex.idFromName('Start'), vA, { label: 'design', weight: 2 });
       graph.createEdge(vA, vB, { label: 'build body' });
       graph.createEdge(vA, vC, { label: 'build wheels' });
       graph.createEdge(vA, vD, { label: 'build frame' });
       graph.createEdge(vA, vE, { label: 'build engine' });
       graph.createEdge(vB, vF, { label: 'paint body' });
       graph.createEdge(vD, vG, { label: 'paint frame' });
-      graph.createEdge(vC, Vertex.idFromLabel('Finish'), { label: 'mount wheels' });
+      graph.createEdge(vC, Vertex.idFromName('Finish'), { label: 'mount wheels' });
       graph.createEdge(vE, vG, { label: 'mount engine on frame' });
-      graph.createEdge(vF, Vertex.idFromLabel('Finish'), { label: 'mount body on frame' });
-      graph.createEdge(vG, Vertex.idFromLabel('Finish'));
+      graph.createEdge(vF, Vertex.idFromName('Finish'), { label: 'mount body on frame' });
+      graph.createEdge(vG, Vertex.idFromName('Finish'));
 
       let emb = Embedding.forGraph(graph);
 
-      emb.setVertexPosition(Vertex.idFromLabel('Start'), new Point2D(50, 200));
+      emb.setVertexPosition(Vertex.idFromName('Start'), new Point2D(50, 200));
       emb.setVertexPosition(vA, new Point2D(200, 200));
       emb.setVertexPosition(vB, new Point2D(350, 50));
       emb.setVertexPosition(vC, new Point2D(350, 150));
@@ -350,7 +350,7 @@ describe('Methods', () => {
       emb.setVertexPosition(vE, new Point2D(350, 350));
       emb.setVertexPosition(vF, new Point2D(500, 100));
       emb.setVertexPosition(vG, new Point2D(600, 300));
-      emb.setVertexPosition(Vertex.idFromLabel('Finish'), new Point2D(650, 200));
+      emb.setVertexPosition(Vertex.idFromName('Finish'), new Point2D(650, 200));
 
       let vClasses = {
         '"Start"': ['start'],

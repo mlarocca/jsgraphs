@@ -17,27 +17,27 @@ class Vertex {
   /**
    * @private
    */
-  #label;
+  #name;
 
   /**
    * @private
    */
   #weight;
 
-  static isValidLabel(label) {
-    return isJsonStringifiable(label);
+  static isValidName(name) {
+    return isJsonStringifiable(name);
   }
 
-  static idFromLabel(label) {
-    return consistentStringify(label);
+  static idFromName(name) {
+    return consistentStringify(name);
   }
 
   static fromJson(json) {
     return Vertex.fromJsonObject(JSON.parse(json));
   }
 
-  static fromJsonObject({ label, weight = DEFAULT_VERTEX_WEIGHT }) {
-    return new Vertex(label, { weight: weight });
+  static fromJsonObject({ name, weight = DEFAULT_VERTEX_WEIGHT }) {
+    return new Vertex(name, { weight: weight });
   }
 
   /**
@@ -46,41 +46,48 @@ class Vertex {
    *
    * Construct an object representation for a graph's vertex.
    *
-   * @param {*} label  The vertex's label.
+   * @param {*} name  The vertex's name.
    * @param {number?} weight  The weight associated to the vertex (by default, 1).
    * @return {Vertex}  The Vertex created.
-   * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, or weight is not
+   * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, or weight is not
    *                     (parseable to) a number.
    */
-  constructor(label, { weight = DEFAULT_VERTEX_WEIGHT } = {}) {
-    if (!isDefined(label)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
+  constructor(name, { weight = DEFAULT_VERTEX_WEIGHT } = {}) {
+    if (!isDefined(name)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', name));
     }
-    if (!Vertex.isValidLabel(label)) {
-      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', label));
+    if (!Vertex.isValidName(name)) {
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', name));
     }
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));
     }
 
-    // Deep clone label
-    this.#label = deepClone(label);
+    // Deep clone name
+    this.#name = deepClone(name);
     this.#weight = toNumber(weight);
   }
 
-  get label() {
-    return deepClone(this.#label);
+  get name() {
+    return deepClone(this.#name);
   }
 
   /**
-   * HTML-escaped string from label
+   * HTML-escaped string for name
+   */
+  get escapedName() {
+    return escape(this.#name.toString());
+  }
+
+  /**
+   * HTML-escaped string from name
    */
   get escapedLabel() {
-    return escape(this.#label.toString());
+    return escape(this.#name.toString());
   }
 
   get id() {
-    return Vertex.idFromLabel(this.label);
+    return Vertex.idFromName(this.name);
   }
 
   get weight() {
@@ -100,7 +107,7 @@ class Vertex {
 
   toJsonObject() {
     return {
-      label: this.label,
+      name: this.name,
       weight: this.weight
     };
   }
@@ -120,11 +127,11 @@ class Vertex {
 
   /**
   /**
-   * Clones a vertex, copying over the label and weight, NOT the adjacency map.
+   * Clones a vertex, copying over the name and weight, NOT the adjacency map.
    *
    */
   clone() {
-    return new Vertex(this.label, { weight: this.weight });
+    return new Vertex(this.name, { weight: this.weight });
   }
 }
 

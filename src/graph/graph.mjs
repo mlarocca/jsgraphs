@@ -27,15 +27,15 @@ class MutableVertex extends Vertex {
    *
    * Construct an object representation for a graph's vertex.
    *
-   * @param {*} label  The vertex's label.
+   * @param {*} name  The vertex's name.
    * @param {number?} weight  The weight associated to the vertex (by default, 1).
    * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
    * @return {MutableVertex}  The Vertex created.
-   * @throws {TypeError} if the arguments are not valid, i.e. label is not defined, weight is not
+   * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, weight is not
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
-  constructor(label, { weight, outgoingEdges = [] } = {}) {
-    super(label, { weight: weight });
+  constructor(name, { weight, outgoingEdges = [] } = {}) {
+    super(name, { weight: weight });
     if (!Array.isArray(outgoingEdges)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
     }
@@ -124,7 +124,7 @@ class MutableVertex extends Vertex {
    * @override
    */
   clone() {
-    return new MutableVertex(this.label, { weight: this.weight });
+    return new MutableVertex(this.name, { weight: this.weight });
   }
 
   /**
@@ -141,9 +141,8 @@ class MutableVertex extends Vertex {
  * @for GVertex
  * @private
  *
- * @param adj
+ * @param {Array[Vertex]} adj
  * @param {Vertex} destination
- * @param {*?} label
  * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
  *                        remove the old edge.
  */
@@ -303,12 +302,12 @@ class Graph {
     return this.vertices.length === 0;
   }
 
-  createVertex(label, { weight } = {}) {
-    if (this.hasVertex(Vertex.idFromLabel(label))) {
-      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', label));
+  createVertex(name, { weight } = {}) {
+    if (this.hasVertex(Vertex.idFromName(name))) {
+      throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', name));
     }
 
-    const v = new MutableVertex(label, { weight: weight });
+    const v = new MutableVertex(name, { weight: weight });
 
     let vcs = _vertices.get(this);
     vcs.set(v.id, v);
@@ -327,7 +326,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', vertex));
     }
 
-    const v = new MutableVertex(vertex.label, { weight: vertex.weight });
+    const v = new MutableVertex(vertex.name, { weight: vertex.weight });
     vcs.set(vertex.id, v);
     _vertices.set(this, vcs);
 
@@ -479,21 +478,21 @@ class Graph {
 
   /**
    * Shortcut to avoid edge cloning
-   * @param {*} sourceLabel
-   * @param {*} destinationLabel
+   * @param {*} sourceName
+   * @param {*} destinationName
    */
-  getEdgeWeight(sourceLabel, destinationLabel) {
-    const e = getGraphEdge(this, sourceLabel, destinationLabel);
+  getEdgeWeight(sourceName, destinationName) {
+    const e = getGraphEdge(this, sourceName, destinationName);
     return e?.weight;
   }
 
   /**
    * Shortcut to avoid edge cloning
-   * @param {*} sourceLabel
-   * @param {*} destinationLabel
+   * @param {*} sourceName
+   * @param {*} destinationName
    */
-  getEdgeLabel(sourceLabel, destinationLabel) {
-    const e = getGraphEdge(this, sourceLabel, destinationLabel);
+  getEdgeLabel(sourceName, destinationName) {
+    const e = getGraphEdge(this, sourceName, destinationName);
     return e?.label;
   }
 

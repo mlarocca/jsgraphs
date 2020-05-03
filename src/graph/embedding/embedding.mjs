@@ -56,7 +56,7 @@ class Embedding {
       if (!(cs instanceof Point2D)) {
         cs = Point2D.random({ width, height });
       }
-      let eV = new EmbeddedVertex(v.label, cs, { weight: v.weight });
+      let eV = new EmbeddedVertex(v.name, cs, { weight: v.weight });
       vertices.set(eV.id, eV);
     }
 
@@ -92,7 +92,7 @@ class Embedding {
 
     let coordinates = {};
     for (const v of g.vertices) {
-      const i = toNumber(v.label) - 1;
+      const i = toNumber(v.name) - 1;
       const delta = 2 * Math.PI / n;
       const center = canvasSize / 2;
       const radius = center - EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
@@ -125,7 +125,7 @@ class Embedding {
     let x, y;
 
     for (const v of g.vertices) {
-      const i = toNumber(v.label);
+      const i = toNumber(v.name);
       if (i <= n) {
         x = 2 * EmbeddedVertex.DEFAULT_VERTEX_RADIUS;
         y = EmbeddedVertex.DEFAULT_VERTEX_RADIUS + (i - 1) * deltaN;

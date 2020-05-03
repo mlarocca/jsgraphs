@@ -175,8 +175,8 @@ describe('Methods', () => {
     it('# should return a valid json', () => {
       const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
       JSON.parse(e.toJson()).should.eql({
-        source: { "label": ["u"], "weight": 1, "position": "[1,2]" },
-        destination: { "label": { "name": ["v"] }, "weight": 1, "position": "[1,2]" },
+        source: { "name": ["u"], "weight": 1, "position": "[1,2]" },
+        destination: { "name": { "name": ["v"] }, "weight": 1, "position": "[1,2]" },
         weight: 12,
         arcControlDistance: -32,
         isDirected: true,

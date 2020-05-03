@@ -27,30 +27,30 @@ Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of 
 ```javascript
 import Vertex from '/src/graph/vertex.mjs';
 
-const v = new Vertex('vertex label', {weight: 3});
+const v = new Vertex('vertex name', {weight: 3});
 const u = new Vertex('u');
 ```
 
-Vertices in _JsGraphs_ are immutable, hence `u` and `v` above are real consts. On creation, you must add a label for the vertex, and optionally a weight: the default weight for a vertex is 1, and generally you don't have to worry about this weight, but some graph applications can use it.
+Vertices in _JsGraphs_ are immutable, hence `u` and `v` above are real consts. On creation, you must add a name for the vertex, and optionally a weight: the default weight for a vertex is 1, and generally you don't have to worry about this weight, but some graph applications can use it.
 
-A vertex's label doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson` method.
+A vertex's name doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson` method.
 
-It is possible to use the `static` method `Vertex.isValidLabel` to check if a value is a valid label:
+It is possible to use the `static` method `Vertex.isValidName` to check if a value is a valid name:
 
 ```javascript
-Vertex.isValidLabel(1);   // true
-Vertex.isValidLabel('abc');   // true
-Vertex.isValidLabel([1, 2, true, 'a']);   // true
-Vertex.isValidLabel({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
-Vertex.isValidLabel(new Vertex('test'));   // true, Vertex has a toJson() method
-Vertex.isValidLabel(new Graph());   // true!! Graph has a toJson() method
+Vertex.isValidName(1);   // true
+Vertex.isValidName('abc');   // true
+Vertex.isValidName([1, 2, true, 'a']);   // true
+Vertex.isValidName({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
+Vertex.isValidName(new Vertex('test'));   // true, Vertex has a toJson() method
+Vertex.isValidName(new Graph());   // true!! Graph has a toJson() method
 
-Vertex.isValidLabel(new Map());   // false
-Vertex.isValidLabel(new Set());   // false
-Vertex.isValidLabel(() => true));   // false, functions can't be serialized to JSON
+Vertex.isValidName(new Map());   // false
+Vertex.isValidName(new Set());   // false
+Vertex.isValidName(() => true));   // false, functions can't be serialized to JSON
 ```
 
-Existing vertices can be added to graphs: notice that it's NOT possible to add two vertices with the same label to the same graph.
+Existing vertices can be added to graphs: notice that it's NOT possible to add two vertices with the same name to the same graph.
 
 ```javascript
 let graph = new Graph();
@@ -69,7 +69,7 @@ There is also a shortcut to create those vertices directly on the graph, without
 ```javascript
 let graph = new Graph();
 
-const vId = graph.createVertex(['I', 'am', 'a', 'valid', 'label'], {weight: 3});
+const vId = graph.createVertex(['I', 'am', 'a', 'valid', 'name'], {weight: 3});
 const uId = graph.createVertex('u');
 // graph.createVertex('u) // ERROR, duplicated vertex 'u'
 ```
@@ -77,7 +77,7 @@ const uId = graph.createVertex('u');
 
 As you can see in the snippet above, `createVertex` (as well as `addVertex`) returns the ID of the vertex created (NOT a reference to the actual instance held by the graph).
 
-Each vertex, in fact, has an `id` property that uniquely identifies it in a graph: as mentioned, there can't be two vertices with the same label, so there is a 1:1 correspondence between labels and IDs. This means that the IDs of two instances of `Vertex` can clash even if they are different objects, or if they have different properties.
+Each vertex, in fact, has an `id` property that uniquely identifies it in a graph: as mentioned, there can't be two vertices with the same name, so there is a 1:1 correspondence between names and IDs. This means that the IDs of two instances of `Vertex` can clash even if they are different objects, or if they have different properties.
 
 ```javascript
 const u1 = new Vertex('u', {weight: 3});
@@ -110,7 +110,7 @@ Once you get ahold of a reference to a graph's vertex, you can read all its fiel
 
 
 >  Although having vertices as perfectly immutable entities would have been desirable, this would have had repercussions on the performance of the graph, because updating a vertex `v`'s weight would have meant replacing `v` in the graph with a new instance of `Vertex`, and also updating all the references to `v` in (potentially, up to ) all the edges in the graph.
-As a compromise, a vertex' label and id are kept immutable and impossible to change, while weight is mutable. Similar compromises will be made for embedded vertices and edges.
+As a compromise, a vertex' name and id are kept immutable and impossible to change, while weight is mutable. Similar compromises will be made for embedded vertices and edges.
 Switching to `TypeScript`, or whenever a future `EcmaScript` specification will include protected fields, would allow for more flexibility and possibly this aspect will be reviewed. For now, changing the mutable attributes of a graph's vertices and edges directly is **discouraged**: the **forward-compatible** way is going to be changing them through the `Graph` and `Embedding`'s methods.
 
 
@@ -124,7 +124,7 @@ Creating a new edge is as simple as creating a new vertex, except that we need t
 import Vertex from '/src/graph/vertex.mjs';
 import Edge from '/src/graph/edge.mjs';
 
-const v = new Vertex('vertex label', {weight: 3});
+const v = new Vertex('vertex name', {weight: 3});
 const u = new Vertex('u');
 
 const e = new Edge(u, v, {weight: 0.4, label: "I'm an edge!"});
@@ -212,7 +212,7 @@ e = g.getEdgeBetween(u.id, v);
 Last but not least, so far we have always assumed that source and destination of an edge are distinct: this doesn't necessarily need to be true. In other words, it's possible to have an edge starting from and ending to the same vertex: in this case, the edge is called a loop.
 
 ```javascript
-let loop = g.getEdgeBetween(u, u, {label: 'Loop'});
+let loop = g.createEdge(u, u, {label: 'Loop'});
 ```
 
 ![An edge and a loop](./img/tutorial/tutorial_edge_3.jpg)
@@ -246,7 +246,7 @@ let g = Graph.completeGraph(12);
 let ug = UndirectedGraph.completeGraph(12);
 ```
 
-Of course, the labels for the vertices are standard, just the numbers between 1 and n.
+Of course, the names for the vertices are standard, just the numbers between 1 and n.
 The representation of such graphs is cool for both directed and undirected ones:
 
 ![A complete directed Graph](./img/tutorial/tutorial_graph_complete_1.jpg)![A complete undirected Graph](./img/tutorial/tutorial_graph_complete_2.jpg)
@@ -284,7 +284,7 @@ let g = new Graph();
 const json = g.toJson();
 let g1 = Graph.fromJSON(json);
 ```
-This is an important property (and the reason why we restricted the type of valid labels), because it allows you to create a graph in any other platform/language, possibly run algorithms or transformations on it, and then export it to a _JSON_ file, pick it up in you web app with _JsGraphs_, and display it.
+This is an important property (and the reason why we restricted the type of valid names), because it allows you to create a graph in any other platform/language, possibly run algorithms or transformations on it, and then export it to a _JSON_ file, pick it up in you web app with _JsGraphs_, and display it.
 
 Or, vice versa, create it in JS (perhaps with an ad-hoc tool: stay tuned!), and then import it in your application written in any other language, or just store it in a **database** and retrieve it later.
 

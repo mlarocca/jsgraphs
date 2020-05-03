@@ -103,6 +103,7 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [ ] [Edge.setLabel](https://github.com/mlarocca/jsgraphs/issues/23)
 - [ ] [removeVertex()](https://github.com/mlarocca/jsgraphs/issues/20)
 - [ ] [removeEdge()](https://github.com/mlarocca/jsgraphs/issues/21)
+- [ ] Add label and data fields for vertices
 - [ ] Add options to display/hide vertex name/label
 - [ ] Union of 2 disjoint graphs
 - [ ] DFS returns all cycles found
