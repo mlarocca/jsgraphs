@@ -86,14 +86,14 @@ describe('Embedding Creation', () => {
 });
 
 describe('Attributes', () => {
-  const u = new EmbeddedVertex(['u', {true: [false]}], new Point2D(0.1, -0.2));
+  const u = new EmbeddedVertex('u', new Point2D(0.1, -0.2));
   const v = new EmbeddedVertex(1, new Point2D(1, 2));
 
   it('should create an embedding with the right entries in vertices and edges', () => {
     const e1 = new EmbeddedEdge(v, v);
     const e2 = new EmbeddedEdge(u, v);
     let emb = new Embedding([u, v], [e1, e2]);
-    [u,v].forEach(w => [...emb.vertices].some(z => w.equals(z)).should.be.true());
+    [u, v].forEach(w => [...emb.vertices].some(z => w.equals(z)).should.be.true());
     [e1, e2].forEach(e => [...emb.edges].some(e_ => e.equals(e_)).should.be.true());
   });
 });
@@ -102,8 +102,8 @@ describe('Methods', () => {
   describe('setVertexPosition()', () => {
     const p = new Point2D(-0.1, 2.5);
     const q = new Point2D(2.5, 3.14);
-    const u = new EmbeddedVertex(['u'], p);
-    const v = new EmbeddedVertex({ name: ['v', { 'deep': 43.5 }] }, q);
+    const u = new EmbeddedVertex('u', p);
+    const v = new EmbeddedVertex('v', q, { data: { 'deep': 43.5 } });
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
     const emb = new Embedding([u, v], [e]);
 
@@ -117,7 +117,7 @@ describe('Methods', () => {
       (() => emb.setVertexPosition(v, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', null));
       (() => emb.setVertexPosition(v, undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', undefined));
       (() => emb.setVertexPosition(v, 'not a point')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', 'not a point'));
-      (() => emb.setVertexPosition(v, new Point(1,2,3))).should.throw(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', new Point(1,2,3)));
+      (() => emb.setVertexPosition(v, new Point(1, 2, 3))).should.throw(ERROR_MSG_INVALID_ARGUMENT('Embedding.setVertexPosition', 'position', new Point(1, 2, 3)));
     });
 
     it('# should set the new position correctly', () => {
@@ -133,8 +133,8 @@ describe('Methods', () => {
   describe('setEdgeControlPoint()', () => {
     const p = new Point2D(-0.1, 2.5);
     const q = new Point2D(2.5, 3.14);
-    const u = new EmbeddedVertex(['u'], p);
-    const v = new EmbeddedVertex({ name: ['v', { 'deep': 43.5 }] }, q);
+    const u = new EmbeddedVertex('u', p);
+    const v = new EmbeddedVertex('v', q);
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
     const emb = new Embedding([u, v], [e]);
 
@@ -161,8 +161,8 @@ describe('Methods', () => {
 
   describe('clone()', () => {
     const point = new Point2D(-0.1, 2.5);
-    const u = new EmbeddedVertex(['u'], point);
-    const v = new EmbeddedVertex({ name: ['v', { 'deep': 43.5 }] }, point);
+    const u = new EmbeddedVertex('u', point);
+    const v = new EmbeddedVertex('v', point);
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
 
     it('# should make an exact copy', () => {
@@ -175,8 +175,8 @@ describe('Methods', () => {
 
   describe('toJson()', () => {
     const point = new Point2D(-0.1, 2.5);
-    const u = new EmbeddedVertex(['u'], point);
-    const v = new EmbeddedVertex({ name: ['v'] }, point);
+    const u = new EmbeddedVertex('u', point);
+    const v = new EmbeddedVertex('v', point);
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
 
     it('# should return a valid json', () => {
@@ -190,8 +190,8 @@ describe('Methods', () => {
 
   describe('fromJson()', () => {
     const point = new Point2D(-0.1, 2.5);
-    const u = new EmbeddedVertex(['u'], point, {weight: 4.3, label: 'test v label', data: ['1', 2, 3]});
-    const v = new EmbeddedVertex({ name: ['v'] }, point);
+    const u = new EmbeddedVertex('u', point, { weight: 4.3, label: 'test v label', data: ['1', 2, 3] });
+    const v = new EmbeddedVertex('v', point);
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
 
     it('# applyed to the result of toJson, it should match source vertex', () => {
@@ -207,8 +207,8 @@ describe('Methods', () => {
   });
 
   describe('forGraph()', () => {
-    const u = new Vertex(['u']);
-    const v = new Vertex({ name: ['v'] });
+    const u = new Vertex('u');
+    const v = new Vertex('v');
     const w = new Vertex('w');
     const e1 = new Edge(u, v, { weight: 12, label: 'edge' });
     const e2 = new Edge(w, v);
@@ -242,9 +242,9 @@ describe('Methods', () => {
     });
 
     it('# should allow passing coordinates for some or all vertices', () => {
-      const p = new Point2D(1,2);
-      const q = new Point2D(2,1);
-      let emb = Embedding.forGraph(g, {vertexCoordinates: {[u.id]: p, [w.id]: q}});
+      const p = new Point2D(1, 2);
+      const q = new Point2D(2, 1);
+      let emb = Embedding.forGraph(g, { vertexCoordinates: { [u.id]: p, [w.id]: q } });
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
         eV.name.should.eql(vertex.name);
@@ -268,7 +268,7 @@ describe('Methods', () => {
     });
 
     it('# should allow passing arc\'s control point for some or all edges', () => {
-      let emb = Embedding.forGraph(g, {edgeArcControlDistances: {[e2.id]: -91, [e3.id]: 0.101}});
+      let emb = Embedding.forGraph(g, { edgeArcControlDistances: { [e2.id]: -91, [e3.id]: 0.101 } });
       [u, v, w].forEach(vertex => {
         const eV = emb.getVertex(vertex.id);
         eV.name.should.eql(vertex.name);

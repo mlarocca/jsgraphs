@@ -3,7 +3,7 @@ import Vertex from './vertex.mjs'
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
 import { consistentStringify, isString } from '../common/strings.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_EDGE_LABEL } from '../common/errors.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
 import { isNonEmptyString } from '../common/strings.mjs';
 
 import escape from 'escape-html';
@@ -87,7 +87,7 @@ class Edge {
       label = undefined;
     }
     if (isDefined(label) && !(isString(label))) {
-      throw new TypeError(ERROR_MSG_INVALID_EDGE_LABEL('Edge()', label));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Edge()', label));
     }
 
     this.#source = source;
@@ -153,7 +153,7 @@ class Edge {
    * @return {Edge} The transposed edge.
    */
   transpose() {
-    return new Edge(this.#destination, this.#source, {weight: this.#weight, label: this.#label});
+    return new Edge(this.#destination, this.#source, { weight: this.#weight, label: this.#label });
   }
 
   toJson() {

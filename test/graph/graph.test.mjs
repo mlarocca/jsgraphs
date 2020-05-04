@@ -26,8 +26,8 @@ function createExampleGraph() {
   const v1 = g.createVertex('a random unicòde string ☺');
   const v2 = g.createVertex(1, { weight: -21 });
   const v3 = g.createVertex(-3.1415);
-  const v4 = g.createVertex({ 'what': -3 });
-  const v5 = g.createVertex([1, true, -3]);
+  const v4 = g.createVertex('{ what: -3 }', { label: 'test', data: [1, true, -3] });
+  const v5 = g.createVertex('[1, true, -3]');
 
   g.createEdge(g.getVertex(v1), g.getVertex(v2), { label: 'label', weight: -0.1e14 });
   g.createEdge(g.getVertex(v3), g.getVertex(v4), { weight: 33 });
@@ -144,7 +144,7 @@ describe('id', () => {
 });
 
 describe('createVertex()', () => {
-  const names = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
+  const names = [1, -0.000001, '65.231', 'adbfhs'];
   it('# should add all valid name types', () => {
     let g = new Graph();
     names.forEach(name => {
@@ -169,7 +169,7 @@ describe('createVertex()', () => {
 });
 
 describe('addVertex()', () => {
-  const vertices = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(v => new Vertex(v));
+  const vertices = [1, -2.3, '65.231', 'adbfhs', 'false, [], { a: 1 }'].map(v => new Vertex(v));
   it('# should add all valid name types', () => {
     let g = new Graph();
     vertices.forEach(v => {
@@ -200,7 +200,7 @@ describe('getVertexWeight', () => {
     g.getVertexWeight(Vertex.idFromName(1)).should.eql(-21);
     // defaults to 1 when not explicitly set
     g.getVertexWeight(Vertex.idFromName('a random unicòde string ☺')).should.eql(1);
-    g.getVertexWeight(Vertex.idFromName({ 'what': -3 })).should.eql(1);
+    g.getVertexWeight(Vertex.idFromName('{ what: -3 }')).should.eql(1);
   });
 
   it('# Should return undefined when the graph does not have a vertex', () => {
@@ -210,7 +210,7 @@ describe('getVertexWeight', () => {
 });
 
 describe('createEdge()', () => {
-  const names = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }];
+  const names = [1, 2.12, -5, '65.231', 'adbfhs', 'false, [], { a: x }', '{ a: [true, { false: 3.0 }] }'];
   const ids = names.map(Vertex.idFromName);
 
   it('# should add all valid name types', () => {
@@ -255,7 +255,7 @@ describe('createEdge()', () => {
 });
 
 describe('addEdge()', () => {
-  const sources = [1, '65.231', 'adbfhs', false, [], { a: 'x' }, { 'a': [true, { false: 3.0 }] }].map(lab => new Vertex(lab));
+  const sources = [1, '65.231', 'adbfhs', 'false, [], { a: x }', '{ a: [true, { false: 3.0 }] }'].map(lab => new Vertex(lab));
   it('# should add all valid name types', () => {
     let g = new Graph();
     sources.forEach(v => {
@@ -289,8 +289,8 @@ describe('getEdgeLabel', () => {
   });
 
   it('# Should return undefined when edge does not have a label', () => {
-    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName({ 'what': -3 })).should.be.true();
-    expect(g.getEdgeLabel(Vertex.idFromName(-3.1415), Vertex.idFromName({ 'what': -3 }))).to.be.undefined;
+    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.be.true();
+    expect(g.getEdgeLabel(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }'))).to.be.undefined;
   });
 
   it('# Should return undefined when edge does not exist', () => {
@@ -305,13 +305,13 @@ describe('getEdgeWeight', () => {
 
   it('# Should retrieve the right weight', () => {
     g.getEdgeWeight(Vertex.idFromName('a random unicòde string ☺'), Vertex.idFromName(1)).should.eql(-0.1e14);
-    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName({ 'what': -3 })).should.eql(33);
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.eql(33);
 
   });
 
   it('# Should default to 1 (when edge weight is not set explicitly)', () => {
-    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName([1, true, -3])).should.be.true();
-    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName([1, true, -3])).should.eql(1);
+    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.be.true();
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.eql(1);
   });
 
   it('# Should return undefined when edge does not exist', () => {
@@ -440,7 +440,7 @@ describe('toJson()', () => {
     let v1 = g.createVertex('abc');
     let v2 = g.createVertex(1);
     let v3 = g.createVertex(3.1415);
-    let v4 = g.createVertex({ 'what': -3 });
+    let v4 = g.createVertex('{ "what": -3 }');
 
     g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
     g.createEdge(v3, v4, { weight: 33 });
@@ -448,10 +448,10 @@ describe('toJson()', () => {
     expect(() => JSON.parse(g.toJson())).not.to.throw();
     JSON.parse(g.toJson()).should.eql(
       {
-        vertices: [{ name: "abc", weight: 1 }, { name: 1, weight: 1 }, { name: 3.1415, weight: 1 }, { name: { what: -3 }, weight: 1 }],
+        vertices: [{ name: "abc", weight: 1 }, { name: '{ "what": -3 }', weight: 1 }, { name: 1, weight: 1 }, { name: 3.1415, weight: 1 }],
         edges: [
           { source: { name: "abc", weight: 1 }, destination: { name: 1, weight: 1 }, label: "label", weight: -10000000000000 },
-          { source: { name: 3.1415, weight: 1 }, destination: { name: { what: -3 }, weight: 1 }, weight: 33 }]
+          { source: { name: 3.1415, weight: 1 }, destination: { name: '{ "what": -3 }', weight: 1 }, weight: 33 }]
       });
   });
 });
@@ -465,20 +465,18 @@ describe('clone()', () => {
   it('# modifying deep clones should not affect originals', () => {
     let g = new Graph();
 
-    let name1 = { 'what': -3 };
-    let name2 = [1, true, -3];
+    let name1 = 1;
+    let name2 = 2.12;
     let v1 = g.createVertex(name1);
     let v2 = g.createVertex(name2);
 
     g.createEdge(v1, v2);
     let g1 = g.clone();
 
-    name1['new'] = true;
+    g.getVertex(v1).data = [];
 
-    g.hasVertex(Vertex.idFromName(name1)).should.be.false();
-    g1.hasVertex(Vertex.idFromName(name1)).should.be.false();
-    g.hasVertex(Vertex.idFromName({ 'what': -3 })).should.be.true();
-    g1.hasVertex(Vertex.idFromName({ 'what': -3 })).should.be.true();
+    expect(g1.getVertex(v1).data).to.be.undefined;
+    g1.equals(g).should.be.false();
   });
 });
 
@@ -487,7 +485,7 @@ describe('fromJsonObject()', () => {
   const v1 = g.createVertex('abc');
   const v2 = g.createVertex(1);
   const v3 = g.createVertex(3.1415);
-  const v4 = g.createVertex({ 'what': -3 }, {weight: 3, label: 'v', data: { 'what': -3 }});
+  const v4 = g.createVertex('{ what: -3 }', { weight: 3, label: 'v', data: { 'what': -3 } });
 
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });
@@ -501,9 +499,9 @@ describe('fromJsonObject()', () => {
 describe('fromJson()', () => {
   const g = new Graph();
   const v1 = g.createVertex('abc');
-  const v2 = g.createVertex({ 'a': [true, { false: 3.0 }] });
+  const v2 = g.createVertex('a', { data: [true, { false: 3.0 }], weight: 2.6, label: 'unicode test ♥' });
   const v3 = g.createVertex(3.1415);
-  const v4 = g.createVertex({ 'what': -3 });
+  const v4 = g.createVertex('{ what: -3 }');
 
   g.createEdge(v1, v2, { label: 'label', weight: -0.1e14 });
   g.createEdge(v3, v4, { weight: 33 });

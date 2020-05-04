@@ -3,7 +3,7 @@ import 'mjs-mocha';
 import Vertex from '../../src/graph/vertex.mjs';
 
 import { choose } from '../../src/common/array.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../src/common/errors.mjs'
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_DATA, ERROR_MSG_INVALID_LABEL, ERROR_MSG_INVALID_NAME } from '../../src/common/errors.mjs'
 import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 
 import chai from "chai";
@@ -36,21 +36,24 @@ describe('Vertex Creation', () => {
         (() => new Vertex(undefined)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', undefined));
       });
 
-      it('should throw when name is not convetible to JSON', () => {
-        (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
-        (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
+      it('should not throw when name is a string or a number', () => {
+        (() => new Vertex(3)).should.not.throw();
+        (() => new Vertex(-0.3123)).should.not.throw();
+        (() => new Vertex('2')).should.not.throw();
+        (() => new Vertex('abc def')).should.not.throw();
+        (() => new Vertex('unicode ☺♥')).should.not.throw();
       });
 
-      it('should NOT throw with other types', () => {
-        (() => new Vertex(3)).should.not.throw();
-        (() => new Vertex('2')).should.not.throw();
-        (() => new Vertex([])).should.not.throw();
-        (() => new Vertex({})).should.not.throw();
-        (() => new Vertex(false)).should.not.throw();
+      it('should throw with other types', () => {
+        (() => new Vertex([])).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', []));
+        (() => new Vertex({})).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', {}));
+        (() => new Vertex(false)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', false));
+        (() => new Vertex(new Map())).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', new Map()));
+        (() => new Vertex(new Set())).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', new Set()));
       });
     });
 
-    describe('# 2nd argument (optional)', () => {
+    describe('# weight (optional)', () => {
       it('should default to weight=1', () => {
         new Vertex(2).weight.should.eql(1);
       });
@@ -74,12 +77,33 @@ describe('Vertex Creation', () => {
         (() => new Vertex(1, { weight: '-1.5e7' })).should.not.throw();
       });
     });
+
+    describe('# data (optional)', () => {
+      it('should not throw when data  is null or undefined', () => {
+        (() => new Vertex('x', { data: null })).should.not.throw();
+        (() => new Vertex('v')).should.not.throw();
+      });
+
+      it('should throw when data is not convetible to JSON', () => {
+        (() => new Vertex(1, { data: new Map() })).should.throw(ERROR_MSG_INVALID_DATA('Vertex()', new Map()));
+        (() => new Vertex('1', { data: new Set() })).should.throw(ERROR_MSG_INVALID_DATA('Vertex()', new Set()));
+      });
+
+      it('should NOT throw with serializable types', () => {
+        (() => new Vertex(1, { data: 3 })).should.not.throw();
+        (() => new Vertex(2, { data: '2' })).should.not.throw();
+        (() => new Vertex(3, { data: [] })).should.not.throw();
+        (() => new Vertex(4, { data: {} })).should.not.throw();
+        (() => new Vertex(5, { data: false })).should.not.throw();
+      });
+    });
   });
 });
 
 
 describe('Attributes', () => {
-  const names = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
+  const names = [1, -2, 0.31415, '65.231', 'adbfhs'];
+  const data = [1, '65.231', 'adbfhs', false, [], { a: 'x' }];
 
   describe('name', () => {
     it('# should return the correct value for name', () => {
@@ -102,14 +126,14 @@ describe('Attributes', () => {
 
   describe('label', () => {
     it('# should be undefined when not set', () => {
-      const v = new Vertex('v', {weight: 2, data: ['data']});
+      const v = new Vertex('v', { weight: 2, data: ['data'] });
       v.hasLabel().should.be.false();
       expect(v.label).to.be.undefined;
     });
 
     it('# should return the correct value for data when defined', () => {
       ['a', 'test label', 'unicode ☺'].forEach(label => {
-        const v = new Vertex('v', {label: label});
+        const v = new Vertex('v', { label: label });
         v.hasLabel().should.be.true();
         v.label.should.eql(label);
       });
@@ -126,14 +150,14 @@ describe('Attributes', () => {
 
   describe('data', () => {
     it('# should be undefined when not set', () => {
-      const v = new Vertex('v', {weight: 2, label: 'lab'});
+      const v = new Vertex('v', { weight: 2, label: 'lab' });
       v.hasData().should.be.false();
       expect(v.data).to.be.undefined;
     });
 
     it('# should return the correct value for data when defined', () => {
-      names.forEach(data => {
-        let v = new Vertex('v', {data: data});
+      data.forEach(data => {
+        let v = new Vertex('v', { data: data });
         v.hasData().should.be.true();
         v.data.should.eql(data);
       });
@@ -143,7 +167,7 @@ describe('Attributes', () => {
       const v = new Vertex('v');
       v.hasData().should.be.false();
       expect(v.data).to.be.undefined;
-      names.forEach(data => {
+      data.forEach(data => {
         v.data = data;
         v.hasData().should.be.true();
         v.data.should.eql(data);
@@ -154,7 +178,6 @@ describe('Attributes', () => {
 
 describe('Methods', () => {
   const vertexNames = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
-  const edgeNames = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
 
   describe('equals()', () => {
     it('# should return true if two edges are equals in all their fields', () => {
@@ -205,7 +228,7 @@ describe('Methods', () => {
     });
 
     it('# changing the cloned instance should not affect the original', () => {
-      let v = new Vertex({ 'test': 1 }, { weight: -3 });
+      let v = new Vertex('test', { weight: -3 });
       let w = v.clone();
       v.name.should.eql(w.name);
       v.weight.should.eql(w.weight);
@@ -218,7 +241,6 @@ describe('Methods', () => {
 
   describe('toJson()', () => {
     it('# should return a valid json', () => {
-      Vertex.isValidName(new Vertex('test')).should.be.true();
       vertexNames.forEach(name => {
         let v = new Vertex(name, { weight: Math.random() });
         expect(() => JSON.parse(v.toJson())).not.to.throw();
@@ -226,10 +248,10 @@ describe('Methods', () => {
     });
 
     it('# should stringify the fields consistently and deep-stringify all the fields', () => {
-      let v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: 3.14 });
-      v.toJson().should.eql('{"name":{"test":["abc",1,3]},"weight":3.14}');
-      v = new Vertex({ 'test': ['abc', 1, 3] }, { weight: -3.14, data: ['123', 'a'], label: "test" });
-      JSON.parse(v.toJson()).should.eql({ "name": { "test": ["abc", 1, 3] }, "weight": -3.14, label: "test", data: ['123', 'a'] });
+      let v = new Vertex(0, { weight: 3.14 });
+      v.toJson().should.eql('{"name":0,"weight":3.14}');
+      v = new Vertex('v', { weight: -3.14, data: ['123', 'a'], label: "test" });
+      JSON.parse(v.toJson()).should.eql({ "name": 'v', "weight": -3.14, label: "test", data: ['123', 'a'] });
     });
   });
 

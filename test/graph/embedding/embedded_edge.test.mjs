@@ -147,9 +147,9 @@ describe('Attributes', () => {
 
 describe('Methods', () => {
   const point = new Point2D(1, 2);
-  const u = new EmbeddedVertex(['u'], point);
-  const v = new EmbeddedVertex({ name: ['v'] }, point);
-  const w = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
+  const u = new EmbeddedVertex('u', point);
+  const v = new EmbeddedVertex('v', point);
+  const w = new EmbeddedVertex('w', new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
 
   describe('clone()', () => {
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
@@ -175,8 +175,8 @@ describe('Methods', () => {
     it('# should return a valid json', () => {
       const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
       JSON.parse(e.toJson()).should.eql({
-        source: { "name": ["u"], "weight": 1, "position": "[1,2]" },
-        destination: { "name": { "name": ["v"] }, "weight": 1, "position": "[1,2]" },
+        source: { "name": "u", "weight": 1, "position": "[1,2]" },
+        destination: { "name": "v", "weight": 1, "position": "[1,2]" },
         weight: 12,
         arcControlDistance: -32,
         isDirected: true,

@@ -4,7 +4,7 @@ import Point from '../../../src/geometric/point.mjs';
 import Point2D from '../../../src/geometric/point2d.mjs';
 
 import { testAPI, testStaticAPI } from '../../utils/test_common.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../../../src/common/errors.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_NAME } from '../../../src/common/errors.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
@@ -39,17 +39,19 @@ describe('EmbeddedVertex Creation', () => {
         (() => new EmbeddedVertex(undefined, point)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', undefined));
       });
 
-      it('should throw when name is not convetible to JSON', () => {
-        (() => new EmbeddedVertex(new Map(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Map()));
-        (() => new EmbeddedVertex(new Set(), point)).should.throw(ERROR_MSG_INVALID_LABEL('Vertex()', new Set()));
+      it('should throw when name is not a string or a number', () => {
+        (() => new EmbeddedVertex(false, point)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', false));
+        (() => new EmbeddedVertex({}, point)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', {}));
+        (() => new EmbeddedVertex([], point)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', []));
+        (() => new EmbeddedVertex(new Map(), point)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', new Map()));
+        (() => new EmbeddedVertex(new Set(), point)).should.throw(ERROR_MSG_INVALID_NAME('Vertex()', new Set()));
       });
 
-      it('should NOT throw with other types', () => {
+      it('should NOT throw with stringa nd numbers', () => {
         (() => new EmbeddedVertex(3, point)).should.not.throw();
+        (() => new EmbeddedVertex(-0.123, point)).should.not.throw();
         (() => new EmbeddedVertex('2', point)).should.not.throw();
-        (() => new EmbeddedVertex([], point)).should.not.throw();
-        (() => new EmbeddedVertex({}, point)).should.not.throw();
-        (() => new EmbeddedVertex(false, point)).should.not.throw();
+        (() => new EmbeddedVertex('test 2', point)).should.not.throw();
       });
     });
 
@@ -71,7 +73,7 @@ describe('EmbeddedVertex Creation', () => {
       });
     });
 
-    describe('# 3rd argument (optional)', () => {
+    describe('# weight (optional)', () => {
       it('should default to weight=1', () => {
         new EmbeddedVertex(2, point).weight.should.eql(1);
       });
@@ -133,7 +135,7 @@ describe('Methods', () => {
   });
 
   describe('fromJson()', () => {
-    const v = new EmbeddedVertex(['test', {'test': true}], new Point2D(2.5, 0.12345), { weight: 1.50 });
+    const v = new EmbeddedVertex('v', new Point2D(2.5, 0.12345), { weight: 1.50 });
     it('# applyed to the result of toJson, it should match source vertex', () => {
       const u = EmbeddedVertex.fromJson(v.toJson());
       u.equals(v).should.be.true();
@@ -143,7 +145,7 @@ describe('Methods', () => {
 
   describe('toSvg()', () => {
     it('# should return a valid svg', () => {
-      let vertex = new EmbeddedVertex("test", new Point2D(10, 10), { weight: 10 });
+      let vertex = new EmbeddedVertex('test', new Point2D(10, 10), { weight: 10 });
       console.log(vertex.toSvg());
     });
   });
