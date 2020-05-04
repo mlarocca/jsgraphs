@@ -39,24 +39,34 @@ On creation, you must add a name for the vertex, and optionally you can include:
 - A label: an optional string that can be changed over time and used to convey non-identifying, mutable info about the vertex.
 - Data: this is the most generic field for a vertex, it can include any serializable object, even another graph: this way, for instance, it's possible to create meta-graphs (graphs where each vertex is another graph) and run specific algorithms where whenever a vertex is visited, the graph it holds is also traversed (one example could be the graph of strongly connected components: breaking G into its SCCs, and then representing it with a new meta-graph, the SCC graph, whose vertices hold the actual components).
 
-A vertex's name doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson` method.
+A vertex's name can either be a string or a number: any other type will be considered invalid.
 
 It is possible to use the `static` method `Vertex.isValidName` to check if a value is a valid name:
 
 ```javascript
 Vertex.isValidName(1);   // true
 Vertex.isValidName('abc');   // true
-Vertex.isValidName([1, 2, true, 'a']);   // true
-Vertex.isValidName({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
-Vertex.isValidName(new Vertex('test'));   // true, Vertex has a toJson() method
-Vertex.isValidName(new Graph());   // true!! Graph has a toJson() method
-
+Vertex.isValidName([1, 2, true, 'a']);   // false
+Vertex.isValidName({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // false
 Vertex.isValidName(new Map());   // false
-Vertex.isValidName(new Set());   // false
-Vertex.isValidName(() => true));   // false, functions can't be serialized to JSON
+Vertex.isValidName(new Vertex('test'));   // false
 ```
 
-Likewise, there are methods `Vertex.isValidLabel` and `Vertex.isValidData`.
+Likewise, there are methods `Vertex.isValidLabel` and `Vertex.isValidData`. Labels must be strings (they are optional, so `null` and `undefined` are accepted to encode the absence of a value, and the empty string is also a valid label).
+Data, instead, doesn't have to be a string, it can be any object that can be serialized to the `JSON` format: strings, numbers, arrays, plain JS objects, or custom objects that have a `toJson()` method.
+
+```javascript
+Vertex.isValidData(1);   // true
+Vertex.isValidData('abc');   // true
+Vertex.isValidData([1, 2, true, 'a']);   // true
+Vertex.isValidData({a: [1, 2, 3], b: {x: -1, y: 0.5}});   // true
+Vertex.isValidData(new Vertex('test'));   // true, Vertex has a toJson() method
+Vertex.isValidData(new Graph());   // true!! Graph has a toJson() method
+
+Vertex.isValidData(new Map());   // false
+Vertex.isValidData(new Set());   // false
+Vertex.isValidData(() => true));   // false, functions can't be serialized to JSON
+```
 
 Existing vertices can be added to graphs: notice that it's NOT possible to add two vertices with the same name to the same graph.
 

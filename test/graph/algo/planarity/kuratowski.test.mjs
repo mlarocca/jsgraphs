@@ -69,7 +69,7 @@ describe('Kuratowski\' planarity test', () => {
     for (let j = 0; j < numEdges; j++) {
       let v = randomInt(0, numVertices);
       let u = randomInt(0, numVertices);
-      g.createEdge(Vertex.idFromLabel(u), Vertex.idFromLabel(v), { weight: Math.random() });
+      g.createEdge(Vertex.idFromName(u), Vertex.idFromName(v), { weight: Math.random() });
     }
 
     isPlanar(g).should.be.true();

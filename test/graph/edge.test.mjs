@@ -71,7 +71,7 @@ describe('Edge Creation', () => {
 
     describe('# 3rd argument (optional)', () => {
       const u = new Vertex('u');
-      const v = new Vertex(['v']);
+      const v = new Vertex('v');
       it('should default to weight=1', () => {
         new Edge(u, v).weight.should.eql(1);
       });
@@ -98,8 +98,8 @@ describe('Edge Creation', () => {
     });
 
     describe('# 4th argument (optional)', () => {
-      const u = new Vertex({ 1: 'u' });
-      const v = new Vertex([false]);
+      const u = new Vertex(1);
+      const v = new Vertex(2);
 
       it('should default to label=undefined', () => {
         expect(new Edge(u, v).label).to.be.undefined;
@@ -128,7 +128,7 @@ describe('Edge Creation', () => {
 });
 
 describe('Attributes', () => {
-  let destinations, sources = destinations = [1, '65.231', 'adbfhs', false, [], { a: 'x' }].map(name => new Vertex(name));
+  let destinations, sources = destinations = [1, -3.14, '65.231', 'adbfhs', 'test 2'].map(name => new Vertex(name));
 
   describe('source', () => {
     it('# should return the correct value for source', () => {
@@ -202,8 +202,8 @@ describe('Attributes', () => {
 });
 
 describe('Methods', () => {
-  const u = new Vertex({ 1: 'u' });
-  const v = new Vertex([false]);
+  const u = new Vertex('u');
+  const v = new Vertex('v');
   const sources = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'].map(name => new Vertex(name));
   const labels = ['', '1', '-1e14', 'test n° 1', 'unicode ☻'];
   const weights = [0, 1, -1, 3.1415, -2133, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, -13.12, '1', '-1e14'];
@@ -241,7 +241,7 @@ describe('Methods', () => {
   });
 
   describe('isLoop()', () => {
-    const sources = [1, '1', 'fdfd', true, [1, 2, 3], { 1: 2 }].map(name => new Vertex(name));
+    const sources = [1, -5.1, '1', 'fdfd'].map(name => new Vertex(name));
     it('# should return true if source and destination are the same value (and reference)', () => {
       sources.forEach(s => {
         const e = new Edge(s, s);
@@ -254,27 +254,6 @@ describe('Methods', () => {
         const e = new Edge(s, new Vertex('xyz'));
         e.isLoop().should.be.false();
       });
-    });
-
-    it('# should NOT use reference equality', () => {
-      let e = new Edge(new Vertex([1, 4, 65]), new Vertex([1, 4, 65]));
-      e.isLoop().should.be.true();
-      e = new Edge(new Vertex([1, 4, 65]), new Vertex([65, 1, 4]));
-      e.isLoop().should.be.false();
-      e = new Edge(new Vertex({ a: 1 }), new Vertex({ a: 1 }));
-      e.isLoop().should.be.true();
-      e = new Edge(new Vertex({ a: [1, 2, 3] }), new Vertex({ a: [1, 2, 3] }));
-      e.isLoop().should.be.true();
-    });
-
-    it('# should do deep comparison', () => {
-      const s = new Vertex({ a: 3, b: { c: [1, 2, 3], d: [1] } });
-      let d = new Vertex({ a: 3, b: { c: [1, 2, 3], d: [1] } });
-      let e = new Edge(s, d);
-      e.isLoop().should.be.true();
-      d = new Vertex({ a: 3, b: { c: [1, 2, 3, 4], d: [true, false] } });
-      e = new Edge(s, d);
-      e.isLoop().should.be.false();
     });
   });
 
@@ -379,8 +358,8 @@ describe('Methods', () => {
 
     it('# changing the cloned instance should not affect the original', () => {
       const e1 = new Edge(
-        new Vertex([1, 2, { 3: '3' }], { weight: -1 }),
-        new Vertex({ 'a': [true, { false: 3.0 }] }, { weight: 2 }),
+        new Vertex(1, { data: [1] }),
+        new Vertex(2, { weight: 2 }),
         {
           label: choose(labels), weight: Math.random()
         });
@@ -391,11 +370,11 @@ describe('Methods', () => {
       e1.equals(e3).should.be.true();
       e3.equals(e2).should.be.true();
 
-      e2.source.weight = 3.14;
+      e2.source.data.push(2);
       e1.equals(e2).should.be.false();
       e1.equals(e3).should.be.true();
-      e1.source.weight.should.not.eql(e2.source.weight);
-      e1.source.weight.should.eql(e3.source.weight);
+      e1.source.data.should.not.eql(e2.source.data);
+      e1.source.data.should.eql(e3.source.data);
 
       e3.destination.weight = 0.01;
       e1.equals(e3).should.be.false();
@@ -427,12 +406,12 @@ describe('Methods', () => {
     });
 
     it('# should deep-stringify all the fields', () => {
-      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] });
-      const dest = new Vertex([1, 2, 3, [4, 5, 6]]);
+      const source = new Vertex(0);
+      const dest = new Vertex('[1, 2, 3, [4, 5, 6]]');
       const label = "undefined label"
       const weight = 1.1e4;
       const e = new Edge(source, dest, { label: label, weight: weight });
-      e.toJson().should.eql('{"destination":{"name":[1,2,3,[4,5,6]],"weight":1},"label":"undefined label","source":{"name":{"a":1,"b":[{"c":"cLab"},4]},"weight":1},"weight":11000}');
+      e.toJson().should.eql('{"destination":{"name":"[1, 2, 3, [4, 5, 6]]","weight":1},"label":"undefined label","source":{"name":0,"weight":1},"weight":11000}');
     });
   });
 
@@ -443,8 +422,8 @@ describe('Methods', () => {
     });
 
     it('# should deep-parse all the fields', () => {
-      const source = new Vertex({ a: 1, b: [{ c: 'cLab' }, 4] }, {weight: 2, label: 'v label', data: { a: 1, b: [{ c: 'cLab' }, 4] }});
-      const dest = new Vertex([1, 2, 3, [4, 5, 6]]);
+      const source = new Vertex('s', { weight: 2, label: 'v label', data: { a: 1, b: [{ c: 'cLab' }, 4] } });
+      const dest = new Vertex('[1, 2, 3, [4, 5, 6]]');
       const label = "label";
       const weight = 1.1e4;
       const e = new Edge(source, dest, { label: label, weight: weight });

@@ -23,8 +23,9 @@ export const ERROR_MSG_RANGE_TOO_LARGE = (fname, a, b) => `Illegal argument for 
 export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for randomString: length = ${val} must be a non-negative SafeInteger`;
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
 // graph
-export const ERROR_MSG_INVALID_LABEL = (fname, val) => `Invalid label in method ${fname}: ${val} is not JSON-serializable`;
-export const ERROR_MSG_INVALID_EDGE_LABEL = (fname, val) => `Invalid label in method ${fname}: ${val}. Edge labels must be strings.`;
+export const ERROR_MSG_INVALID_NAME = (fname, val) => `Invalid name in method ${fname}: ${val}. Only strings and numbers are allowed.`;
+export const ERROR_MSG_INVALID_DATA = (fname, val) => `Invalid data in method ${fname}: ${val} is not JSON-serializable`;
+export const ERROR_MSG_INVALID_LABEL = (fname, val) => `Invalid label in method ${fname}: ${val}. Labels must be strings.`;
 export const ERROR_MSG_EDGE_NOT_FOUND = (fname, val) => `Illegal parameter for ${fname}: Edge ${val} not in graph`;
 export const ERROR_MSG_VERTEX_NOT_FOUND = (fname, val) => `Illegal parameter for ${fname}: Vertex ${val} not in graph`;
 export const ERROR_MSG_VERTEX_DUPLICATED = (fname, val) => `Illegal argument for  ${fname}: v = ${val}: is already in the graph.`;

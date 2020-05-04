@@ -1,7 +1,7 @@
 import { isDefined } from '../common/basic.mjs';
 import { isNumber, toNumber } from '../common/numbers.mjs';
-import { consistentStringify, isJsonStringifiable, isString } from '../common/strings.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
+import { consistentStringify, isJsonStringifiable, isString, isNonEmptyString } from '../common/strings.mjs';
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_DATA, ERROR_MSG_INVALID_LABEL, ERROR_MSG_INVALID_NAME } from '../common/errors.mjs';
 
 import rfdc from 'rfdc';
 import escape from 'escape-html';
@@ -38,7 +38,7 @@ class Vertex {
   #data
 
   static isValidName(name) {
-    return isJsonStringifiable(name);
+    return isNonEmptyString(name) || isNumber(name);
   }
 
   static isValidData(data) {
@@ -78,23 +78,23 @@ class Vertex {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'name', name));
     }
     if (!Vertex.isValidName(name)) {
-      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', name));
+      throw new TypeError(ERROR_MSG_INVALID_NAME('Vertex()', name));
     }
     if (!isNumber(weight)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'weight', weight));
     }
     if (isDefined(label) && !Vertex.isValidLabel(label)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'label', label));
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Vertex()', label));
     }
     if (isDefined(data) && !Vertex.isValidData(data)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Vertex()', 'data', data));
+      throw new TypeError(ERROR_MSG_INVALID_DATA('Vertex()', data));
     }
 
     // Deep clone name
-    this.#name = deepClone(name);
+    this.#name = name;
     this.#weight = toNumber(weight);
     this.#label = label;
-    this.#data = data;
+    this.#data = deepClone(data);
   }
 
   get name() {
@@ -197,7 +197,7 @@ class Vertex {
    *
    */
   clone() {
-    return new Vertex(this.name, { weight: this.weight, data: this.data, label: this.label});
+    return new Vertex(this.name, { weight: this.weight, data: this.data, label: this.label });
   }
 }
 
