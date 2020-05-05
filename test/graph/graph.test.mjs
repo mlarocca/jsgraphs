@@ -7,7 +7,7 @@ import DfsResult from '../../src/graph/algo/dfs.mjs';
 
 import { choose } from '../../src/common/array.mjs';
 import { randomInt } from '../../src/common/numbers.mjs';
-import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
+import { ERROR_MSG_INVALID_ARGUMENT, ERROR_MSG_INVALID_DATA, ERROR_MSG_INVALID_LABEL, ERROR_MSG_VERTEX_DUPLICATED, ERROR_MSG_VERTEX_NOT_FOUND, ERROR_MSG_EDGE_NOT_FOUND } from '../../src/common/errors.mjs'
 
 import { range } from '../../src/common/numbers.mjs';
 import { isObject } from '../../src/common/basic.mjs';
@@ -74,7 +74,8 @@ describe('Graph API', () => {
   it('# Object\'s interface should be complete', () => {
     let edge = new Graph();
     let methods = ['constructor', 'equals', 'clone', 'isDirected', 'isEmpty', 'toString', 'toJson', 'toJsonObject',
-      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexWeight', 'getVertexOutDegree', 'setVertexWeight',
+      'createVertex', 'addVertex', 'hasVertex', 'getVertex', 'getVertexOutDegree', 'getVertexWeight', 'setVertexWeight',
+      'getVertexLabel', 'setVertexLabel', 'getVertexData', 'setVertexData',
       'createEdge', 'addEdge', 'hasEdge', 'hasEdgeBetween', 'getEdge', 'getEdgeBetween', 'getEdgesFrom', 'getEdgesInPath',
       'getEdgeLabel', 'getEdgeWeight', 'setEdgeWeight',
       'isAcyclic', 'isConnected', 'isStronglyConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
@@ -203,9 +204,129 @@ describe('getVertexWeight', () => {
     g.getVertexWeight(Vertex.idFromName('{ what: -3 }')).should.eql(1);
   });
 
-  it('# Should return undefined when the graph does not have a vertex', () => {
-    expect(g.getVertexWeight('not here')).to.be.undefined;
-    expect(g.getVertexWeight(2)).to.be.undefined;
+  it('# Should throw when the graph does not have a vertex', () => {
+    (() => g.getVertexWeight('not here')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexWeight', 'not here'));
+    (() => g.getVertexWeight(2)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexWeight', 2));
+  });
+});
+
+describe('setVertexWeight', () => {
+  let g;
+
+  beforeEach(() => {
+    g = createExampleGraph();
+  });
+
+  it('# Should set weight correctly', () => {
+    const vId = Vertex.idFromName(1);
+    g.getVertexWeight(vId).should.eql(-21);
+    g.setVertexWeight(vId, 0);
+    g.getVertexWeight(vId).should.eql(0);
+    g.setVertexWeight(vId, 2.51);
+    g.getVertexWeight(vId).should.eql(2.51);
+  });
+
+  it('# Should throw when the value is not valid', () => {
+    const vId = Vertex.idFromName(1);
+    (() => g.setVertexWeight(vId)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', undefined));
+    (() => g.setVertexWeight(vId, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', null));
+    (() => g.setVertexWeight(vId, 'test')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setVertexWeight', 'weight', 'test'));
+  });
+
+  it('# Should throw when the vertex is not in the graph', () => {
+    (() => g.setVertexWeight('not here', 10)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', 'not here'));
+  });
+});
+
+describe('getVertexLabel', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right weight', () => {
+    g.getVertexLabel(Vertex.idFromName('{ what: -3 }')).should.eql('test');
+  });
+
+  it('# Should throw when the graph does not have a vertex', () => {
+    (() => g.getVertexLabel('not here')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexLabel', 'not here'));
+    (() => g.getVertexLabel(2)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexLabel', 2));
+  });
+});
+
+describe('setVertexLabel', () => {
+  let g;
+
+  beforeEach(() => {
+    g = createExampleGraph();
+  });
+
+  it('# Should set label correctly', () => {
+    const vId = Vertex.idFromName('{ what: -3 }');
+    g.getVertexLabel(vId).should.eql('test');
+    g.setVertexLabel(vId, 'new test');
+    g.getVertexLabel(vId).should.eql('new test');
+    g.setVertexLabel(vId, 'unicode is fine ♥');
+    g.getVertexLabel(vId).should.eql('unicode is fine ♥');
+  });
+
+  it('# Should allow to set label to null, undefined or the empty string', () => {
+    const vId = Vertex.idFromName('{ what: -3 }');
+    (() => g.setVertexLabel(vId)).should.not.throw();
+    (() => g.setVertexLabel(vId, null)).should.not.throw();
+    (() => g.setVertexLabel(vId, '')).should.not.throw();
+  });
+
+  it('# Should throw when the label is not valid', () => {
+    const vId = Vertex.idFromName(1);
+    (() => g.setVertexLabel(vId, 1.1)).should.throw(ERROR_MSG_INVALID_LABEL('Graph.setVertexLabel', 1.1));
+  });
+
+  it('# Should throw when the vertex is not in the graph', () => {
+    (() => g.setVertexLabel('not here', '10')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexLabel', 'not here'));
+  });
+});
+
+describe('getVertexData', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right data', () => {
+    g.getVertexData(Vertex.idFromName('{ what: -3 }')).should.eql([1, true, -3]);
+  });
+
+  it('# Should throw when the graph does not have a vertex', () => {
+    (() => g.getVertexData('not here')).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexData', 'not here'));
+    (() => g.getVertexData(2)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.getVertexData', 2));
+  });
+});
+
+describe('setVertexData', () => {
+  let g;
+
+  beforeEach(() => {
+    g = createExampleGraph();
+  });
+
+  it('# Should set data correctly', () => {
+    const vId = Vertex.idFromName('{ what: -3 }');
+    g.getVertexData(vId).should.eql([1, true, -3]);
+    g.setVertexData(vId, 'new test');
+    g.getVertexData(vId).should.eql('new test');
+    g.setVertexData(vId, { test: 1, prova: [1, 2, 3] });
+    g.getVertexData(vId).should.eql({ test: 1, prova: [1, 2, 3] });
+  });
+
+  it('# Should allow to set data to null or undefined', () => {
+    const vId = Vertex.idFromName('{ what: -3 }');
+    (() => g.setVertexData(vId)).should.not.throw();
+    (() => g.setVertexData(vId, null)).should.not.throw();
+  });
+
+  it('# Should throw when the data is not valid', () => {
+    const vId = Vertex.idFromName(1);
+    (() => g.setVertexData(vId, new Map())).should.throw(ERROR_MSG_INVALID_DATA('Graph.setVertexData', new Map()));
+    (() => g.setVertexData(vId, new Set())).should.throw(ERROR_MSG_INVALID_DATA('Graph.setVertexData', new Set()));
+  });
+
+  it('# Should throw when the vertex is not in the graph', () => {
+    (() => g.setVertexData('not here', 10)).should.throw(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexData', 'not here'));
   });
 });
 
@@ -300,27 +421,6 @@ describe('getEdgeLabel', () => {
   });
 });
 
-describe('getEdgeWeight', () => {
-  const g = createExampleGraph();
-
-  it('# Should retrieve the right weight', () => {
-    g.getEdgeWeight(Vertex.idFromName('a random unicòde string ☺'), Vertex.idFromName(1)).should.eql(-0.1e14);
-    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.eql(33);
-
-  });
-
-  it('# Should default to 1 (when edge weight is not set explicitly)', () => {
-    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.be.true();
-    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.eql(1);
-  });
-
-  it('# Should return undefined when edge does not exist', () => {
-    expect(g.getEdgeWeight(1, 'a random unicòde string ☺')).to.be.undefined;
-    expect(g.getEdgeWeight('not in graph', 1)).to.be.undefined;
-    expect(g.getEdgeWeight(3, 2)).to.be.undefined;
-  });
-});
-
 describe('getEdgesInPath()', () => {
   let g = new Graph();
 
@@ -380,6 +480,48 @@ describe('getEdgesInPath()', () => {
     path.every(e => e instanceof Edge).should.be.true();
     path[0].source.id.should.eql('"6"');
     path[0].destination.id.should.eql('"7"');
+  });
+});
+
+describe('getEdgeWeight', () => {
+  const g = createExampleGraph();
+
+  it('# Should retrieve the right weight', () => {
+    g.getEdgeWeight(Vertex.idFromName('a random unicòde string ☺'), Vertex.idFromName(1)).should.eql(-0.1e14);
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.eql(33);
+  });
+
+  it('# Should default to 1 (when edge weight is not set explicitly)', () => {
+    g.hasEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.be.true();
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('[1, true, -3]')).should.eql(1);
+  });
+
+  it('# Should throw when edge does not exist', () => {
+    (() => g.getEdgeWeight(1, 'a random unicòde string ☺')).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgeWeight', `${1} -> ${'a random unicòde string ☺'}`));
+    (() => g.getEdgeWeight('not in graph', 1)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgeWeight', `${'not in graph'} -> ${1}`));
+    (() => g.getEdgeWeight(3, 2)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgeWeight', `${3} -> ${2}`));
+  });
+});
+
+describe('setEdgeWeight', () => {
+  const g = createExampleGraph();
+
+  it('# Should set the right weight', () => {
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.eql(33);
+    g.setEdgeWeight(g.getEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')), 0);
+    g.getEdgeWeight(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }')).should.eql(0);
+  });
+
+  it('# Should throw when an invalid value is passed', () => {
+    const e = g.getEdgeBetween(Vertex.idFromName(-3.1415), Vertex.idFromName('{ what: -3 }'));
+    (() => g.setEdgeWeight(e)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', undefined));
+    (() => g.setEdgeWeight(e, null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', null));
+    (() => g.setEdgeWeight(e, 'a')).should.throw(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', 'a'));
+  });
+
+  it('# Should throw when the edge is not in the graph', () => {
+    const e = new Edge(new Vertex(-3.1415), new Vertex('any vertex not in the graph'));
+    (() => g.setEdgeWeight(e, 1)).should.throw(ERROR_MSG_EDGE_NOT_FOUND('Graph.setEdgeWeight', e));
   });
 });
 
@@ -509,7 +651,7 @@ describe('fromJson()', () => {
 
   it('# applyed to the result of toJson, it should match source graph ', () => {
     const g1 = Graph.fromJson(g.toJson());
-
+    g1.toJson().should.eql(g.toJson())
     g1.equals(g).should.be.true();
     g1.hasVertex(v2).should.be.true();
     g1.hasVertex(v4).should.be.true();

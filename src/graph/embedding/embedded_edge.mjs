@@ -29,7 +29,7 @@ class EmbeddedEdge extends Edge {
       EmbeddedVertex.fromJsonObject(destination),
       {
         weight: weight,
-        label: label,
+        label: label ?? undefined,
         isDirected: isDirected,
         arcControlDistance: arcControlDistance
       });

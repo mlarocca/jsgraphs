@@ -24,7 +24,7 @@ class EmbeddedVertex extends Vertex {
    * @static
    */
   static fromJsonObject({ name, position, weight = null, label, data }) {
-    return new EmbeddedVertex(name, Point2D.fromJson(position), { weight: weight, label: label, data: data });
+    return new EmbeddedVertex(name, Point2D.fromJson(position), { weight: weight, label: label ?? undefined, data: data ?? undefined });
   }
 
   constructor(name, vertexPosition, { weight, label, data } = {}) {
