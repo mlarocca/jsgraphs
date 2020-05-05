@@ -52,7 +52,7 @@ class Edge {
   }
 
   static fromJsonObject({ source, destination, weight = DEFAULT_EDGE_WEIGHT, label = undefined }) {
-    return new Edge(Vertex.fromJsonObject(source), Vertex.fromJsonObject(destination), { weight: weight, label: label });
+    return new Edge(Vertex.fromJsonObject(source), Vertex.fromJsonObject(destination), { weight: weight, label: label ?? undefined });
   }
 
   /**

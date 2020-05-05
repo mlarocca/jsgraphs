@@ -46,7 +46,7 @@ class Vertex {
   }
 
   static isValidLabel(label) {
-    return isString(label);
+    return !isDefined(label) || isString(label);
   }
 
   static idFromName(name) {
@@ -58,7 +58,7 @@ class Vertex {
   }
 
   static fromJsonObject({ name, weight = DEFAULT_VERTEX_WEIGHT, label, data }) {
-    return new Vertex(name, { weight: weight, label: label, data: data });
+    return new Vertex(name, { weight: weight, label: label ?? undefined, data: data ?? undefined });
   }
 
   /**

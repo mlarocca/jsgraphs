@@ -11,6 +11,8 @@ import { consistentStringify } from '../common/strings.mjs';
 import { isNumber, range } from '../common/numbers.mjs';
 import { ERROR_MSG_EDGE_NOT_FOUND } from '../common/errors';
 import { size } from '../common/basic.mjs';
+import { ERROR_MSG_INVALID_LABEL } from '../common/errors.mjs';
+import { ERROR_MSG_INVALID_DATA } from '../common/errors.mjs';
 
 
 const _vertices = new WeakMap();
@@ -29,13 +31,15 @@ class MutableVertex extends Vertex {
    *
    * @param {*} name  The vertex's name.
    * @param {number?} weight  The weight associated to the vertex (by default, 1).
+   * @param {string?} label  The string label associated to the vertex.
+   * @param {*} data  Some data associated with the vertex. Must be serializable.
    * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
    * @return {MutableVertex}  The Vertex created.
    * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, weight is not
    *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
    */
-  constructor(name, { weight, outgoingEdges = [] } = {}) {
-    super(name, { weight: weight });
+  constructor(name, { weight, label, data, outgoingEdges = [] } = {}) {
+    super(name, { weight: weight, label: label, data: data });
     if (!Array.isArray(outgoingEdges)) {
       throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
     }
@@ -302,12 +306,12 @@ class Graph {
     return this.vertices.length === 0;
   }
 
-  createVertex(name, { weight } = {}) {
+  createVertex(name, { weight, label, data } = {}) {
     if (this.hasVertex(Vertex.idFromName(name))) {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.createVertex', name));
     }
 
-    const v = new MutableVertex(name, { weight: weight });
+    const v = new MutableVertex(name, { weight: weight, label: label, data: data });
 
     let vcs = _vertices.get(this);
     vcs.set(v.id, v);
@@ -326,7 +330,7 @@ class Graph {
       throw new Error(ERROR_MSG_VERTEX_DUPLICATED('Graph.addVertex', vertex));
     }
 
-    const v = new MutableVertex(vertex.name, { weight: vertex.weight });
+    const v = new MutableVertex(vertex.name, { weight: vertex.weight, label: vertex.label ?? undefined, data: vertex.data ?? undefined });
     vcs.set(vertex.id, v);
     _vertices.set(this, vcs);
 
@@ -354,7 +358,7 @@ class Graph {
 
   getVertexWeight(vertex) {
     const v = getGraphVertex(this, vertex);
-    return v?.weight;
+    return v?.weight ?? throwVertexNotFoundError('Graph.getVertexWeight', vertex);
   }
 
   setVertexWeight(vertex, weight) {
@@ -366,6 +370,40 @@ class Graph {
       v.weight = weight;
     } else {
       throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexWeight', vertex));
+    }
+  }
+
+  getVertexLabel(vertex) {
+    const v = getGraphVertex(this, vertex);
+    return v?.label ?? throwVertexNotFoundError('Graph.getVertexLabel', vertex);
+  }
+
+  setVertexLabel(vertex, label) {
+    if (!Vertex.isValidLabel(label)) {
+      throw new TypeError(ERROR_MSG_INVALID_LABEL('Graph.setVertexLabel', label));
+    }
+    let v = getGraphVertex(this, vertex);
+    if (isDefined(v)) {
+      v.label = label;
+    } else {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexLabel', vertex));
+    }
+  }
+
+  getVertexData(vertex) {
+    const v = getGraphVertex(this, vertex);
+    return v?.data ?? throwVertexNotFoundError('Graph.getVertexData', vertex);
+  }
+
+  setVertexData(vertex, data) {
+    if (!Vertex.isValidData(data)) {
+      throw new TypeError(ERROR_MSG_INVALID_DATA('Graph.setVertexData', data));
+    }
+    let v = getGraphVertex(this, vertex);
+    if (isDefined(v)) {
+      v.data = data;
+    } else {
+      throw new Error(ERROR_MSG_VERTEX_NOT_FOUND('Graph.setVertexData', vertex));
     }
   }
 
@@ -483,7 +521,11 @@ class Graph {
    */
   getEdgeWeight(sourceName, destinationName) {
     const e = getGraphEdge(this, sourceName, destinationName);
-    return e?.weight;
+    if (isDefined(e)) {
+      return e.weight;
+    } else {
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.getEdgeWeight', `${sourceName} -> ${destinationName}`));
+    }
   }
 
   /**
@@ -1321,5 +1363,15 @@ function inducedSubGraph(graph, vertices) {
   });
   return subGraph;
 }
+
+/**
+ * Utility function to throw an exception when a vertex was not found.
+ * @param fname
+ * @param vertex
+ */
+function throwVertexNotFoundError(fname, vertex) {
+  throw new Error(ERROR_MSG_VERTEX_NOT_FOUND(fname, vertex));
+}
+
 
 export default Graph;
