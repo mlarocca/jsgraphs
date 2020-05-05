@@ -1,6 +1,8 @@
 import Edge from '../edge.mjs';
 import EmbeddedVertex from './embedded_vertex.mjs';
 
+import Point2D from '../../geometric/point2d.mjs';
+
 import { isNonEmptyString } from '../../common/strings.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../common/errors.mjs';
 import { isNumber, toNumber } from '../../common/numbers.mjs';
@@ -23,7 +25,7 @@ class EmbeddedEdge extends Edge {
   /**
    * @static
    */
-  static fromJsonObject({source, destination, weight, label, isDirected, arcControlDistance}) {
+  static fromJsonObject({ source, destination, weight, label, isDirected, arcControlDistance }) {
     return new EmbeddedEdge(
       EmbeddedVertex.fromJsonObject(source),
       EmbeddedVertex.fromJsonObject(destination),
@@ -80,7 +82,7 @@ class EmbeddedEdge extends Edge {
     if (isUndefined(arcControlDistance)) {
       this.#arcControlDistance = super.isLoop()
         ? EmbeddedEdge.DEFAULT_EDGE_LOOP_RADIUS
-        : EmbeddedEdge. DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
+        : EmbeddedEdge.DEFAULT_EDGE_BEZIER_CONTROL_DISTANCE;
     } else if (!isNumber(arcControlDistance)) {
       throw new Error(ERROR_MSG_INVALID_ARGUMENT('EmbeddedEdge()', 'arcControlDistance', arcControlDistance));
     } else {
@@ -101,6 +103,30 @@ class EmbeddedEdge extends Edge {
 
   isDirected() {
     return this.#directed;
+  }
+
+  isIntersecting(other, rectilinear = true) {
+    if (!(other instanceof EmbeddedEdge)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('isIntersecting', 'other', other));
+    }
+
+    if (!rectilinear) {
+      throw new Error('Not yet implemented');
+    }
+
+    const A = this.source.position;
+    const B = this.destination.position;
+
+    const C = other.source.position;
+    const D = other.destination.position;
+
+    // Computes the multiplication factor for both segments
+    const h = computeSegmentIntersectionCoefficient(A, B, C, D);
+    const g = computeSegmentIntersectionCoefficient(C, D, A, B);
+    console.log(h, g)
+
+    // If the m.f. is in [0, 1] for both segments, then they intersect. (we need to deal with lousy floating point arithmetic)
+    return 0 - Number.EPSILON <= h && h <= 1 + Number.EPSILON && 0 - Number.EPSILON <= g && g <= 1 + Number.EPSILON;
   }
 
   /**
@@ -259,6 +285,8 @@ function loopSvg(edge, cssClasses, displayLabel, displayWeight) {
 }
 
 /**
+ * @name edgeLabel
+ * @private
  *
  * @param {*} edge
  * @param {*} tx
@@ -278,4 +306,25 @@ function edgeLabel(edge, tx, ty, displayLabel, displayWeight) {
 
   return edgeLabel;
 }
+
+/**
+ * @name computeSegmentIntersectionCoefficient
+ * @private
+ *
+ * @param {Point2D} A One endpoint of the first segment.
+ * @param {Point2D} B The other endpoint of the first segment.
+ * @param {Point2D} C One endpoint of the second segment.
+ * @param {Point2D} D The other endpoint of the second segment.
+ *
+ * @return {number} h is a multiplication factor: how much you have to multiply the length of the first segment in order to
+ *                  exactly touch the line passing by the second segment.
+ */
+function computeSegmentIntersectionCoefficient(A, B, C, D) {
+  const E = B.subtract(A);
+  const F = D.subtract(C);
+  const P = new Point2D(-E.y, E.x);
+  return A.subtract(C).dotProduct(P) / F.dotProduct(P);
+}
+
+
 export default EmbeddedEdge;

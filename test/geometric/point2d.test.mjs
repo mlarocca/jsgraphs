@@ -5,7 +5,7 @@ import { testAPI, testStaticAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
 import chai from "chai";
-import should from "should";   // lgtm[js/unused-local-variable]
+import should from "should";   // lgtm[js/unused-local-letiable]
 const expect = chai.expect;
 
 const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') => `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
@@ -18,7 +18,7 @@ describe('Point2D API', () => {
   it('# Object\'s interface should be complete', () => {
     let point = new Point2D(1, 2);
 
-    let methods = ['constructor', 'clone'];
+    let methods = ['constructor', 'add', 'subtract', 'dotProduct', 'clone'];
     let superMethods = ['coordinates', 'coordinate', 'equals', 'distanceTo', 'maxDistance', 'minDistance', 'toString', 'toJson', 'dimensionality'];
     let attributes = ['x', 'y'];
     testAPI(point, attributes, methods, superMethods);
@@ -60,8 +60,8 @@ describe('Point2D Creation', () => {
 });
 
 describe('Attributes', () => {
-  var point;
-  var point2;
+  let point;
+  let point2;
   const x1 = 23;
   const y1 = -45;
   const x2 = Number.MAX_SAFE_INTEGER;
@@ -157,8 +157,8 @@ describe('Static Methods', () => {
 });
 
 describe('Methods', () => {
-  var point;
-  var point2;
+  let point;
+  let point2;
   const x1 = 23;
   const y1 = -45;
   const x2 = Number.MAX_SAFE_INTEGER;
@@ -268,4 +268,106 @@ describe('Methods', () => {
     });
   });
 
+
+  describe('add()', () => {
+    describe('API', () => {
+      it('should expect 1 mandatory argument', () => {
+        point.add.length.should.eql(1);
+      });
+
+      it('should throw if no argument is passed', () => {
+        expect(() => point.add()).to.throw(ERROR_MSG_PARAM_INVALID_POINT('add', undefined));
+      });
+
+      it('should throw if the argument is not a valid point', () => {
+        expect(() => point.add(1)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('add', 1));
+        expect(() => point.add(false)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('add', false));
+        expect(() => point.add('s')).to.throw(ERROR_MSG_PARAM_INVALID_POINT('add', 's'));
+        expect(() => point.add({ '4': 4 })).to.throw(ERROR_MSG_PARAM_INVALID_POINT('add', { '4': 4 }));
+      });
+    });
+
+    describe('Behaviour', () => {
+      it('should return the sum of the two points', () => {
+        let point = new Point2D(0, 0);
+        let point1 = new Point2D(3, 4);
+        let point2 = new Point2D(1, 2);
+        let point3 = new Point2D(-1, 2);
+        let point4 = new Point2D(-1, -2);
+
+        point.add(point1).equals(new Point2D(3, 4)).should.be.true();
+        point2.add(point1).equals(new Point2D(4, 6)).should.be.true();
+        point1.add(point2).equals(new Point2D(4, 6)).should.be.true();
+        point3.add(point4).equals(new Point2D(-2, 0)).should.be.true();
+      });
+    });
+  });
+
+  describe('subtract()', () => {
+    describe('API', () => {
+      it('should expect 1 mandatory argument', () => {
+        point.subtract.length.should.eql(1);
+      });
+
+      it('should throw if no argument is passed', () => {
+        expect(() => point.subtract()).to.throw(ERROR_MSG_PARAM_INVALID_POINT('subtract', undefined));
+      });
+
+      it('should throw if the argument is not a valid point', () => {
+        expect(() => point.subtract(1)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('subtract', 1));
+        expect(() => point.subtract(false)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('subtract', false));
+        expect(() => point.subtract('s')).to.throw(ERROR_MSG_PARAM_INVALID_POINT('subtract', 's'));
+        expect(() => point.subtract({ '4': 4 })).to.throw(ERROR_MSG_PARAM_INVALID_POINT('subtract', { '4': 4 }));
+      });
+    });
+
+    describe('Behaviour', () => {
+      it('should return the sum of the two points', () => {
+        let point = new Point2D(0, 0);
+        let point1 = new Point2D(3, 4);
+        let point2 = new Point2D(1, 2);
+        let point3 = new Point2D(-1, 2);
+        let point4 = new Point2D(-1, -2);
+
+        point.subtract(point1).equals(new Point2D(-3, -4)).should.be.true();
+        point2.subtract(point1).equals(new Point2D(-2, -2)).should.be.true();
+        point1.subtract(point2).equals(new Point2D(2, 2)).should.be.true();
+        point3.subtract(point4).equals(new Point2D(0, 4)).should.be.true();
+      });
+    });
+  });
+
+  describe('dotProduct()', () => {
+    describe('API', () => {
+      it('should expect 1 mandatory argument', () => {
+        point.dotProduct.length.should.eql(1);
+      });
+
+      it('should throw if no argument is passed', () => {
+        expect(() => point.dotProduct()).to.throw(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', undefined));
+      });
+
+      it('should throw if the argument is not a valid point', () => {
+        expect(() => point.dotProduct(1)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', 1));
+        expect(() => point.dotProduct(false)).to.throw(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', false));
+        expect(() => point.dotProduct('s')).to.throw(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', 's'));
+        expect(() => point.dotProduct({ '4': 4 })).to.throw(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', { '4': 4 }));
+      });
+    });
+
+    describe('Behaviour', () => {
+      it('should return the sum of the two points', () => {
+        let point = new Point2D(0, 0);
+        let point1 = new Point2D(3, 4);
+        let point2 = new Point2D(1, 2);
+        let point3 = new Point2D(-1, 2);
+        let point4 = new Point2D(-1, -2);
+
+        point.dotProduct(point1).should.eql(0);
+        point2.dotProduct(point1).should.eql(11);
+        point1.dotProduct(point2).should.eql(11);
+        point3.dotProduct(point4).should.eql(-3);
+      });
+    });
+  });
 });

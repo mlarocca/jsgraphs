@@ -1,5 +1,6 @@
 import Point from './point.mjs';
 import { randomDouble } from '../common/numbers.mjs';
+import { ERROR_MSG_PARAM_INVALID_POINT } from '../common/errors.mjs';
 
 /**
  * @class Point2D
@@ -59,7 +60,7 @@ class Point2D extends Point {
    * @param {Number} height The point to validate.
    * @return {Point} A new random 2D point.
    */
-  static random({width, height} = {}) {
+  static random({ width, height } = {}) {
     return new Point2D(randomDouble(0, width), randomDouble(0, height));
   }
 
@@ -87,6 +88,62 @@ class Point2D extends Point {
     return this.coordinates()[1];
   }
 
+  /**
+   * @name add
+   * @for Point
+   * @description
+   * Add another point to current point.
+   *
+   * @param {Point2D} other The point to add to this one.
+   *
+   * @return The coordinate-wise sum of the two points.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  add(other) {
+    if (!(other instanceof Point2D)) {
+      throw new Error(ERROR_MSG_PARAM_INVALID_POINT('add', other, 2));
+    }
+    return new Point2D(this.x + other.x, this.y + other.y);
+  }
+
+  /**
+   * @name subtract
+   * @for Point
+   * @description
+   * Subtract another point to current point.
+   *
+   * @param {Point2D} other The point to subtract to this one.
+   *
+   * @return The coordinate-wise difference of the two points.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  subtract(other) {
+    if (!(other instanceof Point2D)) {
+      throw new Error(ERROR_MSG_PARAM_INVALID_POINT('subtract', other, 2));
+    }
+    return new Point2D(this.x - other.x, this.y - other.y);
+  }
+
+  /**
+   * @name dotProduct
+   * @for Point
+   * @description
+   * Computes the dot product between this point and a second point.
+   *
+   * @param {Point} other The point to use for the dot product.
+   *
+   * @return The dot product of two points: (x1, x2, .., xn) * (y1,y2, .. , yn) = x1*y1+x2*y2+...+xn*yn.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  dotProduct(other) {
+    if (!(other instanceof Point2D)) {
+      throw new Error(ERROR_MSG_PARAM_INVALID_POINT('dotProduct', other, 2));
+    }
+    return this.x * other.x + this.y * other.y;
+  }
 
   /**
    * @name clone

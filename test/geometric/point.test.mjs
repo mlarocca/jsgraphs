@@ -712,11 +712,14 @@ describe('Methods', () => {
         let point2 = new Point(1, 2);
         let point3 = new Point(-1, 2);
         let point4 = new Point(-1, -2);
+        let point5 = new Point(-1, 2, 0.5);
+        let point6 = new Point(-1, -2, 2);
 
         point.add(point1).equals(new Point(3, 4)).should.be.true();
         point2.add(point1).equals(new Point(4, 6)).should.be.true();
         point1.add(point2).equals(new Point(4, 6)).should.be.true();
         point3.add(point4).equals(new Point(-2, 0)).should.be.true();
+        point5.add(point6).equals(new Point(-2, 0, 2.5)).should.be.true();
       });
     });
   });
@@ -751,11 +754,14 @@ describe('Methods', () => {
         let point2 = new Point(1, 2);
         let point3 = new Point(-1, 2);
         let point4 = new Point(-1, -2);
+        let point5 = new Point(-1, 2, 0.5);
+        let point6 = new Point(-1, -2, 2);
 
         point.subtract(point1).equals(new Point(-3, -4)).should.be.true();
         point2.subtract(point1).equals(new Point(-2, -2)).should.be.true();
         point1.subtract(point2).equals(new Point(2, 2)).should.be.true();
         point3.subtract(point4).equals(new Point(0, 4)).should.be.true();
+        point5.subtract(point6).equals(new Point(0, 4, -1.5)).should.be.true();
       });
     });
   });
@@ -790,11 +796,14 @@ describe('Methods', () => {
         let point2 = new Point(1, 2);
         let point3 = new Point(-1, 2);
         let point4 = new Point(-1, -2);
+        let point5 = new Point(-1, 2, 0.5);
+        let point6 = new Point(-1, -2, 2);
 
         point.dotProduct(point1).should.eql(0);
         point2.dotProduct(point1).should.eql(11);
         point1.dotProduct(point2).should.eql(11);
         point3.dotProduct(point4).should.eql(-3);
+        point6.dotProduct(point5).should.eql(-2);
       });
     });
   });
