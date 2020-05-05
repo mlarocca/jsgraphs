@@ -22,7 +22,10 @@ export const ERROR_MSG_RANGE_TOO_LARGE = (fname, a, b) => `Illegal argument for 
 //strings
 export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for randomString: length = ${val} must be a non-negative SafeInteger`;
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
-// graph
+// points
+export const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =>
+ `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${true || (dimension && Number.isInteger(dimension)) ? '' : ` (${dimension}D)`}`;
+  // graph
 export const ERROR_MSG_INVALID_NAME = (fname, val) => `Invalid name in method ${fname}: ${val}. Only strings and numbers are allowed.`;
 export const ERROR_MSG_INVALID_DATA = (fname, val) => `Invalid data in method ${fname}: ${val} is not JSON-serializable`;
 export const ERROR_MSG_INVALID_LABEL = (fname, val) => `Invalid label in method ${fname}: ${val}. Labels must be strings.`;

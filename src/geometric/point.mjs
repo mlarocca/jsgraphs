@@ -1,7 +1,7 @@
 import { isNumber, range, toNumber } from '../common/numbers.mjs';
 import { mean } from '../common/array.mjs';
 import { isUndefined } from '../common/basic.mjs';
-import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_MSG_PARAM_TYPE } from '../common/errors.mjs';
+import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_INVALID_POINT, ERROR_MSG_PARAM_EMPTY_ARRAY, ERROR_MSG_PARAM_TYPE } from '../common/errors.mjs';
 
 /**
  * @name validateCoordinates
@@ -22,9 +22,6 @@ function validateCoordinates(fname = 'validateCoordinates', ...coordinates) {
   }
 }
 /* jshint ignore:end */
-
-const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =>
-  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
 
 /**
  * @class Point
@@ -71,7 +68,7 @@ class Point {
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the coordinates aren't valid.
    * @throws TypeError(ERROR_MSG_PARAM_TYPE) if the dimensionality parameter isn't a positive safe integer.
    */
-  static validatePoint(maybePoint, dimensionality = maybePoint ? maybePoint.dimensionality : undefined, fname = 'validatePoint') {
+  static validatePoint(maybePoint, dimensionality = maybePoint?.dimensionality, fname = 'validatePoint') {
     let invalid = true;
     if (maybePoint instanceof Point) {
       if (Number.isSafeInteger(dimensionality) && dimensionality > 0) {
@@ -85,7 +82,7 @@ class Point {
     }
 
     if (invalid) {
-      throw new TypeError(ERROR_MSG_PARAM_INVALID_POINT(fname, maybePoint, dimensionality));
+      throw new Error(ERROR_MSG_PARAM_INVALID_POINT(fname, maybePoint, dimensionality));
     }
   }
 
@@ -315,6 +312,70 @@ class Point {
       }
       return [maxPoint, maxDist];
     }, [null, Number.POSITIVE_INFINITY]);
+  }
+
+  /**
+   * @name add
+   * @for Point
+   * @description
+   * Add another point to current point.
+   *
+   * @param {Point} other The point to add to this one.
+   *
+   * @return The coordinate-wise sum of the two points.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  add(other) {
+    Point.validatePoint(other, this.dimensionality, 'add');
+    let otherCoordinates = other.coordinates();
+    let newCoordinates = [];
+
+    for (let i = 0; i < this.dimensionality; i++) {
+      newCoordinates.push(this.#coordinates[i] + otherCoordinates[i]);
+    }
+    return new Point(...newCoordinates);
+  }
+
+  /**
+   * @name subtract
+   * @for Point
+   * @description
+   * Subtract another point to current point.
+   *
+   * @param {Point} other The point to subtract to this one.
+   *
+   * @return The coordinate-wise difference of the two points.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  subtract(other) {
+    Point.validatePoint(other, this.dimensionality, 'subtract');
+    let otherCoordinates = other.coordinates();
+    let newCoordinates = [];
+
+    for (let i = 0; i < this.dimensionality; i++) {
+      newCoordinates.push(this.#coordinates[i] - otherCoordinates[i]);
+    }
+    return new Point(...newCoordinates);
+  }
+
+  /**
+   * @name dotProduct
+   * @for Point
+   * @description
+   * Computes the dot product between this point and a second point.
+   *
+   * @param {Point} other The point to use for the dot product.
+   *
+   * @return The dot product of two points: (x1, x2, .., xn) * (y1,y2, .. , yn) = x1*y1+x2*y2+...+xn*yn.
+   * @throws TypeError(ERROR_MSG_PARAM_INVALID_POINT) if the argument is not a valid point of the same dimensionality of
+   *                                                  of the current one.
+   */
+  dotProduct(other) {
+    Point.validatePoint(other, this.dimensionality, 'dotProduct');
+    let otherCoordinates = other.coordinates();
+    return this.#coordinates.reduce((tot, c, index) => tot + c * otherCoordinates[index], 0);
   }
 
   /**
