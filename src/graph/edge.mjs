@@ -156,6 +156,13 @@ class Edge {
     return new Edge(this.#destination, this.#source, { weight: this.#weight, label: this.#label });
   }
 
+  isTranspose(other) {
+    if (!(other instanceof Edge)) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('isTranspose', 'other', other));
+    }
+    return this.#destination.id === other.#source.id && this.#source.id === other.#destination.id;
+  }
+
   toJson() {
     return consistentStringify(this.toJsonObject());
   }

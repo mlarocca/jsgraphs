@@ -233,6 +233,35 @@ class Embedding {
     e.arcControlDistance = toNumber(arcControlDistance);
   }
 
+  rectilinearIntersections() {
+    const edges = [...this.edges];
+    const m = edges.length;
+    let intersections = 0;
+
+    for (let i = 0; i < m-1; i++) {
+      const e1 = edges[i];
+      if (e1.isLoop()) {
+        continue;
+      }
+      for (let j = i+1; j < m; j++) {
+        const e2 = edges[j];
+        if (e2.isLoop()) {
+          continue;
+        }
+
+        if (!areAdjacentEdges(e1, e2) && e1.isIntersecting(e2)) {
+          intersections += 1;
+        }
+      }
+    }
+
+    return intersections;
+  }
+
+  isPlane() {
+    return this.rectilinearIntersections() === 0;
+  }
+
   clone() {
     return new Embedding(this.vertices, this.edges);
   }
@@ -300,7 +329,7 @@ function vertexId(vertex) {
 
 /**
  * @private
- * @param {Edge?} edge
+ * @param {Edge|string} edge
  */
 function edgeId(edge) {
   if (edge instanceof Edge) {
@@ -308,6 +337,16 @@ function edgeId(edge) {
   } else {
     return edge;
   }
+}
+
+/**
+ * @private
+ * @param {Edge} e1
+ * @param {Edge} e2
+ */
+function areAdjacentEdges(e1, e2) {
+  return e1.source.id === e2.source.id || e1.source.id === e2.destination.id ||
+    e1.destination.id === e2.source.id || e1.destination.id === e2.destination.id;
 }
 
 /**
