@@ -1,14 +1,7 @@
 import Point from './point.mjs';
-import { isUndefined } from '../common/basic.mjs';
 import { range } from '../common/numbers.mjs';
-import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE } from '../common/errors.mjs';
+import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE, ERROR_MSG_PARAM_INVALID_VERTICES, ERROR_MSG_PARAM_INVALID_CUBE } from '../common/errors.mjs';
 import Point2D from './point2d.mjs';
-
-const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
-  `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
-
-const ERROR_MSG_PARAM_INVALID_CUBE = (fname, val, dimension, pname = 'cube') =>
-  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Cube${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
 
 function validateVertices(bottomVertex, topVertex, fname = 'validateVertices') {
   Point.validatePoint(bottomVertex, undefined, fname);

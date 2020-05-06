@@ -218,6 +218,8 @@ class Embedding {
   }
 
   /**
+   * @method setEdgeControlPoint
+   * @for Embedding
    *
    * @param {*} edge
    * @param {Number} arcControlDistance The distance of the control point of the Bezier quadratic curve used to display the edge.
@@ -233,6 +235,15 @@ class Embedding {
     e.arcControlDistance = toNumber(arcControlDistance);
   }
 
+  /**
+   * @method rectilinearIntersections
+   * @for Embedding
+   *
+   * Computes the number of edge intersections for a straight-line drawing of current embedding,
+   * with edges are drawn as straight line segments.
+   *
+   * @return {number} The number of edge intersections when edges are drawn as a straigh-line segment.
+   */
   rectilinearIntersections() {
     const edges = [...this.edges];
     const m = edges.length;
@@ -258,6 +269,14 @@ class Embedding {
     return intersections;
   }
 
+  /**
+   * @method isPlane
+   * @for Embedding
+   *
+   * A graph embedding is plane if its straight-line drawing has no intersections.
+   *
+   * @return {boolean} True iff the embedding can be drawn without edge intersections.
+   */
   isPlane() {
     return this.rectilinearIntersections() === 0;
   }

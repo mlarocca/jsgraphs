@@ -1,8 +1,7 @@
 import Cube from '../../src/geometric/cube.mjs';
 import Point from '../../src/geometric/point.mjs';
-import { isUndefined } from '../../src/common/basic.mjs';
 import { range } from '../../src/common/numbers.mjs';
-import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE } from '../../src/common/errors.mjs';
+import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_TYPE, ERROR_MSG_PARAM_INVALID_VERTICES, ERROR_MSG_PARAM_INVALID_CUBE, ERROR_MSG_PARAM_INVALID_POINT } from '../../src/common/errors.mjs';
 import { testAPI } from '../utils/test_common.mjs';
 
 import 'mjs-mocha';
@@ -10,11 +9,7 @@ import chai from "chai";
 import should from "should";   // lgtm[js/unused-local-variable]
 const expect = chai.expect;
 
-const ERROR_MSG_PARAM_INVALID_CUBE = (fname, val, dimension, pname = 'cube') =>
-  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Cube${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
-const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') => `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${isUndefined(dimension) ? '' : ` (${dimension}D)`}`;
-const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
-  `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
+
 
 describe('Cube API', () => {
 

@@ -15,7 +15,6 @@ import { ERROR_MSG_INVALID_DIMENSION_INDEX, ERROR_MSG_PARAM_INVALID_POINT, ERROR
  */
 /* jshint ignore:start */
 function validateCoordinates(fname = 'validateCoordinates', ...coordinates) {
-
   let valid = coordinates.length > 0 && coordinates.every(_ => isNumber(_));
   if (!valid) {
     throw new TypeError(ERROR_MSG_PARAM_TYPE(fname, 'coordinates', coordinates, 'sequence of numbers'));
