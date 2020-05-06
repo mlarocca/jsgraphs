@@ -123,7 +123,6 @@ class EmbeddedEdge extends Edge {
     // Computes the multiplication factor for both segments
     const h = computeSegmentIntersectionCoefficient(A, B, C, D);
     const g = computeSegmentIntersectionCoefficient(C, D, A, B);
-    console.log(h, g)
 
     // If the m.f. is in [0, 1] for both segments, then they intersect. (we need to deal with lousy floating point arithmetic)
     return 0 - Number.EPSILON <= h && h <= 1 + Number.EPSILON && 0 - Number.EPSILON <= g && g <= 1 + Number.EPSILON;
