@@ -24,7 +24,11 @@ export const ERROR_MSG_RANDOM_STRING_LENGTH = val => `Illegal argument for rando
 export const ERROR_MSG_RANDOM_STRING_TOO_LARGE = val => `Illegal argument for randomString: length ${val} is too large to be allocated`;
 // points
 export const ERROR_MSG_PARAM_INVALID_POINT = (fname, val, dimension, pname = 'point') =>
- `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${true || (dimension && Number.isInteger(dimension)) ? '' : ` (${dimension}D)`}`;
+  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Point${true || (dimension && Number.isInteger(dimension)) ? '' : ` (${dimension}D)`}`;
+export const ERROR_MSG_PARAM_INVALID_CUBE = (fname, val, dimension, pname = 'cube') =>
+  `Illegal argument for ${fname}: ${pname} = ${val} must be of class Cube${true || (dimension && Number.isInteger(dimension)) ? '' : ` (${dimension}D)`}`;
+export const ERROR_MSG_PARAM_INVALID_VERTICES = (fname, v1, v2) =>
+  `Illegal argument for ${fname}: vertex ${v1.toString()} is not stricly lower than vertex ${v2.toString()}`;
   // graph
 export const ERROR_MSG_INVALID_NAME = (fname, val) => `Invalid name in method ${fname}: ${val}. Only strings and numbers are allowed.`;
 export const ERROR_MSG_INVALID_DATA = (fname, val) => `Invalid data in method ${fname}: ${val} is not JSON-serializable`;
