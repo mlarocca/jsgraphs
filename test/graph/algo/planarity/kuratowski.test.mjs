@@ -8,9 +8,8 @@ import { randomInt, range } from '../../../../src/common/numbers.mjs';
 import { ERROR_MSG_INVALID_ARGUMENT } from '../../../../src/common/errors.mjs'
 
 import 'mjs-mocha';
-import chai from "chai";
+import chai from "chai";       // lgtm[js/unused-local-variable]
 import should from "should";   // lgtm[js/unused-local-variable]
-const expect = chai.expect;    // lgtm[js/unused-local-variable]
 
 describe('Kuratowski\' planarity test', () => {
   it('# should throw when the argument is not passed or not a Graph', () => {

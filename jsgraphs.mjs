@@ -4,6 +4,8 @@ import Vertex from './src/graph/vertex.mjs';
 import Edge from './src/graph/edge.mjs';
 import Embedding from './src/graph/embedding/embedding.mjs';
 import {isPlanar} from './src/graph/algo/planarity/kuratowski.mjs';
+import {minimumIntersectionsEmbedding} from './src/graph/algo/crossing_number/randomized_mcn.mjs';
+
 import Point2D from './src/geometric/point2d.mjs';
 
 globalThis.jsgraphs = {
@@ -14,6 +16,7 @@ globalThis.jsgraphs = {
   Vertex: Vertex,
   Embedding: Embedding,
   algo: {
-    isPlanar: isPlanar
+    isPlanar: isPlanar,
+    randomizedMinimumIntersectionsEmbedding: minimumIntersectionsEmbedding
   }
 }
