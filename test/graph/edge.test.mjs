@@ -26,7 +26,7 @@ describe('Edge API', () => {
 
   it('# Object\'s interface should be complete', () => {
     const edge = new Edge(new Vertex(1), new Vertex(2));
-    const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'transpose', 'toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
+    const methods = ['constructor', 'hasNegativeWeight', 'isLoop', 'hasLabel', 'transpose', 'isTranspose','toJson', 'toJsonObject', 'toString', 'equals', 'clone'];
     const attributes = ['source', 'destination', 'weight', 'label', 'escapedLabel', 'id'];
     testAPI(edge, attributes, methods);
   });
