@@ -26,7 +26,7 @@ export function minimumIntersectionsEmbedding(graph, runs, {width = 480, height 
 
   range(0, runs).forEach(_ => {
     const emb = Embedding.forGraph(graph, {width: width, height: height});
-    const intersections = emb.rectilinearIntersections();
+    const intersections = emb.intersections();
     if (intersections < bestIntersectionsNumber) {
       bestIntersectionsNumber = intersections;
       bestEmbedding = emb;

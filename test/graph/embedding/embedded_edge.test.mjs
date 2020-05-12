@@ -26,7 +26,7 @@ describe('EmbeddedEdge API', () => {
 
   it('# Object\'s interface should be complete', () => {
     const embeddedEdge = new EmbeddedEdge(new EmbeddedVertex("a", new Point2D(1, 1)), new EmbeddedVertex("b", new Point2D(2, 2)));
-    const methods = ['constructor', 'isIntersecting', 'clone', 'toJsonObject', 'toString', 'toSvg'];
+    const methods = ['constructor', 'isCrossing', 'clone', 'toJsonObject', 'toString', 'toSvg'];
     const attributes = ['isDirected', 'arcControlDistance'];
     testAPI(embeddedEdge, attributes, methods);
   });
@@ -151,13 +151,13 @@ describe('Methods', () => {
   const v = new EmbeddedVertex('v', point);
   const w = new EmbeddedVertex('w', new Point2D(2.5, 0.12345), { weight: 1.5, vertexRadius: 10 });
 
-  describe('isIntersecting()', () => {
+  describe('isCrossing()', () => {
     const e = new EmbeddedEdge(u, v, { weight: 12, label: 'edge', arcControlDistance: -32, isDirected: true });
 
     it('# should throw if the argument is not a valid Edge', () => {
-      (() => e.isIntersecting()).should.throw(ERROR_MSG_INVALID_ARGUMENT('isIntersecting', 'other', undefined));
-      (() => e.isIntersecting(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('isIntersecting', 'other', null));
-      (() => e.isIntersecting(1)).should.throw(ERROR_MSG_INVALID_ARGUMENT('isIntersecting', 'other', 1));
+      (() => e.isCrossing()).should.throw(ERROR_MSG_INVALID_ARGUMENT('isCrossing', 'other', undefined));
+      (() => e.isCrossing(null)).should.throw(ERROR_MSG_INVALID_ARGUMENT('isCrossing', 'other', null));
+      (() => e.isCrossing(1)).should.throw(ERROR_MSG_INVALID_ARGUMENT('isCrossing', 'other', 1));
     });
 
     it('# should return the right value for segments', () => {
@@ -170,23 +170,23 @@ describe('Methods', () => {
       let e1 = new EmbeddedEdge(a, b);
       let e2 = new EmbeddedEdge(c, d);
 
-      e1.isIntersecting(e2).should.be.false();
-      e1.isIntersecting(e2).should.eql(e2.isIntersecting(e1));
+      e1.isCrossing(e2).should.be.false();
+      e1.isCrossing(e2).should.eql(e2.isCrossing(e1));
 
       e2 = new EmbeddedEdge(a, d);
 
-      e1.isIntersecting(e2).should.be.true();
-      e1.isIntersecting(e2).should.eql(e2.isIntersecting(e1));
+      e1.isCrossing(e2).should.be.true();
+      e1.isCrossing(e2).should.eql(e2.isCrossing(e1));
 
       e2 = new EmbeddedEdge(c, b);
 
-      e1.isIntersecting(e2).should.be.true();
-      e1.isIntersecting(e2).should.eql(e2.isIntersecting(e1));
+      e1.isCrossing(e2).should.be.true();
+      e1.isCrossing(e2).should.eql(e2.isCrossing(e1));
 
       e1 = new EmbeddedEdge(a, d);
 
-      e1.isIntersecting(e2).should.be.false();
-      e1.isIntersecting(e2).should.eql(e2.isIntersecting(e1));
+      e1.isCrossing(e2).should.be.false();
+      e1.isCrossing(e2).should.eql(e2.isCrossing(e1));
     });
   });
 

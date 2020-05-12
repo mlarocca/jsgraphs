@@ -36,7 +36,7 @@ describe('Embedding API', () => {
   it('# Object\'s interface should be complete', () => {
     let embedding = Embedding.forGraph(new Graph());
     let methods = ['constructor', 'getVertex', 'getEdge', 'setVertexPosition', 'setEdgeControlPoint',
-      'rectilinearIntersections', 'isPlane', 'equals', 'clone', 'toJson', 'toJsonObject', 'toSvg'];
+      'intersections', 'isPlane', 'equals', 'clone', 'toJson', 'toJsonObject', 'toSvg'];
     let attributes = ['vertices', 'edges'];
     testAPI(embedding, attributes, methods);
   });
@@ -160,35 +160,35 @@ describe('Methods', () => {
     });
   });
 
-  describe('rectilinearIntersections()', () => {
+  describe('intersections()', () => {
     it('# return false for embeddings for complete graphs with 5 or more vertices (they can\'t be plane)', () => {
       const expectedIntersections = [5, 15, 35, 70];
       range(5, 9).forEach(n => {
         const emb = Embedding.completeGraph(n, 480);
-        emb.rectilinearIntersections().should.be.eql(expectedIntersections[n - 5]);
+        emb.intersections().should.be.eql(expectedIntersections[n - 5]);
       });
     });
 
     it('# return false for embeddings for complete bipartite graphs with 3 or more vertices per-partition (they can\'t be plane)', () => {
-      Embedding.completeBipartiteGraph(2, 3, 480).rectilinearIntersections().should.eql(3);
+      Embedding.completeBipartiteGraph(2, 3, 480).intersections().should.eql(3);
       // Check also directed graph
-      Embedding.completeBipartiteGraph(2, 3, 480, true).rectilinearIntersections().should.eql(12);
-      Embedding.completeBipartiteGraph(2, 4, 480).rectilinearIntersections().should.eql(6);
-      Embedding.completeBipartiteGraph(2, 5, 480).rectilinearIntersections().should.eql(10);
-      Embedding.completeBipartiteGraph(3, 3, 480).rectilinearIntersections().should.eql(9);
-      Embedding.completeBipartiteGraph(3, 4, 480).rectilinearIntersections().should.eql(18);
-      Embedding.completeBipartiteGraph(4, 3, 480).rectilinearIntersections().should.eql(18);
-      Embedding.completeBipartiteGraph(4, 4, 480).rectilinearIntersections().should.eql(36);
-      Embedding.completeBipartiteGraph(4, 5, 480).rectilinearIntersections().should.eql(60);
-      Embedding.completeBipartiteGraph(4, 5, 480, true).rectilinearIntersections().should.eql(240);
+      Embedding.completeBipartiteGraph(2, 3, 480, true).intersections().should.eql(12);
+      Embedding.completeBipartiteGraph(2, 4, 480).intersections().should.eql(6);
+      Embedding.completeBipartiteGraph(2, 5, 480).intersections().should.eql(10);
+      Embedding.completeBipartiteGraph(3, 3, 480).intersections().should.eql(9);
+      Embedding.completeBipartiteGraph(3, 4, 480).intersections().should.eql(18);
+      Embedding.completeBipartiteGraph(4, 3, 480).intersections().should.eql(18);
+      Embedding.completeBipartiteGraph(4, 4, 480).intersections().should.eql(36);
+      Embedding.completeBipartiteGraph(4, 5, 480).intersections().should.eql(60);
+      Embedding.completeBipartiteGraph(4, 5, 480, true).intersections().should.eql(240);
     });
 
     it('# return 1 for a non-plane embedding of K4', () => {
       let emb = Embedding.completeGraph(4, 480);
-      emb.rectilinearIntersections().should.eql(1);
+      emb.intersections().should.eql(1);
       // Directed Graph
       emb = Embedding.completeGraph(4, 480, true);
-      emb.rectilinearIntersections().should.eql(4);
+      emb.intersections().should.eql(4);
     });
 
     it('# return 0 for a plane embedding of K4', () => {
@@ -197,16 +197,16 @@ describe('Methods', () => {
       emb.setVertexPosition('2', new Point2D(100, 0));
       emb.setVertexPosition('3', new Point2D(0, 100));
       emb.setVertexPosition('4', new Point2D(50, 50));
-      emb.rectilinearIntersections().should.eql(1);
+      emb.intersections().should.eql(1);
       emb.setVertexPosition('4', new Point2D(25, 25));
-      emb.rectilinearIntersections().should.eql(0);
+      emb.intersections().should.eql(0);
       // Directed graph
       emb = Embedding.completeGraph(4, 480, true);
       emb.setVertexPosition('1', new Point2D(0, 0));
       emb.setVertexPosition('2', new Point2D(100, 0));
       emb.setVertexPosition('3', new Point2D(0, 100));
       emb.setVertexPosition('4', new Point2D(25, 25));
-      emb.rectilinearIntersections().should.eql(0);
+      emb.intersections().should.eql(0);
     });
   });
 
