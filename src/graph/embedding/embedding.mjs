@@ -236,15 +236,19 @@ class Embedding {
   }
 
   /**
-   * @method rectilinearIntersections
+   * @method intersections
    * @for Embedding
    *
    * Computes the number of edge intersections for a straight-line drawing of current embedding,
    * with edges are drawn as straight line segments.
    *
+   * @param {boolean} straightLineEmbedding
+   * @param {boolean} straightLineEmbedding Switch between a straight-line embedding, where all edges are drawn as
+   *                                        segments, and an embedding where edges are drawn as Bézier quadratic curves.
+   *
    * @return {number} The number of edge intersections when edges are drawn as a straigh-line segment.
    */
-  rectilinearIntersections() {
+  intersections(straightLineEmbedding = true) {
     const edges = [...this.edges];
     const m = edges.length;
     let intersections = 0;
@@ -260,7 +264,7 @@ class Embedding {
           continue;
         }
 
-        if (!areAdjacentEdges(e1, e2) && e1.isIntersecting(e2)) {
+        if (!areAdjacentEdges(e1, e2) && e1.isCrossing(e2, straightLineEmbedding)) {
           intersections += 1;
         }
       }
@@ -272,13 +276,18 @@ class Embedding {
   /**
    * @method isPlane
    * @for Embedding
+   * @description
+   * Check if current embedding (drawn either as straight-line or with Bézier curves) is plane.
+   * A graph embedding is plane if it's drawn without any intersection between its edges.
+   * By default the embedding is assumed to be a straight-line drawing of the graph.
    *
-   * A graph embedding is plane if its straight-line drawing has no intersections.
+   * @param {boolean} straightLineEmbedding Switch between a straight-line embedding, where all edges are drawn as
+   *                                        segments, and an embedding where edges are drawn as Bézier quadratic curves.
    *
-   * @return {boolean} True iff the embedding can be drawn without edge intersections.
+   * @return {boolean} True if and only if the embedding is plane.
    */
-  isPlane() {
-    return this.rectilinearIntersections() === 0;
+  isPlane(straightLineEmbedding = true) {
+    return this.intersections(straightLineEmbedding) === 0;
   }
 
   clone() {

@@ -105,12 +105,22 @@ class EmbeddedEdge extends Edge {
     return this.#directed;
   }
 
-  isIntersecting(other, rectilinear = true) {
+  /**
+   * @method isCrossing
+   * @for EmbeddedEdge
+   * @description
+   * Checks if this edge is crossing another arbitrary edge passed as argument.
+   *
+   * @param {EmbeddedEdge} other The other edge, with which we need to check if there is an intersection.
+   * @param {boolean} straightLineEmbedding Switch between a straight-line embedding, where all edges are drawn as
+   *                                        segments, and an embedding where edges are drawn as Bézier quadratic curves.
+   */
+  isCrossing(other, straightLineEmbedding = true) {
     if (!(other instanceof EmbeddedEdge)) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('isIntersecting', 'other', other));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('isCrossing', 'other', other));
     }
 
-    if (!rectilinear) {
+    if (!straightLineEmbedding) {
       throw new Error('Not yet implemented');
     }
 
