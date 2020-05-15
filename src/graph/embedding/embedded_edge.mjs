@@ -329,10 +329,10 @@ function edgeLabel(edge, tx, ty, displayLabel, displayWeight) {
  *                  exactly touch the line passing by the second segment.
  */
 function computeSegmentIntersectionCoefficient(A, B, C, D) {
-  const E = B.subtract(A);
-  const F = D.subtract(C);
-  const P = new Point2D(-E.y, E.x);
-  return A.subtract(C).dotProduct(P) / F.dotProduct(P);
+  const v = B.subtract(A);
+  const w = D.subtract(C);
+  const u = new Point2D(-v.y, v.x);
+  return A.subtract(C).dotProduct(u) / w.dotProduct(u);
 }
 
 
