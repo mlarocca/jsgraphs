@@ -3,9 +3,9 @@
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/context:javascript)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/alerts/)
 
-A lightweight library to model graphs, run graphs' algorithms, and display them on screen.
+A lightweight library to model graphs, run graphs algorithms, and display them on screen.
 
-You can use this library to create arbitrary graphs and run [**algorithms**](./readme/tutorial.md#graph-algorithms) and transformations on it, or just use it for [**visualization**](./readme/tutorial.md#embedding), importing graphs or even embeddings created in other languages/platforms and serialized using _JSON_.
+You can use this library to create arbitrarily complex graphs and run [**algorithms**](./readme/tutorial.md#graph-algorithms) and transformations on them, or just use it for [**visualization**](./readme/tutorial.md#embedding), importing graphs or even embeddings created in other languages/platforms and serialized using _JSON_.
 
 Graphs can be embedded in the plane, vertices can be positioned arbitrarily, and both vertices and edges can be styled individually.
 
@@ -103,7 +103,7 @@ Here we keep a list of the roadmap for the development of this library. If you h
 - [ ] [Edge.setLabel](https://github.com/mlarocca/jsgraphs/issues/23)
 - [ ] [removeVertex()](https://github.com/mlarocca/jsgraphs/issues/20)
 - [ ] [removeEdge()](https://github.com/mlarocca/jsgraphs/issues/21)
-- [ ] Add label and data fields for vertices
+- [X] Add label and data fields for vertices
 - [ ] Add options to display/hide vertex name/label
 - [ ] Union of 2 disjoint graphs
 - [ ] DFS returns all cycles found
