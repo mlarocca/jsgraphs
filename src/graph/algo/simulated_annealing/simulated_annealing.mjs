@@ -18,7 +18,7 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  *
  * @return {*} The point corresponding to the optimum found by the algorithm (be warned: it's NOT guaranteed that this is a global nor local minimum).
  */
-export function simulatedAnnealing(cost, updateStep, maxSteps, P0, T0, k = 1, alpha = 0.98, verbose = true) {
+export default function simulatedAnnealing(cost, updateStep, maxSteps, P0, T0, k = 1, alpha = 0.98, verbose = true) {
   [maxSteps, T0, k, alpha] = validate(maxSteps, T0, k, alpha);
   // Update the temperature every 0.1% of the steps - a total of 1000 times
   const temperatureUpdateSteps = Math.max(1, Math.round(maxSteps / 1000));
