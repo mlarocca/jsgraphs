@@ -999,6 +999,24 @@ export class UndirectedGraph extends Graph {
     return e;
   }
 
+  setEdgeWeight(edge, weight) {
+    if (!isNumber(weight)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('Graph.setEdgeWeight', 'weight', weight));
+    }
+    const e = this.getEdge(edge);
+    if (isDefined(e)) {
+      e.weight = weight;
+    } else {
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.setEdgeWeight', edge));
+    }
+    const eT = this.getEdgeBetween(edge.destination, edge.source);
+    if (isDefined(eT)) {
+      eT.weight = weight;
+    } else {
+      throw new Error(ERROR_MSG_EDGE_NOT_FOUND('Graph.setEdgeWeight', edge.transpose()));
+    }
+  }
+
   clone() {
     let g = new UndirectedGraph();
     for (const v of getVertices(this)) {
