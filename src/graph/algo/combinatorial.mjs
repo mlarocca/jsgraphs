@@ -1,12 +1,18 @@
 import { isNumber, range, toNumber } from "../../common/numbers.mjs";
 import { ERROR_MSG_INVALID_ARGUMENT } from "../../common/errors.mjs";
 
+/**
+ * @class Permutations
+ * @description
+ * Create a container for the permutations of positive integers.
+ * For instance, Permutations(3) will generate permutations [0,1,2], [0,2,1], [1,0,2], [1,2,0], [2,0,1], [2,1,0].
+ */
 export class Permutations {
   #current
 
   /**
-   *
-   * @param {Number} n The size of the permutation.
+   * @constructor
+   * @param {Number} size The number of elements in the permutations: each will contain numbers between 0 and size-1.
    */
   constructor(size) {
     const n = toNumber(size);
@@ -16,6 +22,13 @@ export class Permutations {
     this.#current = range(0, n);
   }
 
+  /**
+   * @name all
+   * @for Permutations
+   * @generator
+   * @description
+   * Generates all remaining (i.e., not consumed) permutations in the collection.
+   */
   *all() {
     while (this.#current !== null) {
       yield this.#current.slice();
@@ -23,6 +36,15 @@ export class Permutations {
     }
   }
 
+  /**
+   * @name next
+   * @for Permutations
+   * @description
+   * Return (and consumes) the next permutation in the collection. If all permutations have been consumed, it returns null.
+   *
+   * @return {Array<Number>|null} Either the next permutation that can be generated, or null if all permutations
+   * have been consumed.
+   */
   next() {
     const n = this.#current?.length ?? 0;
 
