@@ -7,7 +7,9 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  * Perform simulated annealing optimization.
  *
  * @param {Function} cost A function taking a point in the problem space and returning the cost of that solution.
- * @param {Function} updateStep A function taking current point (in the problem space) and temperature, and returning a new candidate solution.
+ * @param {Function} updateStep A function taking current point (in the problem space) and temperature,
+ *                              and returning a new candidate solution.
+ *                              Warning: The function must NOT have side effects and must NOT change its input.
  * @param {Number} maxSteps The maximum number of optimization steps to be performed.
  * @param {*} P0 Starting solution: a point in the problem space.
  * @param {Number} T0 Initial temperature of the system. This value must be positive.
@@ -26,13 +28,13 @@ export default function simulatedAnnealing(cost, updateStep, maxSteps, P0, T0, k
   let T = T0;
   for (let i = 1; i <= maxSteps; i++) {
     T = temperatureUpdate(T, alpha, i, temperatureUpdateSteps);
-    const P = updateStep(P0.slice(0), T);
+    const P = updateStep(P0, T);
     const delta = cost(P) - cost(P0);
     if (acceptTransition(delta, k, T)) {
       P0 = P;
     }
     if (verbose) {
-      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} | Cost ${cost(P0)} `)
+      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} (${Math.exp(-delta / k / T)}) | Cost ${cost(P0)} `)
     }
   }
   return P0;

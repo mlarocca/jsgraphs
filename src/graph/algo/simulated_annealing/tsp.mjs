@@ -1,4 +1,4 @@
-import Graph from "../../../graph/graph.mjs";
+import Graph from "../../graph.mjs";
 import { randomInt } from "../../../common/numbers.mjs";
 import simulatedAnnealing from "./simulated_annealing.mjs";
 
@@ -138,6 +138,8 @@ function swap(P, i, j) {
 }
 
 function randomTspStep(P) {
+  // Must make a copy first
+  P = P.slice(0);
   const choice = Math.random();
   if (choice < 0.1) {
     return swapAdjacentPairs(P);
