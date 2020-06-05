@@ -1,13 +1,15 @@
 import Graph from "../../graph.mjs";
 import Embedding from "../../embedding/embedding.mjs";
 import Point2D from "../../../geometric/point2d.mjs";
-import { randomDouble, randomInt } from "../../../common/numbers.mjs";
+import { isNumber, randomDouble, randomInt, toNumber } from "../../../common/numbers.mjs";
 import simulatedAnnealing from "./simulated_annealing.mjs";
 
 /**
- * @name forceDirectedEmbedding
+ * @name niceEmbedding
  * @description
- * Produces an embedding based on force-directed drawing.
+ * Produces an embedding loosely inspired by force-directed drawing, based on the paper:
+ * "Ron Davidson and David Harel.
+ *  Drawing graphs nicely using simulated annealing. ACM Transactions on Graphics, 15(4):301–331, 1996."
  *
  * @param {Graph} graph The (complete) graph for which we need to find the best tour.
  * @param {Number} maxSteps The maximum number of optimization steps to be performed.
@@ -29,12 +31,26 @@ import simulatedAnnealing from "./simulated_annealing.mjs";
  *
  * @return {Embedding} An embedding for the graph.
  */
-export default function forceDirectedEmbedding(graph, maxSteps, lambda1, lambda2, lambda3, lambda4,
+export default function niceEmbedding(graph, maxSteps, lambda1, lambda2, lambda3, lambda4,
   { T0 = 1000, k = 1e9, alpha = 0.9, width = 480, height = 480, verbose = false } = {}) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
-    throw new Error(ERROR_MSG_INVALID_ARGUMENT('tsp', 'graph', graph));
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'graph', graph));
   }
-  const desiredEdgeLength = Math.sqrt(width * height / graph.vertices.length);
+  // Check lambda parameters (the normalization factors) and make sure they are converted to number type.
+  if (!isNumber(lambda1)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda1', lambda1));
+  }
+  if (!isNumber(lambda2)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda2', lambda2));
+  }
+  if (!isNumber(lambda3)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda3', lambda3));
+  }
+  if (!isNumber(lambda4)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda4', lambda4));
+  }
+  [lambda1, lambda2, lambda3, lambda4] = [lambda1, lambda2, lambda3, lambda4].map(maybeNum => toNumber(maybeNum));
+
   // NB: width and height will be validated by Embedding.forGraph
   // The other parameters will be validated by method simulatedAnnealing
 

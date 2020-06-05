@@ -9,7 +9,7 @@ import {Permutations} from './src/graph/algo/combinatorial.mjs';
 import simulatedAnnealing from './src/graph/algo/simulated_annealing/simulated_annealing.mjs';
 import tsp from './src/graph/algo/simulated_annealing/tsp.mjs';
 import {default as annealingMce} from './src/graph/algo/simulated_annealing/mcn.mjs';
-import forceDirectedEmbedding from './src/graph/algo/simulated_annealing/force_directed.mjs';
+import niceEmbedding from './src/graph/algo/simulated_annealing/nice.mjs';
 
 import Point2D from './src/geometric/point2d.mjs';
 
@@ -29,7 +29,7 @@ globalThis.jsgraphs = {
       simulatedAnnealing: simulatedAnnealing,
       travelingSalesmanProblem: tsp,
       minimumIntersectionsEmbedding: annealingMce,
-      forceDirectedEmbedding: forceDirectedEmbedding
+      niceEmbedding: niceEmbedding
     },
     Permutations: Permutations,
   }
