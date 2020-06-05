@@ -788,9 +788,18 @@ export class UndirectedGraph extends Graph {
     return g;
   }
 
-  static squareMesh(n) {
+  /**
+   * @name squareGrid
+   * @description
+   * Creates a special graph: a square mesh with `n` vertices on each side.
+   *
+   * @param {Number} n The number of vertices per side: an n by n mesh will be created.
+   *
+   * @return {UndirectedGraph} A new square mesh graph.
+   */
+  static squareGrid(n) {
     if (!isNumber(n) || n < 1) {
-      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.squareMesh', 'n', n));
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.squareGrid', 'n', n));
     }
 
     let g = new UndirectedGraph();
@@ -801,6 +810,41 @@ export class UndirectedGraph extends Graph {
         const vId = g.createVertex(v);
         if (row > 1) {
           const uId = Vertex.idFromName(`<${row - 1}><${col}>`);
+          g.createEdge(uId, vId);
+        }
+        if (col > 1) {
+          const uId = Vertex.idFromName(`<${row}><${col - 1}>`);
+          g.createEdge(uId, vId);
+        }
+      })
+    })
+    return g;
+  }
+
+  /**
+   * @name triangularGrid
+   * @description
+   * Creates a special graph: a triangular  mesh with `n` vertices on each side.
+   *
+   * @param {Number} n The number of vertices per side: an n by n mesh will be created.
+   *
+   * @return {UndirectedGraph} A new square mesh graph.
+   */
+  static triangularGrid(n) {
+    if (!isNumber(n) || n < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.squareGrid', 'n', n));
+    }
+
+    let g = new UndirectedGraph();
+
+    range(1, n + 1).forEach(row => {
+      range(1, n - row + 2).forEach(col => {
+        const v = `<${row}><${col}>`;
+        const vId = g.createVertex(v);
+        if (row > 1) {
+          let uId = Vertex.idFromName(`<${row - 1}><${col}>`);
+          g.createEdge(uId, vId);
+          uId = Vertex.idFromName(`<${row - 1}><${col + 1}>`);
           g.createEdge(uId, vId);
         }
         if (col > 1) {

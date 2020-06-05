@@ -92,7 +92,7 @@ describe('UndirectedGraph API', () => {
   });
 
   it('# should have some static methods overwritten', () => {
-    let staticMethods = ['completeGraph', 'completeBipartiteGraph', 'squareMesh'];
+    let staticMethods = ['completeGraph', 'completeBipartiteGraph', 'squareGrid', 'triangularGrid'];
     testStaticAPI(UndirectedGraph, staticMethods);
   });
 
