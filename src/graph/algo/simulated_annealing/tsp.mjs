@@ -19,7 +19,7 @@ import simulatedAnnealing from "./simulated_annealing.mjs";
  *  - solution: The vertex permutation corresponding to the optimum found by the algorithm (not guaranteed to be optimal);
  *  - cost: The sum of the edges in the best tour found.
  */
-export default function tsp(graph, maxSteps, T0 = 200, k = 1000, alpha = 0.99, verbose = false) {
+export default function tsp(graph, maxSteps, {T0 = 200, k = 1000, alpha = 0.99, verbose = false} = {}) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('tsp', 'graph', graph));
   }
