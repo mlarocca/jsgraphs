@@ -12,17 +12,17 @@ import simulatedAnnealing from "./simulated_annealing.mjs";
  *
  * @param {Graph} graph The (complete) graph for which we need to find the best tour.
  * @param {Number} maxSteps The maximum number of optimization steps to be performed.
- * @param {Number} width The width of the canvas into which the graph will be embedded.
- * @param {Number} height The height of the canvas into which the graph will be embedded.
  * @param {Number} T0 Initial temperature of the system. This value must be positive.
  * @param {Number} k The Boltzmann constant, used to adjust the acceptance probability of worse solutions. This value must be positive.
  * @param {Number} alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be update using the rule T = alpha*T.
  *                       This must be between 0 and 1 (both excluded).
+ * @param {Number} width The width of the canvas into which the graph will be embedded.
+ * @param {Number} height The height of the canvas into which the graph will be embedded.
  * @param {Boolean} verbose If true, prints a summary message at each iteration.
  *
  * @return {Embedding} An embedding for the graph.
  */
-export default function minimumIntersectionsEmbedding(graph, maxSteps, width = 480, height = 480, T0 = 200, k = 0.1, alpha = 0.98, verbose = false) {
+export default function minimumIntersectionsEmbedding(graph, maxSteps, T0 = 200, k = 0.1, alpha = 0.98, width = 480, height = 480, verbose = false) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('tsp', 'graph', graph));
   }

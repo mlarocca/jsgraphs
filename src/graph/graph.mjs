@@ -17,150 +17,6 @@ import { ERROR_MSG_INVALID_DATA } from '../common/errors.mjs';
 
 const _vertices = new WeakMap();
 
-class MutableVertex extends Vertex {
-  /**
-   * @private
-   */
-  #adjacencyMap;
-
-  /**
-   * @constructor
-   * @for GVertex
-   *
-   * Construct an object representation for a graph's vertex.
-   *
-   * @param {*} name  The vertex's name.
-   * @param {number?} weight  The weight associated to the vertex (by default, 1).
-   * @param {string?} label  The string label associated to the vertex.
-   * @param {*} data  Some data associated with the vertex. Must be serializable.
-   * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
-   * @return {MutableVertex}  The Vertex created.
-   * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, weight is not
-   *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
-   */
-  constructor(name, { weight, label, data, outgoingEdges = [] } = {}) {
-    super(name, { weight: weight, label: label, data: data });
-    if (!Array.isArray(outgoingEdges)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
-    }
-
-    this.#adjacencyMap = new Map();
-
-    outgoingEdges.forEach(edge => {
-      if (!(edge instanceof Edge) || this.id !== edge.source.id) {
-        throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
-      }
-
-      this.addEdge(edge);
-    });
-  }
-
-  /**
-   * For a multigraph, returns all the edges starting at this vertex.
-   * For a simple graph, returns only the last outgoing edge added between this vertex and each other vertex.
-   * @returns {Array}
-   */
-  *outgoingEdges() {
-    for (const edgesArray of this.#adjacencyMap.values()) {
-      const n = edgesArray.length;
-      if (n > 0) {
-        yield edgesArray[n - 1];
-      }
-    }
-  }
-
-  outDegree() {
-    let n = 0;
-    for (const edgesArray of this.#adjacencyMap.values()) {
-      if (edgesArray.length > 0) {
-        ++n;
-      }
-    }
-    return n;
-  }
-
-  /**
-   *
-   * @param {MutableVertex} v
-   * @returns {undefined}
-   */
-  edgeTo(v) {
-    if (!(v instanceof MutableVertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
-    }
-
-    const edges = this.#adjacencyMap.get(v.id) ?? [];
-    const n = edges.length;
-    return n > 0 ? edges[n - 1] : undefined;
-  }
-
-  addEdge(edge) {
-    if ((!(edge instanceof Edge)) || this.id !== edge.source.id) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
-    }
-    return replaceEdgeTo(this.#adjacencyMap, edge.destination, edge);
-  }
-
-  addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
-    if (!(v instanceof MutableVertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
-    }
-    const edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
-    this.addEdge(edge);
-    return edge;
-  }
-
-  removeEdge(edge) {
-    if (!(edge instanceof Edge) || this.id !== edge.source.id) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
-    }
-    return replaceEdgeTo(this.#adjacencyMap, edge.destination);
-  }
-
-  removeEdgeTo(v) {
-    if (!(v instanceof MutableVertex)) {
-      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
-    }
-    return replaceEdgeTo(this.#adjacencyMap, v);
-  }
-
-  /**
-   * @override
-   */
-  clone() {
-    return new MutableVertex(this.name, { weight: this.weight });
-  }
-
-  /**
-   * @override
-   */
-  toString() {
-    // Use a different bracket to make it possible to distinguish this from regular vertices
-    return `{${this.id}}`;
-  }
-}
-
-/**
- * @method replaceEdgeTo
- * @for GVertex
- * @private
- *
- * @param {Array[Vertex]} adj
- * @param {Vertex} destination
- * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
- *                        remove the old edge.
- */
-function replaceEdgeTo(adj, destination, newEdge = null) {
-  let edgesToDest = [];
-
-  // then add the new edge (if defined)
-  if (isDefined(newEdge)) {
-    edgesToDest.push(newEdge);
-  }
-
-  adj.set(destination.id, edgesToDest);
-}
-
 /** @class Graph
  *
  * This module exports two classes to create instances of graphs objects.
@@ -933,6 +789,74 @@ export class UndirectedGraph extends Graph {
   }
 
   /**
+   * @name squareGrid
+   * @description
+   * Creates a special graph: a square mesh with `n` vertices on each side.
+   *
+   * @param {Number} n The number of vertices per side: an n by n mesh will be created.
+   *
+   * @return {UndirectedGraph} A new square mesh graph.
+   */
+  static squareGrid(n) {
+    if (!isNumber(n) || n < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.squareGrid', 'n', n));
+    }
+
+    let g = new UndirectedGraph();
+
+    range(1, n + 1).forEach(row => {
+      range(1, n + 1).forEach(col => {
+        const v = `<${row}><${col}>`;
+        const vId = g.createVertex(v);
+        if (row > 1) {
+          const uId = Vertex.idFromName(`<${row - 1}><${col}>`);
+          g.createEdge(uId, vId);
+        }
+        if (col > 1) {
+          const uId = Vertex.idFromName(`<${row}><${col - 1}>`);
+          g.createEdge(uId, vId);
+        }
+      })
+    })
+    return g;
+  }
+
+  /**
+   * @name triangularGrid
+   * @description
+   * Creates a special graph: a triangular  mesh with `n` vertices on each side.
+   *
+   * @param {Number} n The number of vertices per side: an n by n mesh will be created.
+   *
+   * @return {UndirectedGraph} A new square mesh graph.
+   */
+  static triangularGrid(n) {
+    if (!isNumber(n) || n < 1) {
+      throw new Error(ERROR_MSG_INVALID_ARGUMENT('UndirectedGraph.squareGrid', 'n', n));
+    }
+
+    let g = new UndirectedGraph();
+
+    range(1, n + 1).forEach(row => {
+      range(1, n - row + 2).forEach(col => {
+        const v = `<${row}><${col}>`;
+        const vId = g.createVertex(v);
+        if (row > 1) {
+          let uId = Vertex.idFromName(`<${row - 1}><${col}>`);
+          g.createEdge(uId, vId);
+          uId = Vertex.idFromName(`<${row - 1}><${col + 1}>`);
+          g.createEdge(uId, vId);
+        }
+        if (col > 1) {
+          const uId = Vertex.idFromName(`<${row}><${col - 1}>`);
+          g.createEdge(uId, vId);
+        }
+      })
+    })
+    return g;
+  }
+
+  /**
    * Return all edges in the graph. Since in undirected graphs the direction of an edge doesn't count,
    * it deliberately order vertices such that for edge (u,v) u <= v.
    */
@@ -1205,6 +1129,150 @@ export class UndirectedGraph extends Graph {
     // For an undirected graph, each connected component is also a strongly connected component.
     return this.connectedComponents();
   }
+}
+
+class MutableVertex extends Vertex {
+  /**
+   * @private
+   */
+  #adjacencyMap;
+
+  /**
+   * @constructor
+   * @for GVertex
+   *
+   * Construct an object representation for a graph's vertex.
+   *
+   * @param {*} name  The vertex's name.
+   * @param {number?} weight  The weight associated to the vertex (by default, 1).
+   * @param {string?} label  The string label associated to the vertex.
+   * @param {*} data  Some data associated with the vertex. Must be serializable.
+   * @param {array<Edge>?} outgoingEdges  An optional array of outgoing edges from this vertices.
+   * @return {MutableVertex}  The Vertex created.
+   * @throws {TypeError} if the arguments are not valid, i.e. name is not defined, weight is not
+   *                     (parseable to) a number, or outgoingEdges is not a valid array of Edges.
+   */
+  constructor(name, { weight, label, data, outgoingEdges = [] } = {}) {
+    super(name, { weight: weight, label: label, data: data });
+    if (!Array.isArray(outgoingEdges)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+    }
+
+    this.#adjacencyMap = new Map();
+
+    outgoingEdges.forEach(edge => {
+      if (!(edge instanceof Edge) || this.id !== edge.source.id) {
+        throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex constructor', 'outgoingEdges', outgoingEdges));
+      }
+
+      this.addEdge(edge);
+    });
+  }
+
+  /**
+   * For a multigraph, returns all the edges starting at this vertex.
+   * For a simple graph, returns only the last outgoing edge added between this vertex and each other vertex.
+   * @returns {Array}
+   */
+  *outgoingEdges() {
+    for (const edgesArray of this.#adjacencyMap.values()) {
+      const n = edgesArray.length;
+      if (n > 0) {
+        yield edgesArray[n - 1];
+      }
+    }
+  }
+
+  outDegree() {
+    let n = 0;
+    for (const edgesArray of this.#adjacencyMap.values()) {
+      if (edgesArray.length > 0) {
+        ++n;
+      }
+    }
+    return n;
+  }
+
+  /**
+   *
+   * @param {MutableVertex} v
+   * @returns {undefined}
+   */
+  edgeTo(v) {
+    if (!(v instanceof MutableVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.edgeTo', 'v', v));
+    }
+
+    const edges = this.#adjacencyMap.get(v.id) ?? [];
+    const n = edges.length;
+    return n > 0 ? edges[n - 1] : undefined;
+  }
+
+  addEdge(edge) {
+    if ((!(edge instanceof Edge)) || this.id !== edge.source.id) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdge', 'edge', edge));
+    }
+    return replaceEdgeTo(this.#adjacencyMap, edge.destination, edge);
+  }
+
+  addEdgeTo(v, { edgeWeight, edgeLabel } = {}) {
+    if (!(v instanceof MutableVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.addEdgeTo', 'v', v));
+    }
+    const edge = new Edge(this, v, { weight: edgeWeight, label: edgeLabel });
+    this.addEdge(edge);
+    return edge;
+  }
+
+  removeEdge(edge) {
+    if (!(edge instanceof Edge) || this.id !== edge.source.id) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdge', 'edge', edge));
+    }
+    return replaceEdgeTo(this.#adjacencyMap, edge.destination);
+  }
+
+  removeEdgeTo(v) {
+    if (!(v instanceof MutableVertex)) {
+      throw new TypeError(ERROR_MSG_INVALID_ARGUMENT('GVertex.removeEdgeTo', 'v', v));
+    }
+    return replaceEdgeTo(this.#adjacencyMap, v);
+  }
+
+  /**
+   * @override
+   */
+  clone() {
+    return new MutableVertex(this.name, { weight: this.weight });
+  }
+
+  /**
+   * @override
+   */
+  toString() {
+    // Use a different bracket to make it possible to distinguish this from regular vertices
+    return `{${this.id}}`;
+  }
+}
+
+/**
+ * @method replaceEdgeTo
+ * @for GVertex
+ * @private
+ *
+ * @param {Array[Vertex]} adj
+ * @param {Vertex} destination
+ * @param {Edge} newEdge  The edge with whom the old one needs to be replaced. If null or undefined, it will
+ *                        remove the old edge.
+ */
+function replaceEdgeTo(adj, destination, newEdge = null) {
+  let edgesToDest = [];
+
+  // then add the new edge (if defined)
+  if (isDefined(newEdge)) {
+    edgesToDest.push(newEdge);
+  }
+
+  adj.set(destination.id, edgesToDest);
 }
 
 /**

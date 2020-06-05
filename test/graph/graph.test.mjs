@@ -86,6 +86,26 @@ describe('Graph API', () => {
   });
 });
 
+describe('UndirectedGraph API', () => {
+  it('# Class should have a constructor method', () => {
+    UndirectedGraph.should.be.a.constructor();
+  });
+
+  it('# should have some static methods overwritten', () => {
+    let staticMethods = ['completeGraph', 'completeBipartiteGraph', 'squareGrid', 'triangularGrid'];
+    testStaticAPI(UndirectedGraph, staticMethods);
+  });
+
+  it('# Object\'s interface should have some methods overwritten', () => {
+    let edge = new UndirectedGraph();
+    let methods = ['constructor', 'isDirected', 'createEdge', 'addEdge', 'setEdgeWeight', 'clone',
+      'connectedComponents', 'isConnected', 'isBipartite', 'isComplete', 'isCompleteBipartite',
+      'symmetricClosure', 'transpose', 'topologicalOrdering', 'stronglyConnectedComponents'];
+    let attributes = ['edges', 'simpleEdges'];
+    testAPI(edge, attributes, methods);
+  });
+});
+
 describe('id', () => {
   it('# should be different if graphs have different vertices', () => {
     let g1 = new Graph();
