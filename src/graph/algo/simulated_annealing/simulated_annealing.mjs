@@ -26,16 +26,19 @@ export default function simulatedAnnealing(cost, updateStep, maxSteps, P0, T0, k
   const temperatureUpdateSteps = Math.max(1, Math.round(maxSteps / 1000));
 
   let T = T0;
+  let currentCost = cost(P0);
   for (let i = 1; i <= maxSteps; i++) {
-    T = temperatureUpdate(T, alpha, i, temperatureUpdateSteps);
     const P = updateStep(P0, T);
-    const delta = cost(P) - cost(P0);
+    const updatedCost = cost(P);
+    const delta = updatedCost - currentCost;
     if (acceptTransition(delta, k, T)) {
       P0 = P;
+      currentCost = updatedCost;
     }
     if (verbose) {
-      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} (${Math.exp(-delta / k / T)}) | Cost ${cost(P0)} `)
+      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} (${Math.exp(-delta / k / T)}) | Cost ${currentCost} `)
     }
+    T = temperatureUpdate(T, alpha, i, temperatureUpdateSteps);
   }
   return P0;
 }

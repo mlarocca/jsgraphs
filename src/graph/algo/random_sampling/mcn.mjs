@@ -16,7 +16,7 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  *
  * @return {Embedding} An embedding for the graph in a rectangular region of size width * height.
  */
-export default function minimumIntersectionsEmbedding(graph, maxSteps, width = 480, height = 480, verbose = false) {
+export default function minimumIntersectionsEmbedding(graph, maxSteps, {width = 480, height = 480, verbose = false} = {}) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('minimumIntersectionsEmbedding', 'graph', graph));
   }
