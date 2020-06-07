@@ -21,18 +21,21 @@ import simulatedAnnealing from "./simulated_annealing.mjs";
  *                         Higher values push for shorter edges.
  * @param {Number} lambda4 Controls the weight of the number of intersections in the cost function.
  *                         Higher values penalize intersections more.
- * @param {Number} T0 Initial temperature of the system. This value must be positive.
- * @param {Number} k The Boltzmann constant, used to adjust the acceptance probability of worse solutions. This value must be positive.
- * @param {Number} alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be update using the rule T = alpha*T.
- *                       This must be between 0 and 1 (both excluded).
- * @param {Number} width The width of the canvas into which the graph will be embedded.
- * @param {Number} height The height of the canvas into which the graph will be embedded.
- * @param {Boolean} verbose If true, prints a summary message at each iteration.
+ * @param {Object} options A few optional parameters for the algorithm.
+ * @param {Number} options.P0 An optional initial solution. If omitted, the initial point will be chosen randomly.
+ * @param {Number} options.T0 Initial temperature of the system. This value must be positive.
+ * @param {Number} options.k The Boltzmann constant, used to adjust the acceptance probability of worse solutions.
+ *                           This value must be positive.
+ * @param {Number} options.alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be
+ *                               updated using the rule T = alpha*T. This must be between 0 and 1 (both excluded).
+ * @param {Number} options.width The width of the canvas into which the graph will be embedded.
+ * @param {Number} options.height The height of the canvas into which the graph will be embedded.
+ * @param {Boolean} options.verbose If true, prints a summary message at each iteration.
  *
  * @return {Embedding} An embedding for the graph.
  */
 export default function niceEmbedding(graph, maxSteps, lambda1, lambda2, lambda3, lambda4,
-  { T0 = 1000, k = 1e9, alpha = 0.9, width = 480, height = 480, verbose = false } = {}) {
+  { P0 = null, T0 = 1000, k = 1e9, alpha = 0.9, width = 480, height = 480, verbose = false } = {}) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'graph', graph));
   }
@@ -54,10 +57,14 @@ export default function niceEmbedding(graph, maxSteps, lambda1, lambda2, lambda3
   // NB: width and height will be validated by Embedding.forGraph
   // The other parameters will be validated by method simulatedAnnealing
 
-  const P0 = Embedding.forGraph(graph, { width: width, height: height });
+  if (P0 instanceof Embedding) {
+    P0 = P0.clone();
+  } else {
+    P0 = Embedding.forGraph(graph, { width: width, height: height });
+  }
   // Start simulated annealing
   return simulatedAnnealing(costFunction.bind(null, width, height, lambda1, lambda2, lambda3, lambda4),
-    randomStep.bind(null, width, height), maxSteps, P0, T0, k, alpha, verbose);
+    randomStep(0.5, width, height), maxSteps, P0, T0, k, alpha, verbose);
 }
 
 /**
@@ -110,39 +117,50 @@ function costFunction(width, height, lambda1, lambda2, lambda3, lambda4, embeddi
  * @name
  * @description
  * Performs a random transition, changing current solution into a new candidate.
+ * This function binds a few parameters in a closure and generates the actual
+ * method that will perform the random step.
+ * This is also needed to have a shrinking range for the local search
+ * (the short-range update moves a vertex within a certain radius,
+ * that shrinks every time this transition is applied).
  *
  * @param {Number} width The width of the drawing area.
  * @param {Number} height The height of the drawing area.
  * @param {Embedding} embedding Current solution.
  */
-function randomStep(width, height, embedding) {
-  embedding = embedding.clone();
-  const vertices = [...embedding.vertices];
+function randomStep(range, width, height) {
+  return embedding => {
+    embedding = embedding.clone();
+    const vertices = [...embedding.vertices];
 
-  const choice = Math.random();
-  if (choice < 0.1) {
-    return swapVertices(embedding, vertices);
-  } else if (choice < 0.2) {
-    return resetVertex(width, height, embedding, vertices);
-  } else {
-    return updateVertex(width, height, embedding, vertices);
-  }
+    const choice = Math.random();
+    if (choice < 0.2) {
+      return swapVertices(embedding, vertices);
+    } else if (choice < 0.6) {
+      return resetVertex(width, height, embedding, vertices);
+    } else {
+      // Progressively restrict the range of the neighborhood
+      range = 0.999 * range;
+      return updateVertex(range, width, height, embedding, vertices);
+    }
+  };
 }
 
 /**
  * Chooses a random vertex in an embedding and moves it in small range around its current position.
  */
-function updateVertex(width, height, embedding, vertices) {
+function updateVertex(range, width, height, embedding, vertices) {
   const n = vertices.length;
   const v = vertices[randomInt(0, n)];
+  // Make sure range is not too small - at least 2% of width/height
+  range = Math.max(0.02, range);
+  const xMultiplier = randomDouble(-range, range);
+  const yMultiplier = randomDouble(-range, range);
 
-  const xMultiplier = randomDouble(-0.1, 0.1);
-  const yMultiplier = randomDouble(-0.1, 0.1);
-
+  // Make sure both 1 <= x <= width-1 and 1 <= y <= height-1 to avoid edge cases
   let x = v.position.x + width * xMultiplier;
-  x = Math.max(0, Math.min(x, width));
+  x = Math.max(1, Math.min(x, width - 1));
   let y = v.position.y + height * yMultiplier;
-  y = Math.max(0, Math.min(y, height));
+  y = Math.max(1, Math.min(y, height - 1));
 
   embedding.setVertexPosition(v, new Point2D(x, y));
   return embedding;
@@ -154,9 +172,9 @@ function updateVertex(width, height, embedding, vertices) {
 function resetVertex(width, height, embedding, vertices) {
   const n = vertices.length;
   const v = vertices[randomInt(0, n)];
-
-  const x = Math.random() * width;
-  const y = Math.random() * height;
+  // Avoid borders
+  const x = 1 + Math.random() * (width - 2);
+  const y = 1 + Math.random() * (height - 2);
 
   embedding.setVertexPosition(v, new Point2D(x, y));
   return embedding;
