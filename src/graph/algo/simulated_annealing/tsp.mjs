@@ -9,23 +9,26 @@ import simulatedAnnealing from "./simulated_annealing.mjs";
  *
  * @param {Graph} graph The (complete) graph for which we need to find the best tour.
  * @param {Number} maxSteps The maximum number of optimization steps to be performed.
- * @param {Number} T0 Initial temperature of the system. This value must be positive.
- * @param {Number} k The Boltzmann constant, used to adjust the acceptance probability of worse solutions. This value must be positive.
- * @param {Number} alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be update using the rule T = alpha*T.
- *                       This must be between 0 and 1 (both excluded).
- * @param {Boolean} verbose If true, prints a summary message at each iteration.
+ * @param {Object} options A few optional parameters for the algorithm.
+ * @param {Number} options.P0 An optional initial solution. If omitted, the initial point will be chosen randomly.
+ * @param {Number} options.T0 Initial temperature of the system. This value must be positive.
+ * @param {Number} options.k The Boltzmann constant, used to adjust the acceptance probability of worse solutions.
+ *                           This value must be positive.
+ * @param {Number} options.alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be
+ *                               updated using the rule T = alpha*T. This must be between 0 and 1 (both excluded).
+ * @param {Boolean} options.verbose If true, prints a summary message at each iteration.
  *
  * @return {Object} A POJO with two fields:
  *  - solution: The vertex permutation corresponding to the optimum found by the algorithm (not guaranteed to be optimal);
  *  - cost: The sum of the edges in the best tour found.
  */
-export default function tsp(graph, maxSteps, {T0 = 200, k = 1000, alpha = 0.99, verbose = false} = {}) {
+export default function tsp(graph, maxSteps, { P0 = null, T0 = 200, k = 1000, alpha = 0.99, verbose = false } = {}) {
   if (!(graph instanceof Graph) || graph.isEmpty()) {
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('tsp', 'graph', graph));
   }
   // NB: The other parameters will be validated by method simulatedAnnealing
   // Choose an initial solution, keeping the initial vertex fixed
-  const P0 = shuffle(graph.vertices, 1);
+  P0 = P0 ?? shuffle(graph.vertices, 1);
   // Start simulated annealing
   const solution = simulatedAnnealing(tspTourCost.bind(null, graph), randomTspStep, maxSteps, P0, T0, k, alpha, verbose);
   return { solution: solution, cost: tspTourCost(graph, solution) };
