@@ -2,7 +2,7 @@ import Graph from "../../graph.mjs";
 import Embedding from "../../embedding/embedding.mjs";
 import Point2D from "../../../geometric/point2d.mjs";
 import { randomDouble, randomInt } from "../../../common/numbers.mjs";
-import simulatedAnnealing from "./simulated_annealing.mjs";
+import simulatedAnnealing from "../../../algo/simulated_annealing.mjs";
 
 /**
  * @name minimumIntersectionsEmbedding

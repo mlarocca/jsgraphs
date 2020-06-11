@@ -1,6 +1,6 @@
 import Graph from "../../graph.mjs";
 import { randomInt } from "../../../common/numbers.mjs";
-import simulatedAnnealing from "./simulated_annealing.mjs";
+import simulatedAnnealing from "../../../algo/simulated_annealing.mjs";
 
 /**
  * @name tsp
