@@ -40,19 +40,7 @@ export default function niceEmbedding(graph, maxSteps, lambda1, lambda2, lambda3
     throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'graph', graph));
   }
   // Check lambda parameters (the normalization factors) and make sure they are converted to number type.
-  if (!isNumber(lambda1)) {
-    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda1', lambda1));
-  }
-  if (!isNumber(lambda2)) {
-    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda2', lambda2));
-  }
-  if (!isNumber(lambda3)) {
-    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda3', lambda3));
-  }
-  if (!isNumber(lambda4)) {
-    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda4', lambda4));
-  }
-  [lambda1, lambda2, lambda3, lambda4] = [lambda1, lambda2, lambda3, lambda4].map(maybeNum => toNumber(maybeNum));
+  [lambda1, lambda2, lambda3, lambda4] = validate(lambda1, lambda2, lambda3, lambda4);
 
   // NB: width and height will be validated by Embedding.forGraph
   // The other parameters will be validated by method simulatedAnnealing
@@ -68,7 +56,7 @@ export default function niceEmbedding(graph, maxSteps, lambda1, lambda2, lambda3
 }
 
 /**
- * @name crossingNumber
+ * @name costFunction
  * @private
  * @description
  * Computes the cost of a single solution (a graph embedding) as the number of edges crossing.
@@ -194,4 +182,21 @@ function swapVertices(embedding, vertices) {
     embedding.setVertexPosition(u, vPos);
   }
   return embedding
+}
+
+function validate(lambda1, lambda2, lambda3, lambda4) {
+  if (!isNumber(lambda1)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda1', lambda1));
+  }
+  if (!isNumber(lambda2)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda2', lambda2));
+  }
+  if (!isNumber(lambda3)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda3', lambda3));
+  }
+  if (!isNumber(lambda4)) {
+    throw new Error(ERROR_MSG_INVALID_ARGUMENT('niceEmbedding', 'lambda4', lambda4));
+  }
+
+  return [lambda1, lambda2, lambda3, lambda4].map(maybeNum => toNumber(maybeNum));
 }

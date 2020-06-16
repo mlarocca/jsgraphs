@@ -104,7 +104,8 @@ svg {
 
 .graph g.vertex text {
   font-family: 'Courier New', Courier, monospace;
-  fill: red;
+  fill: none;
+  stroke: none;
   font-size: medium;
   font-weight: bold;
   text-anchor: "middle"
