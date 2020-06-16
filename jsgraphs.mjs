@@ -3,13 +3,16 @@ import { UndirectedGraph } from './src/graph/graph.mjs';
 import Vertex from './src/graph/vertex.mjs';
 import Edge from './src/graph/edge.mjs';
 import Embedding from './src/graph/embedding/embedding.mjs';
-import {isPlanar} from './src/graph/algo/planarity/kuratowski.mjs';
-import {default as randomMce} from './src/graph/algo/random_sampling/mcn.mjs';
-import {Permutations} from './src/graph/algo/combinatorial.mjs';
+import { isPlanar } from './src/graph/algo/planarity/kuratowski.mjs';
+import { default as randomMce } from './src/graph/algo/random_sampling/mcn.mjs';
+import { Permutations } from './src/graph/algo/combinatorial.mjs';
 import simulatedAnnealing from './src/algo/simulated_annealing.mjs';
-import tsp from './src/graph/algo/simulated_annealing/tsp.mjs';
-import {default as annealingMce} from './src/graph/algo/simulated_annealing/mcn.mjs';
-import niceEmbedding from './src/graph/algo/simulated_annealing/nice.mjs';
+import geneticAlgorithm from './src/algo/genetic_algorithm.mjs';
+import tspSA from './src/graph/algo/simulated_annealing/tsp.mjs';
+import { default as annealingMce } from './src/graph/algo/simulated_annealing/mcn.mjs';
+import niceEmbeddingSA from './src/graph/algo/simulated_annealing/nice_embedding.mjs';
+import niceEmbeddingGA from './src/graph/algo/genetic/nice_embedding.mjs';
+import tspGA from './src/graph/algo/genetic/tsp.mjs';
 
 import Point2D from './src/geometric/point2d.mjs';
 
@@ -22,14 +25,19 @@ globalThis.jsgraphs = {
   Embedding: Embedding,
   algo: {
     isPlanar: isPlanar,
-    randomSampling : {
+    randomSampling: {
       minimumIntersectionsEmbedding: randomMce
     },
     simulatedAnnealing: {
       simulatedAnnealing: simulatedAnnealing,
-      travelingSalesmanProblem: tsp,
+      travelingSalesmanProblem: tspSA,
       minimumIntersectionsEmbedding: annealingMce,
-      niceEmbedding: niceEmbedding
+      niceEmbedding: niceEmbeddingSA
+    },
+    geneticAlgorithms: {
+      geneticAlgorithm: geneticAlgorithm,
+      niceEmbedding: niceEmbeddingGA,
+      travelingSalesmanProblem: tspGA
     },
     Permutations: Permutations,
   }

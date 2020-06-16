@@ -1,12 +1,12 @@
-import { isNumber, toNumber } from "../../../common/numbers.mjs";
-import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
+import { isNumber, toNumber } from "../common/numbers.mjs";
+import { ERROR_MSG_INVALID_ARGUMENT } from "../common/errors.mjs";
 
 /**
  * @name simulatedAnnealing
  * @description
  * Perform simulated annealing optimization.
  *
- * @param {Function} cost A function taking a point in the problem space and returning the cost of that solution.
+ * @param {Function} costFunction A function taking a point in the problem space and returning the cost of that solution.
  * @param {Function} updateStep A function taking current point (in the problem space) and temperature,
  *                              and returning a new candidate solution.
  *                              Warning: The function must NOT have side effects and must NOT change its input.
@@ -16,27 +16,27 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  * @param {Number} k The Boltzmann constant, used to adjust the acceptance probability of worse solutions. This value must be positive.
  * @param {Number} alpha The decay rate for the temperature: every 0.1% of the steps, the temperature will be update using the rule T = alpha*T.
  *                       This must be between 0 and 1 (both excluded).
- * @param {Boolean} verbose If true, prints a summary message at each iteration.
+ * @param {Boolean} verbose If true, prints a summary message at each iteration. Default: false.
  *
  * @return {*} The point corresponding to the optimum found by the algorithm (be warned: it's NOT guaranteed that this is a global nor local minimum).
  */
-export default function simulatedAnnealing(cost, updateStep, maxSteps, P0, T0, k = 1, alpha = 0.98, verbose = true) {
+export default function simulatedAnnealing(costFunction, updateStep, maxSteps, P0, T0, k = 1, alpha = 0.98, verbose = false) {
   [maxSteps, T0, k, alpha] = validate(maxSteps, T0, k, alpha);
   // Update the temperature every 0.1% of the steps - a total of 1000 times
   const temperatureUpdateSteps = Math.max(1, Math.round(maxSteps / 1000));
 
   let T = T0;
-  let currentCost = cost(P0);
+  let currentCost = costFunction(P0);
   for (let i = 1; i <= maxSteps; i++) {
     const P = updateStep(P0, T);
-    const updatedCost = cost(P);
+    const updatedCost = costFunction(P);
     const delta = updatedCost - currentCost;
     if (acceptTransition(delta, k, T)) {
       P0 = P;
       currentCost = updatedCost;
     }
     if (verbose) {
-      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} (${Math.exp(-delta / k / T)}) | Cost ${currentCost} `)
+      console.log(`It. ${i} | Temperature ${T} | delta ${delta} | Accepted? ${acceptTransition(delta, k, T)} (${Math.exp(-delta / k / T)}) | Cost ${currentCost}`);
     }
     T = temperatureUpdate(T, alpha, i, temperatureUpdateSteps);
   }
