@@ -28,9 +28,9 @@ import { default as geneticAlgorithm, Crossover, Mutation } from "../../../algo/
   *                               two parents. Mating between the two parents is randomly selected, otherwise
   *                               the algorithm will just select one of them to advance to next generation.
   *                               The choice of the elements for mating is based on tournament selection.
- * @param {Number} mutation1Ratio The probability that the 1st kind of mutation will be applied.
- * @param {Number} mutation2Ratio The probability that the 2nd kind of mutation will be applied.
- * @param {Number} mutation3Ratio The probability that the 3rd kind of mutation will be applied.
+ * @param {Number} mutation1Ratio The probability that the 1st kind of mutation (swapping 2 vertices' positions) will be applied.
+ * @param {Number} mutation2Ratio The probability that the 2nd kind of mutation (randomly reset a vertex's position) will be applied.
+ * @param {Number} mutation3Ratio The probability that the 3rd kind of mutation (randomly move a vertex) will be applied.
  * @param {Number} options.width The width of the canvas into which the graph will be embedded.
  * @param {Number} options.height The height of the canvas into which the graph will be embedded.
  * @param {Boolean} options.verbose If true, prints a summary message at each iteration.
@@ -71,7 +71,7 @@ export default function niceEmbedding(graph, maxSteps,
  *
  * @param {Embedding} graph The input graph.
  *
- * @return {Number} The number of edges' crossings for the embedding.
+ * @return {Number} The cost for a given embedding.
  */
 function costFunction(width, height, lambda1, lambda2, lambda3, lambda4, embedding) {
   let total = 0;
@@ -109,11 +109,23 @@ function costFunction(width, height, lambda1, lambda2, lambda3, lambda4, embeddi
   return total;
 }
 
-
+/**
+ * @name randomEmbedding
+ * @private
+ * @description
+ * Generates a random embedding for a graph.
+ */
 function randomEmbedding(graph, width, height) {
   return Embedding.forGraph(graph, { width: width, height: height });
 }
 
+/**
+ * @name mergeEmbeddings
+ * @private
+ * @description
+ * Crossover operator for two embeddings: takes some vertices' positions from one solution, and the remaining positions
+ * from the other solution.
+ */
 function mergeEmbeddings(embedding1, embedding2) {
   const vertices = [...embedding2.vertices];
   const n = vertices.length;
