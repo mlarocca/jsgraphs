@@ -170,17 +170,3 @@ function swap(P, i, j) {
   P[j] = tmp;
   return P;
 }
-
-function randomTspStep(P) {
-  // Must make a copy first
-  P = P.slice(0);
-  const choice = Math.random();
-  if (choice < 0.1) {
-    return swapAdjacentPairs(P);
-  } else if (choice < 0.8) {
-    return swapRandomPairs(P);
-  } else {
-    // We don't want the first vertex to be shuffled.
-    return shuffle(P, 1);
-  }
-}
