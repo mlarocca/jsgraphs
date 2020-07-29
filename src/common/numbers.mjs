@@ -112,6 +112,31 @@ export function* xrange(a, b, step = 1) {
 }
 
 /**
+ * @name randomBoolean
+ * @description
+ * Returns a random boolean value.
+ *
+ * @returns {0|1} Either true or false, randomly, with the same probability.
+ */
+export function randomBoolean() {
+    return Math.random() < 0.5;
+}
+
+/**
+ * @name randomBit
+ * @description
+ * Returns a random bit.
+ *
+ * @returns {0|1} Either 0 or 1, randomly, with the same probability.
+ */
+export function randomBit() {
+    return randomBoolean() ? 1 : 0;
+}
+
+/**
+ * @name randomInt
+ * @description
+ * Randomly choose an integer between a and b-1.
  *
  * @param {?number} a The lower boundary for the range of possible values (by default, the min negative safe integer).
  * @param {?number} b The upper boundary for the range of possible values (by default, the max positive safe integer).

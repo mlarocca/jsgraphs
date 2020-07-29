@@ -1,11 +1,12 @@
 import Graph from "../../graph.mjs";
 import { randomInt } from "../../../common/numbers.mjs";
 import { default as geneticAlgorithm, Crossover, Mutation } from "../../../algo/genetic_algorithm.mjs";
+import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
 
 /**
  * @name tsp
  * @description
- * Solve the tsp problem using simulated annealing optimization.
+ * Solve the tsp problem using a genetic algorithm.
  *
  * @param {Graph} graph The (complete) graph for which we need to find the best tour.
  * @param {Number} maxSteps The number of evolutionary steps that the population will undergo.
@@ -15,8 +16,10 @@ import { default as geneticAlgorithm, Crossover, Mutation } from "../../../algo/
  *                                        two parents. Mating between the two parents is randomly selected, otherwise
  *                                        the algorithm will just select one of them to advance to next generation.
  *                                        The choice of the elements for mating is based on tournament selection.
- * @param {Number} options.mutation1Ratio The probability that the 1st kind of mutation will be applied.
- * @param {Number} options.mutation2Ratio The probability that the 2nd kind of  mutation will be applied.
+ * @param {Number} options.mutation1Ratio The probability that the 1st kind of mutation (swapping adjacent pairs)
+ *                                        will be applied.
+ * @param {Number} options.mutation2Ratio The probability that the 2nd kind of  mutation (swapping random pairs)
+ *                                        will be applied.
  * @param {Number} options.populationSize The number of simulated organism that will be used.
  * @param {Boolean} options.verbose If true, prints a summary message at each iteration.
  *
@@ -42,7 +45,7 @@ export default function tsp(graph, maxSteps,
     tspTourCost.bind(null, graph),
     crossover, [mutation1, mutation2], randomSolution.bind(null, graph),
     populationSize, maxSteps, (P) => P.slice(0), verbose);  // Start simulated annealing
-  return { solution: solution, cost: tspTourCost(graph, solution) };
+    return { solution: solution, cost: tspTourCost(graph, solution) };
 }
 
 /**
@@ -75,9 +78,9 @@ function randomSolution(graph) {
 
 function mergeTours(tour1, tour2) {
   const n = tour1.length;
-  const crossoverPoint = randomInt(1, n); // Between 0 and n-2 included
+  const elementsFromTour1 = randomInt(1, n); // Between 1 and n-1 included
 
-  const newTour = tour1.slice(0, crossoverPoint);
+  const newTour = tour1.slice(0, elementsFromTour1);
   let tourSet = new Set(newTour);
 
   for (let i = 0; i < n; i++) {
