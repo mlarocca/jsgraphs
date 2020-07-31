@@ -8,7 +8,7 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  * @description
  * Solve the vertex cover problem using simulated annealing optimization.
  *
- * @param {Graph} graph The (complete) graph for which we need to find the best tour.
+ * @param {Graph} graph The (complete) graph for which we need to find the vertex cover.
  * @param {Number} maxSteps The number of evolutionary steps that the population will undergo.
  * @param {Object} options A few optional parameters for the algorithm.
  * @param {Number} options.crossoverChance The probability (as a ratio r, 0 <= r <= 1) that, during each evolutionary step,
@@ -22,8 +22,9 @@ import { ERROR_MSG_INVALID_ARGUMENT } from "../../../common/errors.mjs";
  * @param {Boolean} options.verbose If true, prints a summary message at each iteration.
  *
  * @return {Object} A POJO with two fields:
- *  - solution: The vertex permutation corresponding to the optimum found by the algorithm (not guaranteed to be optimal);
- *  - cost: The sum of the edges in the best tour found.
+ *  - solution: A bit array, with true for the vertices to be used as vertex cover (not guaranteed to be optimal, nor valid);
+ *  - cost: The size of the vertex cover found, if the solution is a valid vertex cover; a weighted sum including a term
+ *          for the edges that aren't covered, otherwise.
  */
 export default function vertexCover(graph, maxSteps,
   { populationSize = 50, crossoverChance = 0.2, mutation1Chance = 0.01, verbose = false } = {}) {
