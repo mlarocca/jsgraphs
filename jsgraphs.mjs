@@ -12,6 +12,7 @@ import tspSA from './src/graph/algo/simulated_annealing/tsp.mjs';
 import { default as annealingMce } from './src/graph/algo/simulated_annealing/mcn.mjs';
 import niceEmbeddingSA from './src/graph/algo/simulated_annealing/nice_embedding.mjs';
 import niceEmbeddingGA from './src/graph/algo/genetic/nice_embedding.mjs';
+import vertexCoverGA from './src/graph/algo/genetic/vertex_cover.mjs';
 import tspGA from './src/graph/algo/genetic/tsp.mjs';
 
 import Point2D from './src/geometric/point2d.mjs';
@@ -37,7 +38,8 @@ globalThis.jsgraphs = {
     geneticAlgorithms: {
       geneticAlgorithm: geneticAlgorithm,
       niceEmbedding: niceEmbeddingGA,
-      travelingSalesmanProblem: tspGA
+      travelingSalesmanProblem: tspGA,
+      vertexCover: vertexCoverGA
     },
     Permutations: Permutations,
   }

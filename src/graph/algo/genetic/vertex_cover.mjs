@@ -36,14 +36,35 @@ export default function vertexCover(graph, maxSteps,
   const crossover = new Crossover(mergeChromosomes, crossoverChance);
   // Mutation 1 is applied to single genes, so it needs to use the mutation chance internally to randomly decide
   // which genes should be affected, while the mutation operator needs to be applied to all organisms.
-  const mutation1 = new Mutation(flipBits.bind(mutation1Chance), 1.0);
+  const mutation1 = new Mutation(flipBits.bind(null, mutation1Chance), 1.0);
 
+  const fitness = vertexCoverFitness.bind(null, graph.edges, vertexToIndex(graph));
   // Start simulated annealing
   const solution = geneticAlgorithm(
-    vertexCoverFitness.bind(null, graph),
+    fitness,
     crossover, [mutation1], randomSolution.bind(null, graph.vertices.length),
     populationSize, maxSteps, (P) => P.slice(0), verbose);  // Start simulated annealing
-    return { solution: solution, cost: vertexCoverFitness(graph, solution) };
+    return { solution: solution, cost: fitness(solution) };
+}
+
+/**
+ * @name vertexToIndex
+ * @description
+ * Creates a Map from vertex IDs to their indices in the chromosome.
+ *
+ * @param {Graph} graph The input graph.
+ * @returns {Object} A POJO dictionary between strings (the IDs) and indices.
+ */
+function vertexToIndex(graph) {
+  let i = 0;
+  let vMap = {};
+
+  for (let v of graph.vertices) {
+    vMap[v.id] = i;
+    i+=1;
+  }
+
+  return vMap;
 }
 
 /**
@@ -52,29 +73,36 @@ export default function vertexCover(graph, maxSteps,
  * @description
  * Computes the cost of a single solution (a permutation of the vertices) for the TSP on a given graph.
  *
- * @param {Graph} graph The input graph.
- * @param {Array<Vertex>} P A permutation of `graph`'s vertices.
+ * @param {Array<Edge>} edges A list of graph's edges.
+ * @param {Object} vertexToIndex A map between the graph's vertices and their indices in the chromosome.
+ * @param {Array<Vertex>} chromosome A permutation of `graph`'s vertices.
  *
- * @return {Number} The cost of the tour made of edges P[i]->P[i+1] between adjacent vertices in P (including the one wrapping
- *                  over the end of the array).
+ * @return {Number} The cost of current solution: the number of vertices used, plus a constant for each edge not covered.
  */
-function vertexCoverFitness(graph, P) {
-  const n = P.length;
-  let totalCost = 0;
-  for (let i = 0; i < n - 1; i++) {
-    const e = graph.getEdgeBetween(P[i], P[i + 1]);
-    totalCost += e.weight;
+function vertexCoverFitness(edges, vertexToIndex, chromosome) {
+  let totalCost = chromosome.reduce((tot, bit) => tot + bit, 0);
+
+  for (let e of edges) {
+    const sourceIndex = vertexToIndex[e.source.id];
+    const destinationIndex = vertexToIndex[e.destination.id];
+    if (!(chromosome[sourceIndex] || chromosome[destinationIndex])) {
+      // The cost for any uncovered edge must be more than 1
+      totalCost += 3;
+    }
   }
-  const e = graph.getEdgeBetween(P[n - 1], P[0]);
-  totalCost += e.weight;
   return totalCost;
 }
 
-function randomSolution(graph) {
+/**
+ * @name randomSolution
+ *
+ * @param {Number} numberOfVertices How many vertices there are in the graph.
+ * @return {Array<Boolean>} A chromosome, a list of 1 bit per graph's vertex.
+ */
+function randomSolution(numberOfVertices) {
   let chromosome = [];
-  let n = graph.vertices.length;
-  for (let _ = 0; _ < n; _++) {
-    // Each
+  for (let _ = 0; _ < numberOfVertices; _++) {
+    // For each vertex, randomly flip a coin to decide if it's going to be in the cover or not.
     chromosome.push(randomBoolean());
   }
   return chromosome;
