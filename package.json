@@ -1,5 +1,5 @@
 {
-  "name": "js-graphs",
+  "name": "@mlarocca/jsgraphs",
   "version": "0.2.0",
   "description": "JsGraphs library",
   "main": "jsgraphs.mjs",
