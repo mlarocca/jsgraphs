@@ -1,8 +1,8 @@
 {
-  "name": "js-graphs",
+  "name": "@mlarocca/jsgraphs",
   "version": "0.2.0",
   "description": "JsGraphs library",
-  "private": true,
+  "main": "jsgraphs.mjs",
   "scripts": {
     "bundle": "npx webpack --config webpack.config",
     "lint": "jslint --max-warnings 0 --fix --ext .js,.ts src/",
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/mlarocca/jsgraphs.git"
   },
   "author": "Marcello La Rocca",
-  "license": "ISC",
+  "license": "SEE LICENSE IN https://github.com/mlarocca/jsgraphs/blob/master/LICENSE",
   "bugs": {
     "url": "https://github.com/mlarocca/jsgraphs/issues"
   },
@@ -53,5 +53,9 @@
     "lib": "lib",
     "test": "test"
   },
-  "keywords": []
+  "keywords": [
+    "graphs",
+    "algorithms",
+    "javascript"
+  ]
 }
