@@ -1,7 +1,9 @@
 # **JsGraphs**
 
+![npm version](https://img.shields.io/npm/v/@mlarocca/jsgraphs)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/context:javascript)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/mlarocca/jsgraphs.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mlarocca/jsgraphs/alerts/)
+[!Follow](https://img.shields.io/twitter/follow/jsgraphs?label=Follow&style=social)
 
 A lightweight library to model graphs, run graphs algorithms, and display them on screen.
 
