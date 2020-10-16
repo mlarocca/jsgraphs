@@ -6,7 +6,7 @@ The former focuses on modeling data and transforming it through algorithms, the 
 
 # **Graph**
 
-A graph is a data structure that allow modeling interconnected data, where heterogeneous entities (the graph's vertices) can be in relation among them; these relations are modeled by graph's edges.
+A graph is a data structure that allows modeling interconnected data, where heterogeneous entities (the graph's vertices) can be in relation among them; these relations are modeled by the graph's edges.
 
 In _JsGraphs_, creating a graph is quite simple:
 
@@ -16,11 +16,11 @@ import Graph from '/src/graph/graph.mjs';
 let graph = new Graph();
 ```
 
-The instance variable graph now has been created, without any vertex or edge. Of course, these entities are also modeled in the library:
+The instance variable `graph` now has been created, without any vertex or edge. Of course, these entities are also modeled in the library:
 
 ## **Vertices**
 
-Class [`Vertex`](../src/graph/vertex.js) implement the first basic component of any graph, in turn modeling the entities (data) part of a graph.
+Class [`Vertex`](../src/graph/vertex.js) implements the first basic component of any graph, in turn modeling the entities (data) part of a graph.
 
 ### **Create a Vertex**
 
@@ -31,7 +31,7 @@ const u = new Vertex('u');
 const v = new Vertex('vertex name', {weight: 3, label: 'I am a label', data: [1, 2, 3]});
 ```
 
-A vertex' name is forever, it can never be changed: it uniquely identify a vertex, and in fact a vertex' ID is computed from its name.
+A vertex' name is forever, it can never be changed: it uniquely identifies a vertex, and in fact a vertex' ID is computed from its name.
 
 On creation, you must add a name for the vertex, and optionally you can include:
 
@@ -148,7 +148,7 @@ const u = new Vertex('u');
 const e = new Edge(u, v, {weight: 0.4, label: "I'm an edge!"});
 ```
 
-Like vertices, Edges are only mutable for what concers their weight: it's the only field of an edge that can be changed after it's created.
+Like vertices, Edges are only mutable for what concerns their weight: it's the only field of an edge that can be changed after it's created.
 
 And likewise, edges also have an `id` field, that uniquely identify them in a graph: in simple graphs (like the ones implemented in classes `Graph` and `UndirectedGraph`), there can be at most a single edge between two vertices, so an edge's ID is based on the IDs of its source and destination, and can uniquely identify an edge _within a graph_.
 
@@ -227,7 +227,7 @@ e = g.getEdgeBetween(u.id, v);
 
 ### **Loops**
 
-Last but not least, so far we have always assumed that source and destination of an edge are distinct: this doesn't necessarily need to be true. In other words, it's possible to have an edge starting from and ending to the same vertex: in this case, the edge is called a loop.
+Last but not least, so far we have always assumed that the source and the destination of an edge are distinct: this doesn't necessarily need to be true. In other words, it's possible to have an edge starting from and ending to the same vertex: in this case, the edge is called a loop.
 
 ```javascript
 let loop = g.createEdge(u, u, {label: 'Loop'});
@@ -239,7 +239,7 @@ let loop = g.createEdge(u, u, {label: 'Loop'});
 
 The only thing that still needs to be said about class `Graph` as a data structure is that it implements an undirected graph.
 
-Class `Graph` implements directed graphs, where the direction of an edge matter.
+Class `Graph` implements directed graphs, where the direction of an edge matters.
 
 If, instead, we don't care about that, and edges can be traveled in both directions, then the right class to use is `UndirectedGraph`.
 
@@ -247,7 +247,7 @@ Let's explore the difference with a couple of examples.
 
 ### **Generators**
 
-Both classes offers generators to simplify the creation of some of the most common classes of graphs; in the following sections, we'll explore the available ones, and lay out the roadmap to implement more of these.
+Both classes offer generators to simplify the creation of some of the most common classes of graphs; in the following sections, we'll explore the available ones, and lay out the roadmap to implement more of these.
 
 ### **Complete Graphs**
 
@@ -329,13 +329,13 @@ This dualism is common in computer science, so much so that there is one of the 
 
 Applied to graphs, the substance is the graph data structure, which has the maximum level of abstraction: it's a perfect candidate for the _Model_ part of MVC pattern.
 
-In a way, an embedding is partly more about the form than the graph itself: we arrange vertices and esges as a way to _display_ a graph, to make it easier to comprehend to humans.
+In a way, an embedding is partly more about the form than the graph itself: we arrange vertices and edges as a way to _display_ a graph, to make it easier to comprehend to humans.
 
 An embedding, however, can also be substance: for instance if vertices are electronic components on a circuit board, and edges are connective tracks, then their position is not just about appearance.
 
-For our `Embedding` class, we have thus tried to separate form and substance accordingly: all the attributes that we can associate with an embedding's structure (its substance) can be passed to the construtor and modified using setters.
+For our `Embedding` class, we have thus tried to separate form and substance accordingly: all the attributes that we can associate with an embedding's structure (its substance) can be passed to the constructor and modified using setters.
 
-The form, for class `Embedding`, is the way we can later represent it: this is a separate concern, in line with MVC; regardless of whether we provide methods inside this class to generate the view, it's possible to write separate classes taking an embedding an generating a view.
+The form, for class `Embedding`, is the way we can later represent it: this is a separate concern, in line with MVC; regardless of whether we provide methods inside this class to generate the view, it's possible to write separate classes taking an embedding and generating a view.
 
 The build-in methods to generate a view for an `Embedding` are `toJson`, to produce a _JSON_ representation of the embedding (and serialize/deserialize it), and - perhaps more interestingly - `toSvg` that generates _SVG_ markup for vertices and edges.
 
@@ -349,7 +349,7 @@ Embeddings creation works following the same logic as graphs: an embedding, in p
 
 You should never worry about these two classes: although they are public classes and you can retrieve a reference to either through an instance of `Embedding`, you should never need to interact with those classes directly.
 
-While it is true that the constructor for `Embedding` takes two collections as input, one of embedded vertices and one of embedded edges, there are easier way to create an embedding from a graph.
+While it is true that the constructor for `Embedding` takes two collections as input, one of embedded vertices and one of embedded edges, there are easier ways to create an embedding from a graph.
 
 ### **... From a Graph**
 
@@ -471,7 +471,7 @@ You can also find a deeper explanation of [Bézier curves](https://en.wikipedia.
 
 Styling, i.e. the _appearance_ part, is mainly specified through CSS: each vertex and each edge can individually be assigned one or more CSS classes, at the moment the SVG is generated.
 
-Additionally, there a few parameters that can be tuned to enable/disable features, like displaying edges' labels and weights, or disabling arcs in favor of line segments.
+Additionally, there are a few parameters that can be tuned to enable/disable features, like displaying edges' labels and weights, or disabling arcs in favor of line segments.
 
 It's also possible to assign CSS classes to the group containing the whole graph.
 
@@ -571,9 +571,9 @@ If we print out the result of running bfs, we obtain an object with both the dis
 }
 ```
 
-That's not the easiest to visualize, though. One thing we can do, is reconstruct the path from the start vertex to any of the reacheable vertices (in this case, any other vertex in the graph, because they are all reacheable from `"1"`).
+That's not the easiest to visualize, though. One thing we can do is reconstruct the path from the start vertex to any of the reachable vertices (in this case, any other vertex in the graph, because they are all reachable from `"1"`).
 
-The result of the `Graph.bfs` method, in fact, is an object, an instance of class `BfsResult`, that in turn offer an interesting method: `reconstructPathTo`. This method takes a destination vertex, and returns the shortest path (if any) from the starting point.
+The result of the `Graph.bfs` method, in fact, is an object, an instance of class `BfsResult`, that in turn offers an interesting method: `reconstructPathTo`. This method takes a destination vertex, and returns the shortest path (if any) from the starting point.
 
 ```javascript
 bfs.reconstructPathTo('"7"');   // [""1"", ""3"", ""4"", ""6"", ""7""]
